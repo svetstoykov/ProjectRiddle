@@ -118,6 +118,17 @@ docs/superpowers/
 /docs/
 /mockups/
 docs/architecture/
+
+# Durable agent rules and accepted architecture decisions.
+!/docs/
+docs/*
+!/docs/ai-rules/
+!/docs/ai-rules/**
+!/docs/architecture/
+docs/architecture/*
+!/docs/architecture/project-riddle-application-architecture.md
+!/docs/architecture/project-riddle-v1-subphase-4-deployment-and-readiness.md
+docs/**/.DS_Store
 docs/decisions/
 docs/evaluation/
 docs/product/
