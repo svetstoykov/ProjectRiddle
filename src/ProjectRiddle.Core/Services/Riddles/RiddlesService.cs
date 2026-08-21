@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using ProjectRiddle.Core.Constants.Riddles;
 using ProjectRiddle.Core.Enums.Riddles;
 using ProjectRiddle.Core.Exceptions;
 using ProjectRiddle.Core.Interfaces.Repositories;
@@ -6,6 +7,7 @@ using ProjectRiddle.Core.Interfaces.Services;
 using ProjectRiddle.Core.Interfaces.Time;
 using ProjectRiddle.Core.Models.Riddles;
 using ProjectRiddle.Core.Results.Models;
+using ProjectRiddle.Core.Validators.Riddles;
 
 namespace ProjectRiddle.Core.Services.Riddles;
 

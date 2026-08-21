@@ -1,7 +1,8 @@
+using ProjectRiddle.Core.Constants.Riddles;
 using ProjectRiddle.Core.Models.Riddles;
 using ProjectRiddle.Core.Results.Models;
 
-namespace ProjectRiddle.Core.Services.Riddles;
+namespace ProjectRiddle.Core.Validators.Riddles;
 
 /// <summary>
 /// Validates that labelled clue ranges fall inside the clue and have a positive length.

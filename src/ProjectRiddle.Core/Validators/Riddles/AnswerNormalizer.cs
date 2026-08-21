@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace ProjectRiddle.Core.Services.Riddles;
+namespace ProjectRiddle.Core.Validators.Riddles;
 
 /// <summary>
 /// Normalizes authored answers for pattern validation and later answer checking.

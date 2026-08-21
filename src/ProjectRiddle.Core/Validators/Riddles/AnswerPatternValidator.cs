@@ -1,6 +1,7 @@
+using ProjectRiddle.Core.Constants.Riddles;
 using ProjectRiddle.Core.Results.Models;
 
-namespace ProjectRiddle.Core.Services.Riddles;
+namespace ProjectRiddle.Core.Validators.Riddles;
 
 /// <summary>
 /// Validates that an answer pattern is a comma-separated list of positive letter counts matching the answer.

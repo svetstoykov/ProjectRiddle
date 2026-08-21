@@ -1,6 +1,4 @@
-using ProjectRiddle.Core.Models.Riddles;
-
-namespace ProjectRiddle.Core.Services.Riddles;
+namespace ProjectRiddle.Core.Models.Riddles;
 
 /// <summary>
 /// Represents riddle content that has already passed authoring validation.

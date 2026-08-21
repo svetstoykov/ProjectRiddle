@@ -1,4 +1,4 @@
-namespace ProjectRiddle.Core.Services.Riddles;
+namespace ProjectRiddle.Core.Constants.Riddles;
 
 /// <summary>
 /// Provides stable codes for expected Riddles capability failures.

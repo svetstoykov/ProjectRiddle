@@ -1,3 +1,4 @@
+using ProjectRiddle.Core.Constants.Riddles;
 using ProjectRiddle.Core.Enums.Riddles;
 using ProjectRiddle.Core.Models.Riddles;
 using ProjectRiddle.Core.Results.Models;
