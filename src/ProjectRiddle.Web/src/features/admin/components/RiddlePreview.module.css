@@ -1,0 +1,33 @@
+.preview {
+    display: grid;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 3px solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-low);
+    box-shadow: var(--shadow-hard);
+}
+
+.preview h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.toggles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.toggle,
+.toggleActive {
+    min-height: 2.5rem;
+}
+
+.toggle {
+    background: var(--color-surface);
+}
+
+.toggleActive {
+    background: var(--color-electric-yellow);
+}
