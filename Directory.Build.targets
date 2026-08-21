@@ -1,0 +1,21 @@
+<Project>
+  <Target Name="ValidateProjectRiddleDependencyDirection" BeforeTargets="ResolveReferences">
+    <ItemGroup>
+      <_ProjectRiddleForbiddenReference Include="@(ProjectReference)"
+        Condition="
+          ('$(MSBuildProjectName)' == 'ProjectRiddle.Core' and
+            ('%(ProjectReference.Filename)' == 'ProjectRiddle.Api' or
+             '%(ProjectReference.Filename)' == 'ProjectRiddle.Infrastructure' or
+             '%(ProjectReference.Filename)' == 'ProjectRiddle.Web')) or
+          ('$(MSBuildProjectName)' == 'ProjectRiddle.Infrastructure' and
+            ('%(ProjectReference.Filename)' == 'ProjectRiddle.Api' or
+             '%(ProjectReference.Filename)' == 'ProjectRiddle.Web')) or
+          ('$(MSBuildProjectName)' == 'ProjectRiddle.Api' and
+            '%(ProjectReference.Filename)' == 'ProjectRiddle.Web')" />
+    </ItemGroup>
+
+    <Error
+      Condition="'@(_ProjectRiddleForbiddenReference)' != ''"
+      Text="Project Riddle dependency direction violation: $(MSBuildProjectName) cannot reference @(_ProjectRiddleForbiddenReference)." />
+  </Target>
+</Project>

@@ -1,0 +1,56 @@
+.shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+.navigation {
+    width: min(100% - 2rem, 72rem);
+    margin: 0 auto;
+    min-height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.brand {
+    color: var(--color-text);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.links {
+    display: flex;
+    gap: 1rem;
+}
+
+.link {
+    color: var(--color-muted-text);
+    text-decoration: none;
+}
+
+.link[aria-current="page"] {
+    color: var(--color-accent);
+    font-weight: 600;
+}
+
+.main {
+    width: min(100% - 2rem, 72rem);
+    margin: 0 auto;
+    flex: 1;
+    padding: 3rem 0;
+}
+
+.footer {
+    width: min(100% - 2rem, 72rem);
+    margin: 0 auto;
+    padding: 1.5rem 0;
+    color: var(--color-muted-text);
+    font-size: 0.875rem;
+}
