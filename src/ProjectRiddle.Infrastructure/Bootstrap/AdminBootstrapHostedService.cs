@@ -1,0 +1,109 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using ProjectRiddle.Infrastructure.Configuration;
+using ProjectRiddle.Infrastructure.Identity;
+
+namespace ProjectRiddle.Infrastructure.Bootstrap;
+
+/// <summary>
+/// Ensures Identity roles exist and provisions the first administrator from runtime-only configuration.
+/// </summary>
+public sealed class AdminBootstrapHostedService : IHostedService
+{
+    private const string UserRoleName = "user";
+    private const string AdminRoleName = "admin";
+
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IOptions<AdminBootstrapOptions> _options;
+    private readonly ILogger<AdminBootstrapHostedService> _logger;
+
+    /// <summary>
+    /// Initializes the administrator bootstrap hosted service.
+    /// </summary>
+    /// <param name="scopeFactory">The factory used to resolve scoped persistence services.</param>
+    /// <param name="options">The runtime-only bootstrap settings.</param>
+    /// <param name="logger">The logger for safe bootstrap outcomes.</param>
+    public AdminBootstrapHostedService(
+        IServiceScopeFactory scopeFactory,
+        IOptions<AdminBootstrapOptions> options,
+        ILogger<AdminBootstrapHostedService> logger)
+    {
+        ArgumentNullException.ThrowIfNull(scopeFactory);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        this._scopeFactory = scopeFactory;
+        this._options = options;
+        this._logger = logger;
+    }
+
+    /// <inheritdoc />
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        await using var scope = _scopeFactory.CreateAsyncScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        await EnsureRoleExistsAsync(roleManager, UserRoleName);
+        await EnsureRoleExistsAsync(roleManager, AdminRoleName);
+
+        var email = _options.Value.Email;
+        var password = _options.Value.Password;
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            return;
+        }
+
+        var existing = await userManager.FindByEmailAsync(email.Trim());
+        if (existing is not null)
+        {
+            _logger.LogInformation(
+                "Administrator bootstrap skipped because the configured account already exists.");
+            return;
+        }
+
+        var administrator = new ApplicationUser
+        {
+            UserName = email.Trim(),
+            Email = email.Trim()
+        };
+        var created = await userManager.CreateAsync(administrator, password);
+        if (!created.Succeeded)
+        {
+            throw new InvalidOperationException("Administrator bootstrap failed to create the configured account.");
+        }
+
+        var roleResult = await userManager.AddToRoleAsync(administrator, AdminRoleName);
+        if (!roleResult.Succeeded)
+        {
+            throw new InvalidOperationException("Administrator bootstrap failed to assign the admin role.");
+        }
+
+        _logger.LogInformation(
+            "Administrator bootstrap created a new admin account. UserId: {UserId}",
+            administrator.Id);
+    }
+
+    /// <inheritdoc />
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
+    private static async Task EnsureRoleExistsAsync(RoleManager<ApplicationRole> roleManager, string roleName)
+    {
+        if (await roleManager.RoleExistsAsync(roleName))
+        {
+            return;
+        }
+
+        var created = await roleManager.CreateAsync(new ApplicationRole(roleName));
+        if (!created.Succeeded)
+        {
+            throw new InvalidOperationException($"Failed to create the '{roleName}' role.");
+        }
+    }
+}

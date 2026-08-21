@@ -4,7 +4,7 @@ This file indexes the durable AI rules in `docs/ai-rules/`. Read the always-on f
 
 ## Repository invariants
 
-- The repository-root `docs/` tree is intentionally ignored. Keep `/docs/` in `.gitignore` and do not add negation patterns that re-include any path beneath it.
+- The repository-root `docs/` tree is intentionally ignored. Keep `/docs/` in `.gitignore` and do not add negation patterns that re-include any path beneath it. Transient planning names such as phases and versions live only in that untracked tree and must not leak into tracked artifacts.
 
 ## Always read
 
@@ -12,6 +12,7 @@ This file indexes the durable AI rules in `docs/ai-rules/`. Read the always-on f
 | --- | --- |
 | [`docs/ai-rules/core-principles.md`](docs/ai-rules/core-principles.md) | Agent authority, general engineering principles, organization, and code-quality rules. |
 | [`docs/ai-rules/workflow-and-boundaries.md`](docs/ai-rules/workflow-and-boundaries.md) | Communication, security, scope, data-safety, and validation boundaries. |
+| [`docs/ai-rules/git-conventions.md`](docs/ai-rules/git-conventions.md) | Branch names, Conventional Commits, branch-name approval, and AI attribution. |
 
 ## Read when the trigger applies
 

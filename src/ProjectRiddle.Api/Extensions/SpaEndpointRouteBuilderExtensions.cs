@@ -1,9 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 
 namespace ProjectRiddle.Api.Extensions;
 
@@ -50,7 +47,8 @@ public static class SpaEndpointRouteBuilderExtensions
 
                 context.Response.ContentType = "text/html";
                 await context.Response.SendFileAsync(indexPath);
-            });
+            })
+            .AllowAnonymous();
     }
 
     private static async Task WriteNotFoundProblemDetailsAsync(HttpContext context)

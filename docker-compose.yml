@@ -23,13 +23,17 @@ services:
       # SQLite path is overridable here without touching appsettings.json.
       Persistence__DatabasePath: /data/project-riddle.db
       Time__TimeZoneId: Europe/Sofia
+      # Compose reads these values from the Pi-local .env file. Production startup
+      # fails if either value is absent; local .NET startup does not require them.
+      DataProtection__CertificateBase64: ${DATA_PROTECTION_CERTIFICATE_BASE64:?Set DATA_PROTECTION_CERTIFICATE_BASE64 in .env}
+      DataProtection__CertificatePassword: ${DATA_PROTECTION_CERTIFICATE_PASSWORD:?Set DATA_PROTECTION_CERTIFICATE_PASSWORD in .env}
       # Seq is a separate compose project on the existing seq-logging network.
       Seq__ServerUrl: http://seq:5341
     networks:
       - default
       - seq-logging
     volumes:
-      # Named, so the SQLite file (and later Data Protection keys) survive rebuilds
+      # Named, so the SQLite file and Data Protection keys survive rebuilds
       # and container recreation.
       - project-riddle-data:/data
     healthcheck:

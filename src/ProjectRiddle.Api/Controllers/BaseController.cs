@@ -13,11 +13,10 @@ public abstract class BaseController : ControllerBase
     /// <summary>
     /// Maps a Core failure to a standard Problem Details response.
     /// </summary>
-    /// <typeparam name="TResponse">The successful response type of the calling action.</typeparam>
     /// <param name="error">The expected Core failure. Cannot be <see langword="null" />.</param>
     /// <returns>A Problem Details action result with the status mapped from <paramref name="error" />.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="error" /> is <see langword="null" />.</exception>
-    protected ActionResult<TResponse> FromFailure<TResponse>(OperationError error)
+    protected ActionResult FromFailure(OperationError error)
     {
         ArgumentNullException.ThrowIfNull(error);
 
@@ -47,6 +46,18 @@ public abstract class BaseController : ControllerBase
                 "application/problem+json"
             }
         };
+    }
+
+    /// <summary>
+    /// Maps a Core failure to a standard Problem Details response for a typed action.
+    /// </summary>
+    /// <typeparam name="TResponse">The successful response type of the calling action.</typeparam>
+    /// <param name="error">The expected Core failure. Cannot be <see langword="null" />.</param>
+    /// <returns>A Problem Details action result with the status mapped from <paramref name="error" />.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="error" /> is <see langword="null" />.</exception>
+    protected ActionResult<TResponse> FromFailure<TResponse>(OperationError error)
+    {
+        return FromFailure(error);
     }
 
     private static int MapStatusCode(ErrorType errorType)
