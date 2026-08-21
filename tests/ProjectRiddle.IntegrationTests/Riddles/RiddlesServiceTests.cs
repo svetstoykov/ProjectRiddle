@@ -1,6 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
 using ProjectRiddle.Core.Enums.Riddles;
-using ProjectRiddle.Core.Interfaces.Services;
 using ProjectRiddle.Core.Models.Riddles;
 using ProjectRiddle.Core.Results.Models;
 using ProjectRiddle.Core.Services.Riddles;
@@ -21,19 +19,16 @@ public sealed class RiddlesServiceTests
     /// </summary>
     /// <returns>A task that represents the test operation.</returns>
     [Fact]
-    public async Task CreatePersistsADraftRiddle()
+    public async Task CreateCreatesADraftRiddle()
     {
-        await using var workspace = TestWorkspace.Create(NoonUtcOnTwentieth);
-        var (scope, riddles) = workspace.GetScopedService<IRiddlesService>();
-        using (scope)
-        {
-            var result = await riddles.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
 
-            Assert.True(result.IsSuccess);
-            Assert.Equal(RiddlePublicationState.Draft, result.Value!.PublicationState);
-            Assert.Null(result.Value.SofiaPublicationDate);
-            Assert.Equal(2, result.Value.Ranges.Count);
-        }
+        var result = await workspace.Service.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(RiddlePublicationState.Draft, result.Value!.PublicationState);
+        Assert.Null(result.Value.SofiaPublicationDate);
+        Assert.Equal(2, result.Value.Ranges.Count);
     }
 
     /// <summary>
@@ -43,18 +38,15 @@ public sealed class RiddlesServiceTests
     [Fact]
     public async Task InvalidAnswerPatternIsRejected()
     {
-        await using var workspace = TestWorkspace.Create(NoonUtcOnTwentieth);
-        var (scope, riddles) = workspace.GetScopedService<IRiddlesService>();
-        using (scope)
-        {
-            var result = await riddles.CreateAsync(
-                TestWorkspace.CreateRiddleInput(answerPattern: "3,2"),
-                CancellationToken.None);
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
 
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorType.Validation, result.Error!.Type);
-            Assert.Equal(RiddleErrorCodes.AnswerPatternInvalid, result.Error.Code);
-        }
+        var result = await workspace.Service.CreateAsync(
+            TestWorkspace.CreateRiddleInput(answerPattern: "3,2"),
+            CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
+        Assert.Equal(RiddleErrorCodes.AnswerPatternInvalid, result.Error.Code);
     }
 
     /// <summary>
@@ -64,23 +56,19 @@ public sealed class RiddlesServiceTests
     [Fact]
     public async Task InvalidRangeIsRejected()
     {
-        await using var workspace = TestWorkspace.Create(NoonUtcOnTwentieth);
-        var (scope, riddles) = workspace.GetScopedService<IRiddlesService>();
-        using (scope)
-        {
-            var input = new CreateRiddleInput(
-                "бяла врана",
-                "бяла врана",
-                "4,5",
-                "Обяснение на уликата.",
-                [new RiddleRangeInput(RiddleRangeKind.Definition, 0, 40)]);
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
+        var input = new CreateRiddleInput(
+            "бяла врана",
+            "бяла врана",
+            "4,5",
+            "Обяснение на уликата.",
+            [new RiddleRangeInput(RiddleRangeKind.Definition, 0, 40)]);
 
-            var result = await riddles.CreateAsync(input, CancellationToken.None);
+        var result = await workspace.Service.CreateAsync(input, CancellationToken.None);
 
-            Assert.True(result.IsFailure);
-            Assert.Equal(ErrorType.Validation, result.Error!.Type);
-            Assert.Equal(RiddleErrorCodes.RangeInvalid, result.Error.Code);
-        }
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
+        Assert.Equal(RiddleErrorCodes.RangeInvalid, result.Error.Code);
     }
 
     /// <summary>
@@ -90,30 +78,30 @@ public sealed class RiddlesServiceTests
     [Fact]
     public async Task LegalPublicationTransitionsWork()
     {
-        await using var workspace = TestWorkspace.Create(NoonUtcOnTwentieth);
-        var (scope, riddles) = workspace.GetScopedService<IRiddlesService>();
-        using (scope)
-        {
-            var created = await riddles.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
-            Assert.True(created.IsSuccess);
-            var id = created.Value!.Id;
-            var date = new DateOnly(2026, 8, 25);
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
+        var created = await workspace.Service.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
+        Assert.True(created.IsSuccess);
+        var id = created.Value!.Id;
+        var date = new DateOnly(2026, 8, 25);
 
-            var scheduled = await riddles.ScheduleAsync(new ScheduleRiddleInput(id, date), CancellationToken.None);
-            Assert.True(scheduled.IsSuccess);
-            Assert.Equal(RiddlePublicationState.Scheduled, scheduled.Value!.PublicationState);
-            Assert.Equal(date, scheduled.Value.SofiaPublicationDate);
+        var scheduled = await workspace.Service.ScheduleAsync(
+            new ScheduleRiddleInput(id, date),
+            CancellationToken.None);
+        Assert.True(scheduled.IsSuccess);
+        Assert.Equal(RiddlePublicationState.Scheduled, scheduled.Value!.PublicationState);
+        Assert.Equal(date, scheduled.Value.SofiaPublicationDate);
 
-            var published = await riddles.PublishAsync(new PublishRiddleInput(id, null), CancellationToken.None);
-            Assert.True(published.IsSuccess);
-            Assert.Equal(RiddlePublicationState.Published, published.Value!.PublicationState);
-            Assert.Equal(date, published.Value.SofiaPublicationDate);
+        var published = await workspace.Service.PublishAsync(
+            new PublishRiddleInput(id, null),
+            CancellationToken.None);
+        Assert.True(published.IsSuccess);
+        Assert.Equal(RiddlePublicationState.Published, published.Value!.PublicationState);
+        Assert.Equal(date, published.Value.SofiaPublicationDate);
 
-            var unpublished = await riddles.UnpublishAsync(id, CancellationToken.None);
-            Assert.True(unpublished.IsSuccess);
-            Assert.Equal(RiddlePublicationState.Unpublished, unpublished.Value!.PublicationState);
-            Assert.Equal(date, unpublished.Value.SofiaPublicationDate);
-        }
+        var unpublished = await workspace.Service.UnpublishAsync(id, CancellationToken.None);
+        Assert.True(unpublished.IsSuccess);
+        Assert.Equal(RiddlePublicationState.Unpublished, unpublished.Value!.PublicationState);
+        Assert.Equal(date, unpublished.Value.SofiaPublicationDate);
     }
 
     /// <summary>
@@ -123,38 +111,34 @@ public sealed class RiddlesServiceTests
     [Fact]
     public async Task DuplicateSofiaDatesConflict()
     {
-        await using var workspace = TestWorkspace.Create(NoonUtcOnTwentieth);
-        var (scope, riddles) = workspace.GetScopedService<IRiddlesService>();
-        using (scope)
-        {
-            var first = await riddles.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
-            var second = await riddles.CreateAsync(
-                TestWorkspace.CreateRiddleInput(clue: "втора бяла врана лети"),
-                CancellationToken.None);
-            Assert.True(first.IsSuccess);
-            Assert.True(second.IsSuccess);
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
+        var first = await workspace.Service.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
+        var second = await workspace.Service.CreateAsync(
+            TestWorkspace.CreateRiddleInput(clue: "втора бяла врана лети"),
+            CancellationToken.None);
+        Assert.True(first.IsSuccess);
+        Assert.True(second.IsSuccess);
 
-            var date = new DateOnly(2026, 8, 25);
-            var scheduled = await riddles.ScheduleAsync(
-                new ScheduleRiddleInput(first.Value!.Id, date),
-                CancellationToken.None);
-            var conflict = await riddles.ScheduleAsync(
-                new ScheduleRiddleInput(second.Value!.Id, date),
-                CancellationToken.None);
+        var date = new DateOnly(2026, 8, 25);
+        var scheduled = await workspace.Service.ScheduleAsync(
+            new ScheduleRiddleInput(first.Value!.Id, date),
+            CancellationToken.None);
+        var conflict = await workspace.Service.ScheduleAsync(
+            new ScheduleRiddleInput(second.Value!.Id, date),
+            CancellationToken.None);
 
-            Assert.True(scheduled.IsSuccess);
-            Assert.True(conflict.IsFailure);
-            Assert.Equal(ErrorType.Conflict, conflict.Error!.Type);
-            Assert.Equal(RiddleErrorCodes.PublicationDateConflict, conflict.Error.Code);
+        Assert.True(scheduled.IsSuccess);
+        Assert.True(conflict.IsFailure);
+        Assert.Equal(ErrorType.Conflict, conflict.Error!.Type);
+        Assert.Equal(RiddleErrorCodes.PublicationDateConflict, conflict.Error.Code);
 
-            var unpublished = await riddles.UnpublishAsync(first.Value.Id, CancellationToken.None);
-            var reused = await riddles.ScheduleAsync(
-                new ScheduleRiddleInput(second.Value.Id, date),
-                CancellationToken.None);
+        var unpublished = await workspace.Service.UnpublishAsync(first.Value.Id, CancellationToken.None);
+        var reused = await workspace.Service.ScheduleAsync(
+            new ScheduleRiddleInput(second.Value.Id, date),
+            CancellationToken.None);
 
-            Assert.True(unpublished.IsSuccess);
-            Assert.True(reused.IsSuccess);
-        }
+        Assert.True(unpublished.IsSuccess);
+        Assert.True(reused.IsSuccess);
     }
 
     /// <summary>
@@ -164,21 +148,17 @@ public sealed class RiddlesServiceTests
     [Fact]
     public async Task DeleteIsNotPermittedForScheduledOrPublishedRiddles()
     {
-        await using var workspace = TestWorkspace.Create(NoonUtcOnTwentieth);
-        var (scope, riddles) = workspace.GetScopedService<IRiddlesService>();
-        using (scope)
-        {
-            var created = await riddles.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
-            var scheduled = await riddles.ScheduleAsync(
-                new ScheduleRiddleInput(created.Value!.Id, new DateOnly(2026, 8, 25)),
-                CancellationToken.None);
-            var deleted = await riddles.DeleteAsync(created.Value.Id, CancellationToken.None);
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
+        var created = await workspace.Service.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
+        var scheduled = await workspace.Service.ScheduleAsync(
+            new ScheduleRiddleInput(created.Value!.Id, new DateOnly(2026, 8, 25)),
+            CancellationToken.None);
+        var deleted = await workspace.Service.DeleteAsync(created.Value.Id, CancellationToken.None);
 
-            Assert.True(scheduled.IsSuccess);
-            Assert.True(deleted.IsFailure);
-            Assert.Equal(ErrorType.InvalidOperation, deleted.Error!.Type);
-            Assert.Equal(RiddleErrorCodes.DeleteNotPermitted, deleted.Error.Code);
-        }
+        Assert.True(scheduled.IsSuccess);
+        Assert.True(deleted.IsFailure);
+        Assert.Equal(ErrorType.InvalidOperation, deleted.Error!.Type);
+        Assert.Equal(RiddleErrorCodes.DeleteNotPermitted, deleted.Error.Code);
     }
 
     /// <summary>
@@ -189,33 +169,28 @@ public sealed class RiddlesServiceTests
     public async Task SofiaDateBoundaryControlsScheduling()
     {
         var beforeMidnightUtc = new DateTimeOffset(2026, 8, 20, 20, 59, 59, TimeSpan.Zero);
-        await using var workspace = TestWorkspace.Create(beforeMidnightUtc);
-        var clock = workspace.Factory.Services.GetRequiredService<FixedDateTimeProvider>();
-        var (scope, riddles) = workspace.GetScopedService<IRiddlesService>();
-        using (scope)
-        {
-            Assert.Equal(new DateOnly(2026, 8, 20), clock.LocalDate);
+        var workspace = new TestWorkspace(beforeMidnightUtc);
+        Assert.Equal(new DateOnly(2026, 8, 20), workspace.Clock.LocalDate);
 
-            var created = await riddles.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
-            var scheduledToday = await riddles.ScheduleAsync(
-                new ScheduleRiddleInput(created.Value!.Id, new DateOnly(2026, 8, 20)),
-                CancellationToken.None);
-            Assert.True(scheduledToday.IsSuccess);
+        var created = await workspace.Service.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
+        var scheduledToday = await workspace.Service.ScheduleAsync(
+            new ScheduleRiddleInput(created.Value!.Id, new DateOnly(2026, 8, 20)),
+            CancellationToken.None);
+        Assert.True(scheduledToday.IsSuccess);
 
-            clock.UtcDateTime = new DateTimeOffset(2026, 8, 20, 21, 0, 0, TimeSpan.Zero);
-            Assert.Equal(new DateOnly(2026, 8, 21), clock.LocalDate);
+        workspace.Clock.UtcDateTime = new DateTimeOffset(2026, 8, 20, 21, 0, 0, TimeSpan.Zero);
+        Assert.Equal(new DateOnly(2026, 8, 21), workspace.Clock.LocalDate);
 
-            var another = await riddles.CreateAsync(
-                TestWorkspace.CreateRiddleInput(clue: "втора бяла врана лети"),
-                CancellationToken.None);
-            var scheduledYesterday = await riddles.ScheduleAsync(
-                new ScheduleRiddleInput(another.Value!.Id, new DateOnly(2026, 8, 20)),
-                CancellationToken.None);
+        var another = await workspace.Service.CreateAsync(
+            TestWorkspace.CreateRiddleInput(clue: "втора бяла врана лети"),
+            CancellationToken.None);
+        var scheduledYesterday = await workspace.Service.ScheduleAsync(
+            new ScheduleRiddleInput(another.Value!.Id, new DateOnly(2026, 8, 20)),
+            CancellationToken.None);
 
-            Assert.True(scheduledYesterday.IsFailure);
-            Assert.Equal(ErrorType.Validation, scheduledYesterday.Error!.Type);
-            Assert.Equal(RiddleErrorCodes.PublicationDateInvalid, scheduledYesterday.Error.Code);
-        }
+        Assert.True(scheduledYesterday.IsFailure);
+        Assert.Equal(ErrorType.Validation, scheduledYesterday.Error!.Type);
+        Assert.Equal(RiddleErrorCodes.PublicationDateInvalid, scheduledYesterday.Error.Code);
     }
 
     /// <summary>
@@ -225,29 +200,25 @@ public sealed class RiddlesServiceTests
     [Fact]
     public async Task UpdateChangesContentWithoutChangingPublicationState()
     {
-        await using var workspace = TestWorkspace.Create(NoonUtcOnTwentieth);
-        var (scope, riddles) = workspace.GetScopedService<IRiddlesService>();
-        using (scope)
-        {
-            var created = await riddles.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
-            var scheduled = await riddles.ScheduleAsync(
-                new ScheduleRiddleInput(created.Value!.Id, new DateOnly(2026, 8, 25)),
-                CancellationToken.None);
-            var updated = await riddles.UpdateAsync(
-                new UpdateRiddleInput(
-                    created.Value.Id,
-                    "нова бяла врана лети",
-                    "нова врана",
-                    "4,5",
-                    "Ново обяснение.",
-                    [new RiddleRangeInput(RiddleRangeKind.Definition, 0, 4)]),
-                CancellationToken.None);
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
+        var created = await workspace.Service.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
+        var scheduled = await workspace.Service.ScheduleAsync(
+            new ScheduleRiddleInput(created.Value!.Id, new DateOnly(2026, 8, 25)),
+            CancellationToken.None);
+        var updated = await workspace.Service.UpdateAsync(
+            new UpdateRiddleInput(
+                created.Value.Id,
+                "нова бяла врана лети",
+                "нова врана",
+                "4,5",
+                "Ново обяснение.",
+                [new RiddleRangeInput(RiddleRangeKind.Definition, 0, 4)]),
+            CancellationToken.None);
 
-            Assert.True(scheduled.IsSuccess);
-            Assert.True(updated.IsSuccess);
-            Assert.Equal(RiddlePublicationState.Scheduled, updated.Value!.PublicationState);
-            Assert.Equal("нова бяла врана лети", updated.Value.Clue);
-            Assert.Equal("нова врана", updated.Value.Answer);
-        }
+        Assert.True(scheduled.IsSuccess);
+        Assert.True(updated.IsSuccess);
+        Assert.Equal(RiddlePublicationState.Scheduled, updated.Value!.PublicationState);
+        Assert.Equal("нова бяла врана лети", updated.Value.Clue);
+        Assert.Equal("нова врана", updated.Value.Answer);
     }
 }
