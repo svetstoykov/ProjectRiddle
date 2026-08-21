@@ -9,7 +9,7 @@ namespace ProjectRiddle.Infrastructure.Extensions;
 /// <summary>
 /// Provides the startup migration boundary for the application host.
 /// </summary>
-public static partial class MigrationExtensions
+public static class MigrationExtensions
 {
     /// <summary>
     /// Applies all committed EF Core migrations before the host serves traffic.
@@ -31,24 +31,14 @@ public static partial class MigrationExtensions
         try
         {
             await database.Database.MigrateAsync(cancellationToken);
-            LogMigrationsApplied(logger);
+            logger.LogInformation("Project Riddle database migrations applied successfully.");
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            LogMigrationFailed(logger, exception);
+            logger.LogCritical(
+                exception,
+                "Project Riddle database migration failed; application startup is aborting.");
             throw;
         }
     }
-
-    [LoggerMessage(
-        EventId = 1000,
-        Level = LogLevel.Information,
-        Message = "Project Riddle database migrations applied successfully.")]
-    private static partial void LogMigrationsApplied(ILogger logger);
-
-    [LoggerMessage(
-        EventId = 1001,
-        Level = LogLevel.Critical,
-        Message = "Project Riddle database migration failed; application startup is aborting.")]
-    private static partial void LogMigrationFailed(ILogger logger, Exception exception);
 }

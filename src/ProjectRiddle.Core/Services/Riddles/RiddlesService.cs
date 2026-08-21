@@ -12,7 +12,7 @@ namespace ProjectRiddle.Core.Services.Riddles;
 /// <summary>
 /// Coordinates riddle authoring, range validation, and publication transitions.
 /// </summary>
-public sealed partial class RiddlesService : IRiddlesService
+public sealed class RiddlesService : IRiddlesService
 {
     private readonly IRiddleRepository _riddleRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
@@ -64,7 +64,7 @@ public sealed partial class RiddlesService : IRiddlesService
         riddle.ReplaceRanges(content.Value.Ranges);
 
         await _riddleRepository.AddAsync(riddle, cancellationToken);
-        LogRiddleCreated(_logger, riddle.Id);
+        _logger.LogInformation("Created a riddle. RiddleId: {RiddleId}", riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -125,7 +125,7 @@ public sealed partial class RiddlesService : IRiddlesService
             _dateTimeProvider.UtcDateTime);
 
         await _riddleRepository.UpdateAsync(riddle, cancellationToken);
-        LogRiddleUpdated(_logger, riddle.Id);
+        _logger.LogInformation("Updated a riddle. RiddleId: {RiddleId}", riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -175,7 +175,7 @@ public sealed partial class RiddlesService : IRiddlesService
             return DateConflict<RiddleOutput>();
         }
 
-        LogRiddleScheduled(_logger, riddle.Id);
+        _logger.LogInformation("Scheduled a riddle. RiddleId: {RiddleId}", riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -225,7 +225,7 @@ public sealed partial class RiddlesService : IRiddlesService
             return DateConflict<RiddleOutput>();
         }
 
-        LogRiddlePublished(_logger, riddle.Id);
+        _logger.LogInformation("Published a riddle. RiddleId: {RiddleId}", riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -248,7 +248,7 @@ public sealed partial class RiddlesService : IRiddlesService
 
         riddle.Unpublish(_dateTimeProvider.UtcDateTime);
         await _riddleRepository.UpdateAsync(riddle, cancellationToken);
-        LogRiddleUnpublished(_logger, riddle.Id);
+        _logger.LogInformation("Unpublished a riddle. RiddleId: {RiddleId}", riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -278,7 +278,7 @@ public sealed partial class RiddlesService : IRiddlesService
         }
 
         await _riddleRepository.DeleteAsync(riddle, cancellationToken);
-        LogRiddleDeleted(_logger, riddle.Id);
+        _logger.LogInformation("Deleted a riddle. RiddleId: {RiddleId}", riddle.Id);
         return Result.Success();
     }
 
@@ -411,40 +411,4 @@ public sealed partial class RiddlesService : IRiddlesService
             riddle.CreatedAtUtc,
             riddle.UpdatedAtUtc);
     }
-
-    [LoggerMessage(
-        EventId = 2100,
-        Level = LogLevel.Information,
-        Message = "Created a riddle. RiddleId: {RiddleId}")]
-    private static partial void LogRiddleCreated(ILogger logger, Guid riddleId);
-
-    [LoggerMessage(
-        EventId = 2101,
-        Level = LogLevel.Information,
-        Message = "Updated a riddle. RiddleId: {RiddleId}")]
-    private static partial void LogRiddleUpdated(ILogger logger, Guid riddleId);
-
-    [LoggerMessage(
-        EventId = 2102,
-        Level = LogLevel.Information,
-        Message = "Scheduled a riddle. RiddleId: {RiddleId}")]
-    private static partial void LogRiddleScheduled(ILogger logger, Guid riddleId);
-
-    [LoggerMessage(
-        EventId = 2103,
-        Level = LogLevel.Information,
-        Message = "Published a riddle. RiddleId: {RiddleId}")]
-    private static partial void LogRiddlePublished(ILogger logger, Guid riddleId);
-
-    [LoggerMessage(
-        EventId = 2104,
-        Level = LogLevel.Information,
-        Message = "Unpublished a riddle. RiddleId: {RiddleId}")]
-    private static partial void LogRiddleUnpublished(ILogger logger, Guid riddleId);
-
-    [LoggerMessage(
-        EventId = 2105,
-        Level = LogLevel.Information,
-        Message = "Deleted a riddle. RiddleId: {RiddleId}")]
-    private static partial void LogRiddleDeleted(ILogger logger, Guid riddleId);
 }

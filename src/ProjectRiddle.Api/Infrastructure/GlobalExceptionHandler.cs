@@ -8,7 +8,7 @@ namespace ProjectRiddle.Api.Infrastructure;
 /// <summary>
 /// Logs unexpected request exceptions once and returns safe generic Problem Details.
 /// </summary>
-public sealed partial class GlobalExceptionHandler : IExceptionHandler
+public sealed class GlobalExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<GlobalExceptionHandler> _logger;
 
@@ -33,7 +33,10 @@ public sealed partial class GlobalExceptionHandler : IExceptionHandler
         ArgumentNullException.ThrowIfNull(exception);
 
         var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
-        LogUnhandledException(_logger, exception, traceId);
+        _logger.LogError(
+            exception,
+            "Unexpected exception reached the global request boundary. TraceId: {TraceId}",
+            traceId);
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         httpContext.Response.ContentType = "application/problem+json";
@@ -54,10 +57,4 @@ public sealed partial class GlobalExceptionHandler : IExceptionHandler
             cancellationToken: cancellationToken);
         return true;
     }
-
-    [LoggerMessage(
-        EventId = 5000,
-        Level = LogLevel.Error,
-        Message = "Unexpected exception reached the global request boundary. TraceId: {TraceId}")]
-    private static partial void LogUnhandledException(ILogger logger, Exception exception, string traceId);
 }

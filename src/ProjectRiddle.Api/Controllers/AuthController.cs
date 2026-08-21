@@ -14,7 +14,7 @@ namespace ProjectRiddle.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/auth")]
-public sealed partial class AuthController : BaseController
+public sealed class AuthController : BaseController
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
@@ -78,7 +78,7 @@ public sealed partial class AuthController : BaseController
             throw new InvalidOperationException("The registered account could not be assigned the user role.");
         }
 
-        LogUserRegistered(_logger, user.Id);
+        _logger.LogInformation("Registered a local user account. UserId: {UserId}", user.Id);
         return Created("/api/auth/session", CreateSessionResponse(user, [RoleClaimValues.User]));
     }
 
@@ -215,10 +215,4 @@ public sealed partial class AuthController : BaseController
             ErrorType.Unauthorized,
             UserErrorCodes.CredentialsInvalid);
     }
-
-    [LoggerMessage(
-        EventId = 2000,
-        Level = LogLevel.Information,
-        Message = "Registered a local user account. UserId: {UserId}")]
-    private static partial void LogUserRegistered(ILogger logger, Guid userId);
 }

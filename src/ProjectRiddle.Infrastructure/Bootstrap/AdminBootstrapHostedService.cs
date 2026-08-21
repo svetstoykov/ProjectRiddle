@@ -11,7 +11,7 @@ namespace ProjectRiddle.Infrastructure.Bootstrap;
 /// <summary>
 /// Ensures Identity roles exist and provisions the first administrator from runtime-only configuration.
 /// </summary>
-public sealed partial class AdminBootstrapHostedService : IHostedService
+public sealed class AdminBootstrapHostedService : IHostedService
 {
     private const string UserRoleName = "user";
     private const string AdminRoleName = "admin";
@@ -60,7 +60,8 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
         var existing = await userManager.FindByEmailAsync(email.Trim());
         if (existing is not null)
         {
-            LogBootstrapSkipped(_logger);
+            _logger.LogInformation(
+                "Administrator bootstrap skipped because the configured account already exists.");
             return;
         }
 
@@ -81,7 +82,9 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
             throw new InvalidOperationException("Administrator bootstrap failed to assign the admin role.");
         }
 
-        LogBootstrapApplied(_logger, administrator.Id);
+        _logger.LogInformation(
+            "Administrator bootstrap created a new admin account. UserId: {UserId}",
+            administrator.Id);
     }
 
     /// <inheritdoc />
@@ -103,16 +106,4 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
             throw new InvalidOperationException($"Failed to create the '{roleName}' role.");
         }
     }
-
-    [LoggerMessage(
-        EventId = 2200,
-        Level = LogLevel.Information,
-        Message = "Administrator bootstrap created a new admin account. UserId: {UserId}")]
-    private static partial void LogBootstrapApplied(ILogger logger, Guid userId);
-
-    [LoggerMessage(
-        EventId = 2201,
-        Level = LogLevel.Information,
-        Message = "Administrator bootstrap skipped because the configured account already exists.")]
-    private static partial void LogBootstrapSkipped(ILogger logger);
 }
