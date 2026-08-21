@@ -103,37 +103,6 @@ public sealed class Riddle
     public DateTimeOffset UpdatedAtUtc { get; private set; }
 
     /// <summary>
-    /// Replaces the authored riddle content without changing publication state.
-    /// </summary>
-    /// <param name="clue">The clue text. Cannot be <see langword="null" /> or whitespace.</param>
-    /// <param name="answer">The answer text. Cannot be <see langword="null" /> or whitespace.</param>
-    /// <param name="answerPattern">The answer pattern. Cannot be <see langword="null" /> or whitespace.</param>
-    /// <param name="explanation">The explanation text. Cannot be <see langword="null" /> or whitespace.</param>
-    /// <param name="contentRanges">The labelled structural ranges. Cannot be <see langword="null" />.</param>
-    /// <param name="updatedAtUtc">The UTC timestamp of the change.</param>
-    public void UpdateContent(
-        string clue,
-        string answer,
-        string answerPattern,
-        string explanation,
-        IReadOnlyList<RiddleRange> contentRanges,
-        DateTimeOffset updatedAtUtc)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(clue);
-        ArgumentException.ThrowIfNullOrWhiteSpace(answer);
-        ArgumentException.ThrowIfNullOrWhiteSpace(answerPattern);
-        ArgumentException.ThrowIfNullOrWhiteSpace(explanation);
-        ArgumentNullException.ThrowIfNull(contentRanges);
-
-        Clue = clue;
-        Answer = answer;
-        AnswerPattern = answerPattern;
-        Explanation = explanation;
-        ReplaceRanges(contentRanges);
-        UpdatedAtUtc = updatedAtUtc;
-    }
-
-    /// <summary>
     /// Replaces the labelled structural ranges.
     /// </summary>
     /// <param name="contentRanges">The labelled structural ranges. Cannot be <see langword="null" />.</param>

@@ -101,37 +101,6 @@ public sealed class RiddlesService : IRiddlesService
     }
 
     /// <inheritdoc />
-    public async Task<Result<RiddleOutput>> UpdateAsync(UpdateRiddleInput input, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(input);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var riddle = await _riddleRepository.GetByIdAsync(input.Id, cancellationToken);
-        if (riddle is null)
-        {
-            return NotFound<RiddleOutput>();
-        }
-
-        var content = ValidateContent(input.Clue, input.Answer, input.Explanation, input.Ranges);
-        if (content.IsFailure)
-        {
-            return Result.Failure<RiddleOutput>(content.Error!);
-        }
-
-        riddle.UpdateContent(
-            content.Value!.Clue,
-            content.Value.Answer,
-            content.Value.AnswerPattern,
-            content.Value.Explanation,
-            content.Value.Ranges,
-            _dateTimeProvider.UtcDateTime);
-
-        await _riddleRepository.UpdateAsync(riddle, cancellationToken);
-        _logger.LogInformation("Updated a riddle. RiddleId: {RiddleId}", riddle.Id);
-        return Result.Success(ToOutput(riddle));
-    }
-
-    /// <inheritdoc />
     public async Task<Result<RiddleOutput>> ScheduleAsync(
         ScheduleRiddleInput input,
         CancellationToken cancellationToken)

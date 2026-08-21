@@ -39,10 +39,9 @@
     padding-left: 1.25rem;
 }
 
-.notice {
+.immutableNotice {
     margin: 0;
-    color: var(--color-success);
-    font-weight: 700;
+    color: var(--color-muted-text);
 }
 
 @media (min-width: 600px) {

@@ -32,14 +32,6 @@ public interface IRiddlesService
     Task<Result<ListRiddlesOutput>> ListAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Updates authored riddle content without changing publication state.
-    /// </summary>
-    /// <param name="input">The update input. Cannot be <see langword="null" />.</param>
-    /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>The updated riddle, or an expected failure.</returns>
-    Task<Result<RiddleOutput>> UpdateAsync(UpdateRiddleInput input, CancellationToken cancellationToken);
-
-    /// <summary>
     /// Schedules a riddle onto a Sofia calendar date.
     /// </summary>
     /// <param name="input">The schedule input. Cannot be <see langword="null" />.</param>

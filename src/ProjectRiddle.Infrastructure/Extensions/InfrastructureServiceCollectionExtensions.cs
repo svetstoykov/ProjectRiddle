@@ -4,11 +4,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using ProjectRiddle.Core.Interfaces.Randomness;
 using ProjectRiddle.Core.Interfaces.Repositories;
 using ProjectRiddle.Core.Interfaces.Time;
 using ProjectRiddle.Infrastructure.Bootstrap;
 using ProjectRiddle.Infrastructure.Configuration;
 using ProjectRiddle.Infrastructure.Persistence;
+using ProjectRiddle.Infrastructure.Randomness;
 using ProjectRiddle.Infrastructure.Repositories.Riddles;
 using ProjectRiddle.Infrastructure.Time;
 
@@ -52,7 +54,9 @@ public static class InfrastructureServiceCollectionExtensions
             .Bind(configuration.GetSection(AdminBootstrapOptions.SectionName));
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddSingleton<IRandomNumberGenerator, SystemRandomNumberGenerator>();
         services.AddScoped<IRiddleRepository, RiddleRepository>();
+        services.AddScoped<IRiddleProgressRepository, RiddleProgressRepository>();
         services.AddHostedService<AdminBootstrapHostedService>();
         services.AddDbContext<ProjectRiddleDbContext>((serviceProvider, optionsBuilder) =>
         {

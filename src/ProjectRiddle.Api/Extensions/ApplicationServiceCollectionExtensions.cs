@@ -21,6 +21,7 @@ public static class ApplicationServiceCollectionExtensions
 
         services.AddSingleton<IInternalStatusService, InternalStatusService>();
         services.AddScoped<IRiddlesService, RiddlesService>();
+        services.AddScoped<IPublicRiddlesService, PublicRiddlesService>();
 
         return services;
     }

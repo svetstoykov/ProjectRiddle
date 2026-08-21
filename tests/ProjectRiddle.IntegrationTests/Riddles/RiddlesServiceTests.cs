@@ -194,32 +194,4 @@ public sealed class RiddlesServiceTests
         Assert.Equal(RiddleErrorCodes.PublicationDateInvalid, scheduledYesterday.Error.Code);
     }
 
-    /// <summary>
-    /// Verifies that content can be updated without changing publication state.
-    /// </summary>
-    /// <returns>A task that represents the test operation.</returns>
-    [Fact]
-    public async Task UpdateChangesContentWithoutChangingPublicationState()
-    {
-        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
-        var created = await workspace.Service.CreateAsync(TestWorkspace.CreateRiddleInput(), CancellationToken.None);
-        var scheduled = await workspace.Service.ScheduleAsync(
-            new ScheduleRiddleInput(created.Value!.Id, new DateOnly(2026, 8, 25)),
-            CancellationToken.None);
-        var updated = await workspace.Service.UpdateAsync(
-            new UpdateRiddleInput(
-                created.Value.Id,
-                "нова бяла врана лети",
-                "нова врана",
-                "Ново обяснение.",
-                [new RiddleRangeInput(RiddleRangeKind.Definition, 0, 4)]),
-            CancellationToken.None);
-
-        Assert.True(scheduled.IsSuccess);
-        Assert.True(updated.IsSuccess);
-        Assert.Equal(RiddlePublicationState.Scheduled, updated.Value!.PublicationState);
-        Assert.Equal("нова бяла врана лети", updated.Value.Clue);
-        Assert.Equal("нова врана", updated.Value.Answer);
-        Assert.Equal("4,5", updated.Value.AnswerPattern);
-    }
 }

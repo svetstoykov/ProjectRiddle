@@ -1,216 +1,289 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using ProjectRiddle.Api.Authorization;
 using ProjectRiddle.Api.Models.Riddles;
+using ProjectRiddle.Core.Constants.Riddles;
 using ProjectRiddle.Core.Interfaces.Services;
+using ProjectRiddle.Core.Models.Riddles;
 
 namespace ProjectRiddle.Api.Controllers;
 
 /// <summary>
-/// Exposes administrative riddle authoring and publication operations.
+/// Exposes public riddle discovery, play, and account progress operations.
 /// </summary>
 [ApiController]
-[Authorize(Policy = AuthorizationPolicies.Admin)]
 [Route("api/riddles")]
 public sealed class RiddlesController : BaseController
 {
-    private readonly IRiddlesService _riddlesService;
+    private readonly IPublicRiddlesService _publicRiddlesService;
 
     /// <summary>
-    /// Initializes the riddles controller.
+    /// Initializes the public riddles controller.
     /// </summary>
-    /// <param name="riddlesService">The Core riddles service.</param>
-    public RiddlesController(IRiddlesService riddlesService)
+    /// <param name="publicRiddlesService">The Core public riddles service.</param>
+    public RiddlesController(IPublicRiddlesService publicRiddlesService)
     {
-        ArgumentNullException.ThrowIfNull(riddlesService);
-        this._riddlesService = riddlesService;
+        ArgumentNullException.ThrowIfNull(publicRiddlesService);
+        this._publicRiddlesService = publicRiddlesService;
     }
 
     /// <summary>
-    /// Lists every riddle for administration.
+    /// Lists a page of safe archive metadata.
     /// </summary>
+    /// <param name="page">The one-based page number.</param>
+    /// <param name="pageSize">The page size.</param>
     /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>The administrative riddle list.</returns>
+    /// <returns>The archive page.</returns>
     [HttpGet]
-    [ProducesResponseType(typeof(RiddleListResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<RiddleListResponse>> ListAsync(CancellationToken cancellationToken)
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(PublicRiddleListResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PublicRiddleListResponse>> ListArchiveAsync(
+        [FromQuery] int page = PublicRiddleLimits.DefaultPage,
+        [FromQuery] int pageSize = PublicRiddleLimits.DefaultPageSize,
+        CancellationToken cancellationToken = default)
     {
-        var result = await _riddlesService.ListAsync(cancellationToken);
+        var result = await _publicRiddlesService.ListArchiveAsync(
+            new ListPublicRiddlesInput(page, pageSize),
+            cancellationToken);
         if (result.IsFailure)
         {
-            return FromFailure<RiddleListResponse>(result.Error!);
+            return FromFailure<PublicRiddleListResponse>(result.Error!);
         }
 
-        return Ok(RiddleListResponse.FromCoreListRiddlesOutput(result.Value!));
+        return Ok(PublicRiddleListResponse.FromCorePublicRiddleListOutput(result.Value!));
     }
 
     /// <summary>
-    /// Gets one riddle for administration.
+    /// Gets today's eligible public play projection.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the request.</param>
+    /// <returns>Today's play projection.</returns>
+    [HttpGet("today")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(PublicRiddlePlayResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<PublicRiddlePlayResponse>> GetTodayAsync(CancellationToken cancellationToken)
+    {
+        var result = await _publicRiddlesService.GetTodayAsync(cancellationToken);
+        if (result.IsFailure)
+        {
+            return FromFailure<PublicRiddlePlayResponse>(result.Error!);
+        }
+
+        return Ok(PublicRiddlePlayResponse.FromCorePublicRiddlePlayOutput(result.Value!));
+    }
+
+    /// <summary>
+    /// Lists safe metadata for published riddles in the current local week through today.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the request.</param>
+    /// <returns>The week discovery items.</returns>
+    [HttpGet("week")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(PublicRiddleWeekResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PublicRiddleWeekResponse>> ListWeekAsync(CancellationToken cancellationToken)
+    {
+        var result = await _publicRiddlesService.ListWeekAsync(cancellationToken);
+        if (result.IsFailure)
+        {
+            return FromFailure<PublicRiddleWeekResponse>(result.Error!);
+        }
+
+        return Ok(PublicRiddleWeekResponse.FromCoreWeekItems(result.Value!));
+    }
+
+    /// <summary>
+    /// Gets the initial play projection for a public riddle.
     /// </summary>
     /// <param name="id">The riddle identifier.</param>
     /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>The administrative riddle projection.</returns>
+    /// <returns>The play projection.</returns>
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(RiddleResponse), StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(PublicRiddlePlayResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RiddleResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<PublicRiddlePlayResponse>> GetPlayAsync(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _riddlesService.GetByIdAsync(id, cancellationToken);
+        var result = await _publicRiddlesService.GetPlayAsync(id, cancellationToken);
         if (result.IsFailure)
         {
-            return FromFailure<RiddleResponse>(result.Error!);
+            return FromFailure<PublicRiddlePlayResponse>(result.Error!);
         }
 
-        return Ok(RiddleResponse.FromCoreRiddleOutput(result.Value!));
+        return Ok(PublicRiddlePlayResponse.FromCorePublicRiddlePlayOutput(result.Value!));
     }
 
     /// <summary>
-    /// Creates a draft riddle.
+    /// Checks a submitted answer and updates progress.
     /// </summary>
-    /// <param name="request">The create request.</param>
+    /// <param name="id">The riddle identifier.</param>
+    /// <param name="request">The answer request.</param>
     /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>The created riddle.</returns>
-    [HttpPost]
-    [ProducesResponseType(typeof(RiddleResponse), StatusCodes.Status201Created)]
+    /// <returns>The resulting play state.</returns>
+    [HttpPost("{id:guid}/answer")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(RiddlePlayStateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<RiddleResponse>> CreateAsync(
-        [FromBody] CreateRiddleRequest request,
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RiddlePlayStateResponse>> SubmitAnswerAsync(
+        Guid id,
+        [FromBody] SubmitRiddleAnswerRequest request,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await _riddlesService.CreateAsync(request.ToCoreCreateRiddleInput(), cancellationToken);
+        var result = await _publicRiddlesService.SubmitAnswerAsync(
+            request.ToCoreSubmitRiddleAnswerInput(id),
+            cancellationToken);
         if (result.IsFailure)
         {
-            return FromFailure<RiddleResponse>(result.Error!);
+            return FromFailure<RiddlePlayStateResponse>(result.Error!);
         }
 
-        var response = RiddleResponse.FromCoreRiddleOutput(result.Value!);
-        return Created($"/api/riddles/{response.Id}", response);
+        return Ok(RiddlePlayStateResponse.FromCoreRiddlePlayStateOutput(result.Value!));
     }
 
     /// <summary>
-    /// Updates authored riddle content.
+    /// Records one structural hint kind on progress.
     /// </summary>
     /// <param name="id">The riddle identifier.</param>
-    /// <param name="request">The update request.</param>
+    /// <param name="request">The hint request.</param>
     /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>The updated riddle.</returns>
-    [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(RiddleResponse), StatusCodes.Status200OK)]
+    /// <returns>The resulting play state.</returns>
+    [HttpPost("{id:guid}/hint")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(RiddlePlayStateResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<RiddleResponse>> UpdateAsync(
+    public async Task<ActionResult<RiddlePlayStateResponse>> UseHintAsync(
         Guid id,
-        [FromBody] UpdateRiddleRequest request,
+        [FromBody] UseRiddleHintRequest request,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await _riddlesService.UpdateAsync(request.ToCoreUpdateRiddleInput(id), cancellationToken);
+        var result = await _publicRiddlesService.UseHintAsync(request.ToCoreUseRiddleHintInput(id), cancellationToken);
         if (result.IsFailure)
         {
-            return FromFailure<RiddleResponse>(result.Error!);
+            return FromFailure<RiddlePlayStateResponse>(result.Error!);
         }
 
-        return Ok(RiddleResponse.FromCoreRiddleOutput(result.Value!));
+        return Ok(RiddlePlayStateResponse.FromCoreRiddlePlayStateOutput(result.Value!));
     }
 
     /// <summary>
-    /// Schedules a riddle onto a Sofia calendar date.
+    /// Reveals one previously unrevealed letter.
     /// </summary>
     /// <param name="id">The riddle identifier.</param>
-    /// <param name="request">The schedule request.</param>
+    /// <param name="request">The optional reveal request.</param>
     /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>The scheduled riddle.</returns>
-    [HttpPost("{id:guid}/schedule")]
-    [ProducesResponseType(typeof(RiddleResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<RiddleResponse>> ScheduleAsync(
+    /// <returns>The resulting play state.</returns>
+    [HttpPost("{id:guid}/reveal")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(RiddlePlayStateResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RiddlePlayStateResponse>> RevealLetterAsync(
         Guid id,
-        [FromBody] ScheduleRiddleRequest request,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] RevealRiddleLetterRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new RevealRiddleLetterRequest();
+
+        var result = await _publicRiddlesService.RevealLetterAsync(
+            request.ToCoreRevealRiddleLetterInput(id),
+            cancellationToken);
+        if (result.IsFailure)
+        {
+            return FromFailure<RiddlePlayStateResponse>(result.Error!);
+        }
+
+        return Ok(RiddlePlayStateResponse.FromCoreRiddlePlayStateOutput(result.Value!));
+    }
+
+    /// <summary>
+    /// Rehydrates permitted play state from anonymous or account progress.
+    /// </summary>
+    /// <param name="id">The riddle identifier.</param>
+    /// <param name="request">The optional resume request.</param>
+    /// <param name="cancellationToken">The token used to cancel the request.</param>
+    /// <returns>The resulting play state.</returns>
+    [HttpPost("{id:guid}/resume")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(RiddlePlayStateResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RiddlePlayStateResponse>> ResumeAsync(
+        Guid id,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] ResumeRiddleRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new ResumeRiddleRequest();
+
+        var result = await _publicRiddlesService.ResumeAsync(request.ToCoreResumeRiddleInput(id), cancellationToken);
+        if (result.IsFailure)
+        {
+            return FromFailure<RiddlePlayStateResponse>(result.Error!);
+        }
+
+        return Ok(RiddlePlayStateResponse.FromCoreRiddlePlayStateOutput(result.Value!));
+    }
+
+    /// <summary>
+    /// Lists account-owned riddle progress for a bounded local-date range.
+    /// </summary>
+    /// <param name="fromDate">The inclusive start local date.</param>
+    /// <param name="toDate">The inclusive end local date.</param>
+    /// <param name="cancellationToken">The token used to cancel the request.</param>
+    /// <returns>The account progress list.</returns>
+    [HttpGet("progress")]
+    [ProducesResponseType(typeof(AccountRiddleProgressListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<AccountRiddleProgressListResponse>> ListProgressAsync(
+        [FromQuery] DateOnly fromDate,
+        [FromQuery] DateOnly toDate,
+        CancellationToken cancellationToken)
+    {
+        var result = await _publicRiddlesService.ListProgressAsync(
+            new ListAccountRiddleProgressInput(fromDate, toDate),
+            cancellationToken);
+        if (result.IsFailure)
+        {
+            return FromFailure<AccountRiddleProgressListResponse>(result.Error!);
+        }
+
+        return Ok(AccountRiddleProgressListResponse.FromCoreAccountRiddleProgressListOutput(result.Value!));
+    }
+
+    /// <summary>
+    /// Merges a typed anonymous progress snapshot into the current account record.
+    /// </summary>
+    /// <param name="request">The imported snapshot.</param>
+    /// <param name="cancellationToken">The token used to cancel the request.</param>
+    /// <returns>The merged progress snapshot.</returns>
+    [HttpPost("progress/import")]
+    [ProducesResponseType(typeof(RiddleProgressSnapshotResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status422UnprocessableEntity)]
+    public async Task<ActionResult<RiddleProgressSnapshotResponse>> ImportProgressAsync(
+        [FromBody] AnonymousRiddleProgressRequest request,
         CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await _riddlesService.ScheduleAsync(request.ToCoreScheduleRiddleInput(id), cancellationToken);
+        var result = await _publicRiddlesService.ImportProgressAsync(
+            request.ToCoreAnonymousRiddleProgressInput(),
+            cancellationToken);
         if (result.IsFailure)
         {
-            return FromFailure<RiddleResponse>(result.Error!);
+            return FromFailure<RiddleProgressSnapshotResponse>(result.Error!);
         }
 
-        return Ok(RiddleResponse.FromCoreRiddleOutput(result.Value!));
-    }
-
-    /// <summary>
-    /// Publishes a riddle onto a Sofia calendar date.
-    /// </summary>
-    /// <param name="id">The riddle identifier.</param>
-    /// <param name="request">The optional publish request.</param>
-    /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>The published riddle.</returns>
-    [HttpPost("{id:guid}/publish")]
-    [ProducesResponseType(typeof(RiddleResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<RiddleResponse>> PublishAsync(
-        Guid id,
-        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] PublishRiddleRequest? request,
-        CancellationToken cancellationToken)
-    {
-        request ??= new PublishRiddleRequest();
-
-        var result = await _riddlesService.PublishAsync(request.ToCorePublishRiddleInput(id), cancellationToken);
-        if (result.IsFailure)
-        {
-            return FromFailure<RiddleResponse>(result.Error!);
-        }
-
-        return Ok(RiddleResponse.FromCoreRiddleOutput(result.Value!));
-    }
-
-    /// <summary>
-    /// Unpublishes a scheduled or published riddle.
-    /// </summary>
-    /// <param name="id">The riddle identifier.</param>
-    /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>The unpublished riddle.</returns>
-    [HttpPost("{id:guid}/unpublish")]
-    [ProducesResponseType(typeof(RiddleResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<RiddleResponse>> UnpublishAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var result = await _riddlesService.UnpublishAsync(id, cancellationToken);
-        if (result.IsFailure)
-        {
-            return FromFailure<RiddleResponse>(result.Error!);
-        }
-
-        return Ok(RiddleResponse.FromCoreRiddleOutput(result.Value!));
-    }
-
-    /// <summary>
-    /// Deletes a draft or unpublished riddle.
-    /// </summary>
-    /// <param name="id">The riddle identifier.</param>
-    /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>A bodyless success response.</returns>
-    [HttpDelete("{id:guid}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
-    {
-        var result = await _riddlesService.DeleteAsync(id, cancellationToken);
-        if (result.IsFailure)
-        {
-            return FromFailure(result.Error!);
-        }
-
-        return NoContent();
+        return Ok(RiddleProgressSnapshotResponse.FromCoreRiddleProgressSnapshotOutput(result.Value!));
     }
 }

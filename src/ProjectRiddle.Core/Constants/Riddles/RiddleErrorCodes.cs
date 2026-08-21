@@ -49,4 +49,44 @@ public static class RiddleErrorCodes
     /// Identifies a delete that is not permitted for the current publication state.
     /// </summary>
     public const string DeleteNotPermitted = "riddles.delete.notPermitted";
+
+    /// <summary>
+    /// Identifies that today's eligible public riddle is unavailable.
+    /// </summary>
+    public const string TodayUnavailable = "riddles.today.unavailable";
+
+    /// <summary>
+    /// Identifies that archive play requires an authenticated account.
+    /// </summary>
+    public const string ArchiveAuthenticationRequired = "riddles.archive.authenticationRequired";
+
+    /// <summary>
+    /// Identifies an empty or malformed submitted answer.
+    /// </summary>
+    public const string AnswerRequestInvalid = "riddles.answer.invalid";
+
+    /// <summary>
+    /// Identifies an unknown structural hint kind.
+    /// </summary>
+    public const string HintKindInvalid = "riddles.hint.kind.invalid";
+
+    /// <summary>
+    /// Identifies an invalid anonymous or imported progress shape.
+    /// </summary>
+    public const string ProgressInvalid = "riddles.progress.invalid";
+
+    /// <summary>
+    /// Identifies a progress snapshot that refers to the wrong or missing riddle.
+    /// </summary>
+    public const string ProgressReferenceInvalid = "riddles.progress.referenceInvalid";
+
+    /// <summary>
+    /// Identifies revealed positions that are outside the answer or inconsistent with status.
+    /// </summary>
+    public const string ProgressPositionInvalid = "riddles.progress.positionInvalid";
+
+    /// <summary>
+    /// Identifies an archive page or page size that is outside the allowed bounds.
+    /// </summary>
+    public const string ArchivePageInvalid = "riddles.archive.page.invalid";
 }

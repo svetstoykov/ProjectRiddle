@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using ProjectRiddle.Core.Enums.Riddles;
+using ProjectRiddle.Core.Interfaces.Randomness;
 using ProjectRiddle.Core.Interfaces.Services;
 using ProjectRiddle.Core.Models.Riddles;
 using ProjectRiddle.Core.Services.Riddles;
@@ -20,13 +21,24 @@ public sealed class TestWorkspace
     /// Initializes a Core riddle test workspace.
     /// </summary>
     /// <param name="utcNow">The fixed UTC instant.</param>
-    public TestWorkspace(DateTimeOffset utcNow)
+    /// <param name="accountId">The current account identifier, or <see langword="null" /> for an anonymous caller.</param>
+    /// <param name="randomNumberGenerator">The optional scripted random source for letter reveals.</param>
+    public TestWorkspace(
+        DateTimeOffset utcNow,
+        Guid? accountId = null,
+        IRandomNumberGenerator? randomNumberGenerator = null)
     {
         Clock = new FixedDateTimeProvider(utcNow, TimeZoneId);
-        Service = new RiddlesService(
-            new InMemoryRiddleRepository(),
+        Account = new MutableCurrentAccount(accountId);
+        var riddles = new InMemoryRiddleRepository();
+        Service = new RiddlesService(riddles, Clock, NullLogger<RiddlesService>.Instance);
+        PublicService = new PublicRiddlesService(
+            riddles,
+            new InMemoryRiddleProgressRepository(riddles),
+            Account,
             Clock,
-            NullLogger<RiddlesService>.Instance);
+            randomNumberGenerator ?? new ScriptedRandomNumberGenerator(),
+            NullLogger<PublicRiddlesService>.Instance);
     }
 
     /// <summary>
@@ -35,9 +47,19 @@ public sealed class TestWorkspace
     public FixedDateTimeProvider Clock { get; }
 
     /// <summary>
+    /// Gets the controllable current-account identity.
+    /// </summary>
+    public MutableCurrentAccount Account { get; }
+
+    /// <summary>
     /// Gets the Core riddles service under test.
     /// </summary>
     public IRiddlesService Service { get; }
+
+    /// <summary>
+    /// Gets the Core public riddles service under test.
+    /// </summary>
+    public IPublicRiddlesService PublicService { get; }
 
     /// <summary>
     /// Creates a valid riddle create input.

@@ -51,14 +51,13 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
     const [errors, setErrors] = useState<RiddleContentErrors>(emptyRiddleContentErrors);
     const [shouldFocusSummary, setShouldFocusSummary] = useState(false);
     const [missing, setMissing] = useState(false);
-    const [saveNotice, setSaveNotice] = useState<string | null>(null);
 
     const detailQuery = useQuery({
         ...adminRiddleDetailQueryOptions(riddleId ?? "new"),
         enabled: !isNew,
     });
 
-    const isDirty = !draftsEqual(draft, baseline);
+    const isDirty = isNew && !draftsEqual(draft, baseline);
     const shouldBlockNavigation = useCallback<BlockerFunction>(
         ({ nextLocation }) => isDirty && !(isNew && nextLocation.pathname === createdRiddlePathRef.current),
         [isDirty, isNew],
@@ -145,35 +144,6 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
         },
     });
 
-    const updateMutation = useMutation({
-        mutationFn: (input: RiddleDraft) => adminRiddlesApi.update(riddleId ?? "", requestFromDraft(input)),
-        onSuccess: async (updated) => {
-            queryClient.setQueryData(adminRiddleKeys.detail(updated.id), updated);
-            await queryClient.invalidateQueries({ queryKey: adminRiddleKeys.lists() });
-            const next = draftFromRiddle(updated);
-            setDraft(next);
-            setBaseline(next);
-            setErrors(emptyRiddleContentErrors());
-            setSaveNotice("Промените са запазени.");
-            if (blocker.state === "blocked") {
-                blocker.reset();
-            }
-        },
-        onError: (error: unknown) => {
-            if (isApplicationError(error) && (error.status === 404 || error.code === "riddles.notFound")) {
-                setMissing(true);
-                return;
-            }
-
-            if (reconcileSessionAfterAuthorizationFailure(queryClient, error)) {
-                return;
-            }
-
-            setErrors(mapRiddleContentErrors(error));
-            setShouldFocusSummary(true);
-        },
-    });
-
     function handleSave(): void {
         const required = requiredContentErrors(draft);
         if (hasContentErrors(required)) {
@@ -182,24 +152,14 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
             return;
         }
 
-        setSaveNotice(null);
-        if (isNew) {
-            createMutation.mutate(requestFromDraft(draft));
-            return;
-        }
-
-        updateMutation.mutate(draft);
+        createMutation.mutate(requestFromDraft(draft));
     }
 
-    const saving = createMutation.isPending || updateMutation.isPending;
+    const saving = createMutation.isPending;
 
     if (!isNew && detailQuery.isPending && initializedId !== riddleId) {
         return (
-            <PageStatus
-                eyebrow="Администрация"
-                title="Зареждаме загадката…"
-                message="Изчакваме текущото съдържание за редакция."
-            />
+            <PageStatus eyebrow="Администрация" title="Зареждаме загадката…" message="Изчакваме текущото съдържание." />
         );
     }
 
@@ -250,7 +210,7 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
         <section className={styles.editor} aria-labelledby="riddle-editor-title">
             <div className={styles.header}>
                 <p className="eyebrow">Администрация</p>
-                <h1 id="riddle-editor-title">{isNew ? "Нова загадка" : "Редакция на загадка"}</h1>
+                <h1 id="riddle-editor-title">{isNew ? "Нова загадка" : "Загадка"}</h1>
             </div>
             {errors.summary.length > 0 ? (
                 <div
@@ -268,17 +228,21 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
                     </ul>
                 </div>
             ) : null}
-            {saveNotice !== null ? (
-                <p className={styles.notice} role="status">
-                    {saveNotice}
+            {!isNew ? (
+                <p className={styles.immutableNotice} role="note">
+                    Съдържанието е окончателно след създаване. За корекция оттеглете загадката и създайте нова.
                 </p>
             ) : null}
             <div className={styles.layout}>
                 <div className={styles.authoring}>
-                    <RiddleContentForm draft={draft} errors={errors} disabled={saving} onChange={setDraft} />
-                    <button ref={stayRef} type="button" aria-busy={saving} disabled={saving} onClick={handleSave}>
-                        {saving ? "Запазване…" : "Запази"}
-                    </button>
+                    <RiddleContentForm draft={draft} errors={errors} disabled={saving || !isNew} onChange={setDraft} />
+                    {isNew ? (
+                        <button ref={stayRef} type="button" aria-busy={saving} disabled={saving} onClick={handleSave}>
+                            {saving ? "Запазване…" : "Запази"}
+                        </button>
+                    ) : (
+                        <button ref={stayRef} type="button" hidden tabIndex={-1} aria-hidden="true" />
+                    )}
                 </div>
                 <RiddlePreview clue={draft.clue} answer={draft.answer} ranges={draft.ranges} />
             </div>
