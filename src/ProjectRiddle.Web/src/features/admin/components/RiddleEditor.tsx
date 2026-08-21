@@ -19,6 +19,7 @@ import {
     type RiddleDraft,
 } from "../models/riddleDraft";
 import { hasContentErrors, mapRiddleContentErrors, requiredContentErrors } from "./riddleContentErrors";
+import { PublicationPanel } from "./PublicationPanel";
 import { RiddleContentForm } from "./RiddleContentForm";
 import { RiddlePreview } from "./RiddlePreview";
 import styles from "./RiddleEditor.module.css";
@@ -196,7 +197,7 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
         );
     }
 
-    if (!isNew && notFound && initializedId !== riddleId) {
+    if (!isNew && notFound) {
         return (
             <PageStatus
                 tone="error"
@@ -264,6 +265,25 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
                 </div>
                 <RiddlePreview clue={draft.clue} answerPattern={draft.answerPattern} ranges={draft.ranges} />
             </div>
+            {detailQuery.data !== undefined && riddleId === detailQuery.data.id ? (
+                <PublicationPanel
+                    riddle={detailQuery.data}
+                    contentDirty={isDirty}
+                    onChanged={(updated) => {
+                        if (!isDirty) {
+                            const next = draftFromRiddle(updated);
+                            setDraft(next);
+                            setBaseline(next);
+                        }
+                    }}
+                    onDeleted={() => {
+                        setBaseline(draft);
+                    }}
+                    onMissing={() => {
+                        setMissing(true);
+                    }}
+                />
+            ) : null}
             <ConfirmationDialog
                 open={blocker.state === "blocked"}
                 title="Незапазени промени"
