@@ -2,6 +2,10 @@
 
 This file indexes the durable AI rules in `docs/ai-rules/`. Read the always-on files before acting, then read every file whose trigger applies to the task.
 
+## Repository invariants
+
+- The repository-root `docs/` tree is intentionally ignored. Keep `/docs/` in `.gitignore` and do not add negation patterns that re-include any path beneath it.
+
 ## Always read
 
 | File | Contents |

@@ -114,25 +114,11 @@ _ReSharper*/
 .kilo/
 docs/superpowers/
 
-# Local documentation and design references.
+# Local documentation and design references. Keep the root docs tree ignored;
+# do not remove this rule or add negation patterns for paths beneath it.
 /docs/
 /mockups/
 docs/architecture/
-
-# Durable agent rules and accepted architecture decisions.
-!/docs/
-docs/*
-!/docs/ai-rules/
-!/docs/ai-rules/**
-!/docs/architecture/
-docs/architecture/*
-!/docs/architecture/project-riddle-application-architecture.md
-!/docs/architecture/project-riddle-v1-subphase-4-deployment-and-readiness.md
-docs/**/.DS_Store
-docs/decisions/
-docs/evaluation/
-docs/product/
-docs/tech-debt/
 
 # Operating-system metadata
 .DS_Store
