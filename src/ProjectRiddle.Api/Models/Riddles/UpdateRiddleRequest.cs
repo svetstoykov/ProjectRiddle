@@ -21,12 +21,6 @@ public sealed record UpdateRiddleRequest
     public required string Answer { get; init; }
 
     /// <summary>
-    /// Gets the answer pattern.
-    /// </summary>
-    [Required]
-    public required string AnswerPattern { get; init; }
-
-    /// <summary>
     /// Gets the explanation text.
     /// </summary>
     [Required]
@@ -45,6 +39,6 @@ public sealed record UpdateRiddleRequest
     public UpdateRiddleInput ToCoreUpdateRiddleInput(Guid id)
     {
         var ranges = Ranges.Select(range => range.ToCoreRiddleRangeInput()).ToArray();
-        return new UpdateRiddleInput(id, Clue, Answer, AnswerPattern, Explanation, ranges);
+        return new UpdateRiddleInput(id, Clue, Answer, Explanation, ranges);
     }
 }

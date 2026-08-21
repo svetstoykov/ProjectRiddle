@@ -7,10 +7,8 @@ export function HomePage(): ReactElement {
     return (
         <section className={styles.hero} aria-labelledby="home-title">
             <p className="eyebrow">Project Riddle</p>
-            <h1 id="home-title">A small, dependable starting point.</h1>
-            <p className={styles.lead}>
-                The application is ready to help people create and solve Bulgarian cryptograms.
-            </p>
+            <h1 id="home-title">Български загадки с характер.</h1>
+            <p className={styles.lead}>Приложението помага да се създават и решават български криптограми.</p>
             <InternalStatus />
         </section>
     );

@@ -1,0 +1,39 @@
+.page {
+    display: grid;
+    justify-items: center;
+}
+
+.card {
+    width: min(100%, 28rem);
+    display: grid;
+    gap: 1rem;
+    padding: 1.5rem;
+    border: 3px solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-low);
+    box-shadow: var(--shadow-hard);
+}
+
+.form {
+    display: grid;
+    gap: 1rem;
+}
+
+.success {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--color-success);
+    border-radius: var(--radius-md);
+    color: var(--color-success);
+    background: #ffffff;
+}
+
+.switch {
+    margin: 0;
+    color: var(--color-muted-text);
+}
+
+.switch a {
+    color: var(--color-primary);
+    font-weight: 700;
+}

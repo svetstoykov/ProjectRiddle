@@ -89,3 +89,7 @@ export class ApplicationError extends Error {
 export function isApplicationError(error: unknown): error is ApplicationError {
     return error instanceof ApplicationError;
 }
+
+export function isInvalidAntiforgeryError(error: unknown): boolean {
+    return isApplicationError(error) && error.status === 400 && error.problem.title === "Invalid request token";
+}

@@ -1,0 +1,52 @@
+.editor {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.layout {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.layout > * {
+    min-width: 0;
+}
+
+.authoring {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+}
+
+.summary {
+    padding: 1rem;
+    border: 3px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    background: var(--color-danger-surface);
+}
+
+.summary h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+}
+
+.summary ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.notice {
+    margin: 0;
+    color: var(--color-success);
+    font-weight: 700;
+}
+
+@media (min-width: 600px) {
+    .layout {
+        align-items: start;
+    }
+}

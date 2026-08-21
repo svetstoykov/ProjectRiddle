@@ -1,0 +1,65 @@
+.panel {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border: 3px solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-low);
+    box-shadow: var(--shadow-hard);
+}
+
+.panel h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.field {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+    padding: 0.15rem 0.7rem;
+    border: 2px solid var(--color-deep-violet);
+    border-radius: var(--radius-pill);
+    background: var(--color-electric-yellow);
+    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.hint,
+.notice,
+.summary {
+    margin: 0;
+}
+
+.hint {
+    color: var(--color-muted-text);
+}
+
+.notice {
+    color: var(--color-success);
+    font-weight: 700;
+}
+
+.summary {
+    padding: 0.75rem 1rem;
+    border: 3px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    background: var(--color-danger-surface);
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.danger {
+    color: #ffffff;
+    background: var(--color-danger);
+}

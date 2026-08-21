@@ -16,14 +16,9 @@ public static class RiddleErrorCodes
     public const string ClueInvalid = "riddles.clue.invalid";
 
     /// <summary>
-    /// Identifies answer text that is missing or whitespace.
+    /// Identifies answer text that is missing, whitespace, or has no letters in a word.
     /// </summary>
     public const string AnswerInvalid = "riddles.answer.invalid";
-
-    /// <summary>
-    /// Identifies an answer pattern that is missing, malformed, or inconsistent with the answer.
-    /// </summary>
-    public const string AnswerPatternInvalid = "riddles.answerPattern.invalid";
 
     /// <summary>
     /// Identifies explanation text that is missing or whitespace.

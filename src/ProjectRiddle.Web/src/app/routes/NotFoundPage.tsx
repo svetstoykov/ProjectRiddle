@@ -7,10 +7,10 @@ export function NotFoundPage(): ReactElement {
     return (
         <section className={styles.content} aria-labelledby="not-found-title">
             <p className="eyebrow">404</p>
-            <h1 id="not-found-title">Page not found</h1>
-            <p>The requested page does not exist.</p>
+            <h1 id="not-found-title">Страницата не е намерена</h1>
+            <p>Поисканата страница не съществува.</p>
             <Link className="button" to="/">
-                Return home
+                Към началото
             </Link>
         </section>
     );

@@ -1,0 +1,14 @@
+.section {
+    max-width: 40rem;
+    margin: 3rem auto;
+    padding: 1.5rem;
+    border: 3px solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-low);
+    box-shadow: var(--shadow-hard);
+}
+
+.message {
+    color: var(--color-muted-text);
+    line-height: 1.6;
+}
