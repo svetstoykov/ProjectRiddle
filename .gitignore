@@ -114,14 +114,11 @@ _ReSharper*/
 .kilo/
 docs/superpowers/
 
-# Local documentation and design references.
+# Local documentation and design references. Keep the root docs tree ignored;
+# do not remove this rule or add negation patterns for paths beneath it.
 /docs/
 /mockups/
 docs/architecture/
-docs/decisions/
-docs/evaluation/
-docs/product/
-docs/tech-debt/
 
 # Operating-system metadata
 .DS_Store

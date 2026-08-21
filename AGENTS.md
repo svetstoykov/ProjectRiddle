@@ -1,23 +1,23 @@
-# Project Riddle Repository Instructions
+# Repository Instructions
 
-This file is an index. Durable engineering rules live in `docs/ai-rules/` as bounded context files so that only the relevant guidance needs to be read for a task.
+This file indexes the durable AI rules in `docs/ai-rules/`. Read the always-on files before acting, then read every file whose trigger applies to the task.
+
+## Repository invariants
+
+- The repository-root `docs/` tree is intentionally ignored. Keep `/docs/` in `.gitignore` and do not add negation patterns that re-include any path beneath it.
 
 ## Always read
 
-Read these two files before doing anything else in a session:
-
 | File | Contents |
 | --- | --- |
-| [`docs/ai-rules/core-principles.md`](docs/ai-rules/core-principles.md) | Product scope, approved V1 technology, repository organization, design priorities, and general coding rules. |
+| [`docs/ai-rules/core-principles.md`](docs/ai-rules/core-principles.md) | Agent authority, general engineering principles, organization, and code-quality rules. |
 | [`docs/ai-rules/workflow-and-boundaries.md`](docs/ai-rules/workflow-and-boundaries.md) | Communication, security, scope, data-safety, and validation boundaries. |
 
 ## Read when the trigger applies
 
-Read a file before starting work that matches its trigger. When several triggers apply, read all of them.
-
 | Trigger | File |
 | --- | --- |
-| Adding or moving a project, changing dependencies, or changing the public/admin API, domain, persistence, authentication, or deployment boundaries | [`docs/ai-rules/architecture-boundaries.md`](docs/ai-rules/architecture-boundaries.md) |
+| Adding or moving a project, changing dependencies, or changing an API, domain, persistence, authentication, or deployment boundary | [`docs/ai-rules/architecture-boundaries.md`](docs/ai-rules/architecture-boundaries.md) |
 | Writing or changing backend C# or .NET code | [`docs/ai-rules/csharp-guidelines.md`](docs/ai-rules/csharp-guidelines.md) |
 | Writing or reviewing C# XML documentation comments | [`docs/ai-rules/csharp-xml-documentation.md`](docs/ai-rules/csharp-xml-documentation.md) |
 | Adding or changing backend diagnostics, log statements, or logging configuration | [`docs/ai-rules/dotnet-logging.md`](docs/ai-rules/dotnet-logging.md) |
@@ -29,5 +29,4 @@ Read a file before starting work that matches its trigger. When several triggers
 
 - Add a durable rule to the file whose trigger already covers it.
 - Create a new bounded rule file only when a genuinely new area appears, and add its trigger row here in the same change.
-- Keep detailed, frequently changing product requirements in a product or feature specification, not in `docs/ai-rules/`.
-- Keep these instructions aligned with the approved Project Riddle V1 design. Do not add rules for features or infrastructure that V1 does not contain.
+- Keep product requirements, technology choices, and detailed design decisions outside `docs/ai-rules/`.
