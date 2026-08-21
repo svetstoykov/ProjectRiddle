@@ -12,6 +12,10 @@
     gap: 1.5rem;
 }
 
+.layout > * {
+    min-width: 0;
+}
+
 .authoring {
     display: grid;
     gap: 1rem;
@@ -41,8 +45,8 @@
     font-weight: 700;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 600px) {
     .layout {
-        grid-template-columns: minmax(0, 1fr);
+        align-items: start;
     }
 }

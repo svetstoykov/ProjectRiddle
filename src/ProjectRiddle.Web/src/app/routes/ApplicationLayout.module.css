@@ -77,3 +77,15 @@
     color: var(--color-muted-text);
     font-size: 0.875rem;
 }
+
+@media (max-width: 599px) {
+    .navigation,
+    .links {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .main {
+        padding: 1.5rem 0;
+    }
+}

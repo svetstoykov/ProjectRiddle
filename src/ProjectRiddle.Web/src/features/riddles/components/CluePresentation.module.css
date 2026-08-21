@@ -6,6 +6,7 @@
 .clue {
     margin: 0;
     padding: 1rem;
+    overflow-wrap: anywhere;
     border: 3px solid var(--color-deep-violet);
     border-radius: var(--radius-lg);
     background: var(--color-clue-surface);
