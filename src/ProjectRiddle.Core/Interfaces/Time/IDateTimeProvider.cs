@@ -14,4 +14,9 @@ public interface IDateTimeProvider
     /// Gets the current date-time in the configured local time zone.
     /// </summary>
     DateTimeOffset LocalDateTime { get; }
+
+    /// <summary>
+    /// Gets the current calendar date in the configured local time zone.
+    /// </summary>
+    DateOnly LocalDate { get; }
 }

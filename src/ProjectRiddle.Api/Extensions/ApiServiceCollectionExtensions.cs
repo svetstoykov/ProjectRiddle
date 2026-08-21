@@ -1,7 +1,21 @@
-using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.AspNetCore.DataProtection.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+using ProjectRiddle.Api.Authorization;
 using ProjectRiddle.Api.Infrastructure;
 using ProjectRiddle.Core.Interfaces.Services;
+using ProjectRiddle.Core.Interfaces.Users;
+using ProjectRiddle.Core.Services.Riddles;
 using ProjectRiddle.Core.Services.System;
+using ProjectRiddle.Core.Services.Users;
+using ProjectRiddle.Infrastructure.Configuration;
 
 namespace ProjectRiddle.Api.Extensions;
 
@@ -11,7 +25,7 @@ namespace ProjectRiddle.Api.Extensions;
 public static class ApiServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds controllers, Problem Details, the global exception handler, and Core services.
+    /// Adds controllers, Problem Details, authentication, authorization, and Core services.
     /// </summary>
     /// <param name="services">The service collection to configure.</param>
     /// <returns>The supplied service collection.</returns>
@@ -21,9 +35,77 @@ public static class ApiServiceCollectionExtensions
 
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionHandler>();
-        services.AddControllers();
+        services.AddHttpContextAccessor();
+        services.AddControllers(options =>
+            {
+                options.Filters.Add<AutoValidateAntiforgeryFilter>();
+            })
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            });
+
+        services.AddAntiforgery(options =>
+        {
+            options.HeaderName = "X-CSRF-TOKEN";
+            options.Cookie.Name = "ProjectRiddle.Csrf";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        });
+
+        services
+            .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(options =>
+            {
+                options.Cookie.Name = "ProjectRiddle.Auth";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.SlidingExpiration = true;
+                options.ExpireTimeSpan = TimeSpan.FromDays(14);
+                options.Events.OnRedirectToLogin = CookieAuthenticationProblemDetails.WriteUnauthorizedAsync;
+                options.Events.OnRedirectToAccessDenied = CookieAuthenticationProblemDetails.WriteForbiddenAsync;
+            });
+
+        services.AddAuthorization(options =>
+        {
+            options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+            options.AddPolicy(
+                AuthorizationPolicies.Admin,
+                policy => policy.RequireRole(RoleClaimValues.Admin));
+        });
+
+        services.AddDataProtection()
+            .SetApplicationName("ProjectRiddle");
+        services.AddSingleton<IConfigureOptions<KeyManagementOptions>>(serviceProvider =>
+        {
+            return new ConfigureOptions<KeyManagementOptions>(options =>
+            {
+                options.XmlRepository = CreateKeyRepository(serviceProvider);
+            });
+        });
+
+        services.AddScoped<ICurrentUser, HttpCurrentUser>();
         services.AddSingleton<IInternalStatusService, InternalStatusService>();
+        services.AddScoped<IUsersService, UsersService>();
+        services.AddScoped<IRiddlesService, RiddlesService>();
 
         return services;
+    }
+
+    private static FileSystemXmlRepository CreateKeyRepository(IServiceProvider serviceProvider)
+    {
+        var databaseOptions = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
+        var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
+        var databasePath = Path.GetFullPath(databaseOptions.DatabasePath, environment.ContentRootPath);
+        var databaseDirectory = Path.GetDirectoryName(databasePath) ?? environment.ContentRootPath;
+        var keysPath = Path.Combine(databaseDirectory, "keys");
+        Directory.CreateDirectory(keysPath);
+        var loggerFactory = serviceProvider.GetService<ILoggerFactory>() ?? NullLoggerFactory.Instance;
+        return new FileSystemXmlRepository(new DirectoryInfo(keysPath), loggerFactory);
     }
 }

@@ -4,7 +4,7 @@ This file indexes the durable AI rules in `docs/ai-rules/`. Read the always-on f
 
 ## Repository invariants
 
-- The repository-root `docs/` tree is intentionally ignored. Keep `/docs/` in `.gitignore` and do not add negation patterns that re-include any path beneath it.
+- The repository-root `docs/` tree is intentionally ignored. Keep `/docs/` in `.gitignore` and do not add negation patterns that re-include any path beneath it. Transient planning names such as phases and versions live only in that untracked tree and must not leak into tracked artifacts.
 
 ## Always read
 

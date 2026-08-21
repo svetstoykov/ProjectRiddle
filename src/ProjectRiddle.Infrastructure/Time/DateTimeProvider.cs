@@ -29,4 +29,14 @@ public sealed class DateTimeProvider : IDateTimeProvider
 
     /// <inheritdoc />
     public DateTimeOffset LocalDateTime => TimeZoneInfo.ConvertTime(UtcDateTime, localTimeZone);
+
+    /// <inheritdoc />
+    public DateOnly LocalDate
+    {
+        get
+        {
+            var localDateTime = LocalDateTime;
+            return new DateOnly(localDateTime.Year, localDateTime.Month, localDateTime.Day);
+        }
+    }
 }

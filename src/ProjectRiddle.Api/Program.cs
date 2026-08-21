@@ -26,8 +26,8 @@ builder.Host.UseSerilog(
         }
     });
 
-builder.Services.AddProjectRiddleApi();
 builder.Services.AddProjectRiddleInfrastructure(builder.Configuration);
+builder.Services.AddProjectRiddleApi();
 
 var app = builder.Build();
 
@@ -36,6 +36,8 @@ await app.ApplyProjectRiddleMigrationsAsync();
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.MapControllers();

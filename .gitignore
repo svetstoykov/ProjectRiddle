@@ -73,6 +73,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 rustc-ice-*.txt
 
 # Local databases and application data
+src/ProjectRiddle.Api/data/
 *.db
 *.db-shm
 *.db-wal
@@ -132,3 +133,4 @@ ehthumbs.db
 Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+.deploy.env

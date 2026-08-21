@@ -20,6 +20,7 @@ public sealed class ProjectRiddleDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProjectRiddleDbContext).Assembly);
         base.OnModelCreating(modelBuilder);
     }
 }

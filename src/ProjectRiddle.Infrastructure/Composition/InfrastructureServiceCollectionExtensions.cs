@@ -4,9 +4,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using ProjectRiddle.Core.Interfaces.Repositories;
 using ProjectRiddle.Core.Interfaces.Time;
+using ProjectRiddle.Core.Interfaces.Users;
+using ProjectRiddle.Infrastructure.Bootstrap;
 using ProjectRiddle.Infrastructure.Configuration;
 using ProjectRiddle.Infrastructure.Persistence;
+using ProjectRiddle.Infrastructure.Repositories.Riddles;
+using ProjectRiddle.Infrastructure.Repositories.Users;
+using ProjectRiddle.Infrastructure.Security;
 using ProjectRiddle.Infrastructure.Time;
 
 namespace ProjectRiddle.Infrastructure.Composition;
@@ -44,7 +50,15 @@ public static class InfrastructureServiceCollectionExtensions
                 "The configured application time zone must exist on the host.")
             .ValidateOnStart();
 
+        services
+            .AddOptions<AdminBootstrapOptions>()
+            .Bind(configuration.GetSection(AdminBootstrapOptions.SectionName));
+
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRiddleRepository, RiddleRepository>();
+        services.AddHostedService<AdminBootstrapHostedService>();
         services.AddDbContext<ProjectRiddleDbContext>((serviceProvider, optionsBuilder) =>
         {
             var databaseOptions = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
