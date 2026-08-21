@@ -46,6 +46,7 @@ coverage*.info
 **/dist/
 **/dist-ssr/
 **/coverage/
+src/ProjectRiddle.Api/wwwroot/
 **/.vite/
 **/.cache/
 **/.turbo/

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectRiddle.Core\ProjectRiddle.Core.csproj" />
+    <ProjectReference Include="..\ProjectRiddle.Infrastructure\ProjectRiddle.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>
