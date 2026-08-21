@@ -21,12 +21,6 @@ public sealed record CreateRiddleRequest
     public required string Answer { get; init; }
 
     /// <summary>
-    /// Gets the answer pattern.
-    /// </summary>
-    [Required]
-    public required string AnswerPattern { get; init; }
-
-    /// <summary>
     /// Gets the explanation text.
     /// </summary>
     [Required]
@@ -44,6 +38,6 @@ public sealed record CreateRiddleRequest
     public CreateRiddleInput ToCoreCreateRiddleInput()
     {
         var ranges = Ranges.Select(range => range.ToCoreRiddleRangeInput()).ToArray();
-        return new CreateRiddleInput(Clue, Answer, AnswerPattern, Explanation, ranges);
+        return new CreateRiddleInput(Clue, Answer, Explanation, ranges);
     }
 }

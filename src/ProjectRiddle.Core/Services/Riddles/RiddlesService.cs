@@ -46,7 +46,7 @@ public sealed class RiddlesService : IRiddlesService
         ArgumentNullException.ThrowIfNull(input);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var content = ValidateContent(input.Clue, input.Answer, input.AnswerPattern, input.Explanation, input.Ranges);
+        var content = ValidateContent(input.Clue, input.Answer, input.Explanation, input.Ranges);
         if (content.IsFailure)
         {
             return Result.Failure<RiddleOutput>(content.Error!);
@@ -112,7 +112,7 @@ public sealed class RiddlesService : IRiddlesService
             return NotFound<RiddleOutput>();
         }
 
-        var content = ValidateContent(input.Clue, input.Answer, input.AnswerPattern, input.Explanation, input.Ranges);
+        var content = ValidateContent(input.Clue, input.Answer, input.Explanation, input.Ranges);
         if (content.IsFailure)
         {
             return Result.Failure<RiddleOutput>(content.Error!);
@@ -305,7 +305,6 @@ public sealed class RiddlesService : IRiddlesService
     private static Result<ValidatedRiddleContent> ValidateContent(
         string clue,
         string answer,
-        string answerPattern,
         string explanation,
         IReadOnlyList<RiddleRangeInput> ranges)
     {
@@ -340,10 +339,9 @@ public sealed class RiddlesService : IRiddlesService
 
         var trimmedClue = clue.Trim();
         var trimmedAnswer = answer.Trim();
-        var trimmedPattern = answerPattern.Trim();
         var trimmedExplanation = explanation.Trim();
 
-        var patternResult = AnswerPatternValidator.Validate(trimmedAnswer, trimmedPattern);
+        var patternResult = AnswerPatternDeriver.FromAnswer(trimmedAnswer);
         if (patternResult.IsFailure)
         {
             return Result.Failure<ValidatedRiddleContent>(patternResult.Error!);
@@ -363,7 +361,7 @@ public sealed class RiddlesService : IRiddlesService
             new ValidatedRiddleContent(
                 trimmedClue,
                 trimmedAnswer,
-                trimmedPattern,
+                patternResult.Value!,
                 trimmedExplanation,
                 mappedRanges));
     }

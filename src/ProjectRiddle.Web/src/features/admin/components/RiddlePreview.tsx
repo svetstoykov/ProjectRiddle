@@ -3,18 +3,19 @@ import { useState, type ReactElement } from "react";
 import { CluePresentation } from "../../riddles/components/CluePresentation";
 import type { RiddleRangeKind } from "../../riddles/models/riddleRange";
 import { rangeKindLabels } from "../messages/adminMessages";
+import { deriveAnswerPattern } from "../models/answerPattern";
 import type { RiddleRange } from "../models/adminRiddle";
 import styles from "./RiddlePreview.module.css";
 
 export interface RiddlePreviewProps {
     readonly clue: string;
-    readonly answerPattern: string;
+    readonly answer: string;
     readonly ranges: readonly Pick<RiddleRange, "kind" | "start" | "end">[];
 }
 
 const allKinds: readonly RiddleRangeKind[] = ["definition", "indicator", "fodder"];
 
-export function RiddlePreview({ clue, answerPattern, ranges }: RiddlePreviewProps): ReactElement {
+export function RiddlePreview({ clue, answer, ranges }: RiddlePreviewProps): ReactElement {
     const [activeKinds, setActiveKinds] = useState<ReadonlySet<RiddleRangeKind>>(() => new Set(allKinds));
 
     return (
@@ -46,7 +47,12 @@ export function RiddlePreview({ clue, answerPattern, ranges }: RiddlePreviewProp
                     );
                 })}
             </div>
-            <CluePresentation clue={clue} answerPattern={answerPattern} ranges={ranges} activeKinds={activeKinds} />
+            <CluePresentation
+                clue={clue}
+                answerPattern={deriveAnswerPattern(answer)}
+                ranges={ranges}
+                activeKinds={activeKinds}
+            />
         </section>
     );
 }

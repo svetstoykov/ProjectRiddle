@@ -280,7 +280,7 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
                         {saving ? "Запазване…" : "Запази"}
                     </button>
                 </div>
-                <RiddlePreview clue={draft.clue} answerPattern={draft.answerPattern} ranges={draft.ranges} />
+                <RiddlePreview clue={draft.clue} answer={draft.answer} ranges={draft.ranges} />
             </div>
             {detailQuery.data !== undefined && riddleId === detailQuery.data.id ? (
                 <PublicationPanel

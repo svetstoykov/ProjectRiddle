@@ -14,10 +14,8 @@ export interface RiddleContentFormProps {
 
 export function RiddleContentForm({ draft, errors, disabled, onChange }: RiddleContentFormProps): ReactElement {
     const answerId = useId();
-    const patternId = useId();
     const explanationId = useId();
     const answerErrorId = useId();
-    const patternErrorId = useId();
     const explanationErrorId = useId();
 
     return (
@@ -45,21 +43,6 @@ export function RiddleContentForm({ draft, errors, disabled, onChange }: RiddleC
                     }}
                 />
                 <FieldError id={answerErrorId} messages={errors.answer} />
-            </div>
-            <div className={styles.field}>
-                <label htmlFor={patternId}>Брой букви в отговора</label>
-                <input
-                    id={patternId}
-                    type="text"
-                    value={draft.answerPattern}
-                    disabled={disabled}
-                    aria-invalid={errors.answerPattern.length > 0}
-                    aria-describedby={errors.answerPattern.length > 0 ? patternErrorId : undefined}
-                    onChange={(event) => {
-                        onChange({ ...draft, answerPattern: event.target.value });
-                    }}
-                />
-                <FieldError id={patternErrorId} messages={errors.answerPattern} />
             </div>
             <div className={styles.field}>
                 <label htmlFor={explanationId}>Обяснение</label>

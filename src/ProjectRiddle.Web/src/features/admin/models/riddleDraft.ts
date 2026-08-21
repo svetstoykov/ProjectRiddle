@@ -11,7 +11,6 @@ export interface EditableRange {
 export interface RiddleDraft {
     readonly clue: string;
     readonly answer: string;
-    readonly answerPattern: string;
     readonly explanation: string;
     readonly ranges: readonly EditableRange[];
 }
@@ -19,7 +18,6 @@ export interface RiddleDraft {
 export interface RiddleContentErrors {
     readonly clue: readonly string[];
     readonly answer: readonly string[];
-    readonly answerPattern: readonly string[];
     readonly explanation: readonly string[];
     readonly ranges: readonly string[];
     readonly summary: readonly string[];
@@ -29,7 +27,6 @@ export function emptyRiddleContentErrors(): RiddleContentErrors {
     return {
         clue: [],
         answer: [],
-        answerPattern: [],
         explanation: [],
         ranges: [],
         summary: [],
@@ -40,7 +37,6 @@ export function emptyRiddleDraft(): RiddleDraft {
     return {
         clue: "",
         answer: "",
-        answerPattern: "",
         explanation: "",
         ranges: [],
     };
@@ -50,7 +46,6 @@ export function draftFromRiddle(riddle: Riddle): RiddleDraft {
     return {
         clue: riddle.clue,
         answer: riddle.answer,
-        answerPattern: riddle.answerPattern,
         explanation: riddle.explanation,
         ranges: riddle.ranges.map((range) => ({
             key: range.id,
@@ -65,7 +60,6 @@ export function requestFromDraft(draft: RiddleDraft): RiddleContentRequest {
     return {
         clue: draft.clue,
         answer: draft.answer,
-        answerPattern: draft.answerPattern,
         explanation: draft.explanation,
         ranges: draft.ranges.map((range) => ({
             kind: range.kind,
@@ -79,7 +73,6 @@ export function draftsEqual(left: RiddleDraft, right: RiddleDraft): boolean {
     if (
         left.clue !== right.clue ||
         left.answer !== right.answer ||
-        left.answerPattern !== right.answerPattern ||
         left.explanation !== right.explanation ||
         left.ranges.length !== right.ranges.length
     ) {

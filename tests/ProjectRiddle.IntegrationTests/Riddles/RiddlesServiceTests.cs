@@ -29,25 +29,26 @@ public sealed class RiddlesServiceTests
         Assert.True(result.IsSuccess);
         Assert.Equal(RiddlePublicationState.Draft, result.Value!.PublicationState);
         Assert.Null(result.Value.SofiaPublicationDate);
+        Assert.Equal("4,5", result.Value.AnswerPattern);
         Assert.Equal(2, result.Value.Ranges.Count);
     }
 
     /// <summary>
-    /// Verifies that an answer pattern that does not match the answer is rejected.
+    /// Verifies that an answer with a word that contains no letters is rejected.
     /// </summary>
     /// <returns>A task that represents the test operation.</returns>
     [Fact]
-    public async Task InvalidAnswerPatternIsRejected()
+    public async Task AnswerWithoutLettersIsRejected()
     {
         var workspace = new TestWorkspace(NoonUtcOnTwentieth);
 
         var result = await workspace.Service.CreateAsync(
-            TestWorkspace.CreateRiddleInput(answerPattern: "3,2"),
+            TestWorkspace.CreateRiddleInput(answer: "123 456"),
             CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal(ErrorType.Validation, result.Error!.Type);
-        Assert.Equal(RiddleErrorCodes.AnswerPatternInvalid, result.Error.Code);
+        Assert.Equal(RiddleErrorCodes.AnswerInvalid, result.Error.Code);
     }
 
     /// <summary>
@@ -61,7 +62,6 @@ public sealed class RiddlesServiceTests
         var input = new CreateRiddleInput(
             "бяла врана",
             "бяла врана",
-            "4,5",
             "Обяснение на уликата.",
             [new RiddleRangeInput(RiddleRangeKind.Definition, 0, 40)]);
 
@@ -211,7 +211,6 @@ public sealed class RiddlesServiceTests
                 created.Value.Id,
                 "нова бяла врана лети",
                 "нова врана",
-                "4,5",
                 "Ново обяснение.",
                 [new RiddleRangeInput(RiddleRangeKind.Definition, 0, 4)]),
             CancellationToken.None);
@@ -221,5 +220,6 @@ public sealed class RiddlesServiceTests
         Assert.Equal(RiddlePublicationState.Scheduled, updated.Value!.PublicationState);
         Assert.Equal("нова бяла врана лети", updated.Value.Clue);
         Assert.Equal("нова врана", updated.Value.Answer);
+        Assert.Equal("4,5", updated.Value.AnswerPattern);
     }
 }

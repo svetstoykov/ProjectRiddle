@@ -25,7 +25,6 @@ export interface Riddle {
 export interface RiddleContentRequest {
     readonly clue: string;
     readonly answer: string;
-    readonly answerPattern: string;
     readonly explanation: string;
     readonly ranges: readonly Pick<RiddleRange, "kind" | "start" | "end">[];
 }
