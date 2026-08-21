@@ -1,12 +1,8 @@
 import type { ReactElement } from "react";
-import { BrowserRouter } from "react-router-dom";
+import { RouterProvider } from "react-router-dom";
 
-import { AppRoutes } from "./routes/AppRoutes";
+import { appRouter } from "./routes/AppRoutes";
 
 export function App(): ReactElement {
-    return (
-        <BrowserRouter>
-            <AppRoutes />
-        </BrowserRouter>
-    );
+    return <RouterProvider router={appRouter} />;
 }
