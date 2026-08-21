@@ -10,7 +10,7 @@
 }
 
 .navigation {
-    width: min(100% - 2rem, 72rem);
+    width: min(100% - 2rem, var(--content-width));
     margin: 0 auto;
     min-height: 4rem;
     display: flex;
@@ -36,19 +36,19 @@
 }
 
 .link[aria-current="page"] {
-    color: var(--color-accent);
+    color: var(--color-primary);
     font-weight: 600;
 }
 
 .main {
-    width: min(100% - 2rem, 72rem);
+    width: min(100% - 2rem, var(--content-width));
     margin: 0 auto;
     flex: 1;
     padding: 3rem 0;
 }
 
 .footer {
-    width: min(100% - 2rem, 72rem);
+    width: min(100% - 2rem, var(--content-width));
     margin: 0 auto;
     padding: 1.5rem 0;
     color: var(--color-muted-text);
