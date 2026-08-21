@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectRiddle.Infrastructure.Persistence;
 
@@ -9,14 +10,12 @@ using ProjectRiddle.Infrastructure.Persistence;
 
 namespace ProjectRiddle.Infrastructure.Persistence.Migrations
 {
-    /// <summary>
-    /// Stores the model snapshot used by future EF Core migrations.
-    /// </summary>
     [DbContext(typeof(ProjectRiddleDbContext))]
-    internal sealed partial class ProjectRiddleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260821082549_AddUsersAndRiddles")]
+    internal sealed partial class AddUsersAndRiddles
     {
         /// <inheritdoc />
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.11");

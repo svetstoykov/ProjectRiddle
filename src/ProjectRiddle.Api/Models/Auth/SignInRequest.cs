@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using ProjectRiddle.Core.Models.Users;
 
 namespace ProjectRiddle.Api.Models.Auth;
 
@@ -19,13 +18,4 @@ public sealed record SignInRequest
     /// </summary>
     [Required]
     public required string Password { get; init; }
-
-    /// <summary>
-    /// Maps the request to a Core authentication input.
-    /// </summary>
-    /// <returns>The corresponding Core input.</returns>
-    public AuthenticateUserInput ToCoreAuthenticateUserInput()
-    {
-        return new AuthenticateUserInput(Email, Password);
-    }
 }

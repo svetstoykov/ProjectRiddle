@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using ProjectRiddle.Core.Models.Users;
 
 namespace ProjectRiddle.Api.Models.Auth;
 
@@ -12,6 +11,7 @@ public sealed record RegisterRequest
     /// Gets the email address supplied by the visitor.
     /// </summary>
     [Required]
+    [EmailAddress]
     [MaxLength(256)]
     public required string Email { get; init; }
 
@@ -22,13 +22,4 @@ public sealed record RegisterRequest
     [MinLength(8)]
     [MaxLength(256)]
     public required string Password { get; init; }
-
-    /// <summary>
-    /// Maps the request to a Core registration input.
-    /// </summary>
-    /// <returns>The corresponding Core input.</returns>
-    public RegisterUserInput ToCoreRegisterUserInput()
-    {
-        return new RegisterUserInput(Email, Password);
-    }
 }

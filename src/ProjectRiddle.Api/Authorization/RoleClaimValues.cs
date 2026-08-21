@@ -3,42 +3,28 @@ using ProjectRiddle.Core.Enums.Users;
 namespace ProjectRiddle.Api.Authorization;
 
 /// <summary>
-/// Converts between Core roles and authentication role claim values.
+/// Provides the ASP.NET Identity role names used by cookies and authorization policies.
 /// </summary>
 public static class RoleClaimValues
 {
     /// <summary>
-    /// Gets the role claim value for a self-registered account.
+    /// Gets the role name for a self-registered account.
     /// </summary>
     public const string User = "user";
 
     /// <summary>
-    /// Gets the role claim value for an administrator.
+    /// Gets the role name for an administrator.
     /// </summary>
     public const string Admin = "admin";
 
     /// <summary>
-    /// Converts a Core role to the matching claim value.
+    /// Maps Identity role names to the session role contract.
     /// </summary>
-    /// <param name="role">The Core role.</param>
-    /// <returns>The claim value stored on the authentication cookie.</returns>
-    public static string FromRole(UserRole role)
+    /// <param name="roles">The role names assigned to the account. Cannot be <see langword="null" />.</param>
+    /// <returns>The administrator role when present; otherwise the user role.</returns>
+    public static UserRole ToUserRole(IEnumerable<string> roles)
     {
-        return role == UserRole.Admin ? Admin : User;
-    }
-
-    /// <summary>
-    /// Converts a role claim value to a Core role.
-    /// </summary>
-    /// <param name="value">The claim value.</param>
-    /// <returns>The matching Core role when recognized; otherwise <see langword="null" />.</returns>
-    public static UserRole? ToRole(string? value)
-    {
-        return value switch
-        {
-            Admin => UserRole.Admin,
-            User => UserRole.User,
-            _ => null
-        };
+        ArgumentNullException.ThrowIfNull(roles);
+        return roles.Contains(Admin, StringComparer.Ordinal) ? UserRole.Admin : UserRole.User;
     }
 }

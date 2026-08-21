@@ -1,21 +1,20 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.DataProtection.Repositories;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using ProjectRiddle.Api.Authorization;
 using ProjectRiddle.Api.Infrastructure;
 using ProjectRiddle.Core.Interfaces.Services;
-using ProjectRiddle.Core.Interfaces.Users;
 using ProjectRiddle.Core.Services.Riddles;
 using ProjectRiddle.Core.Services.System;
-using ProjectRiddle.Core.Services.Users;
 using ProjectRiddle.Infrastructure.Configuration;
+using ProjectRiddle.Infrastructure.Identity;
+using ProjectRiddle.Infrastructure.Persistence;
 
 namespace ProjectRiddle.Api.Extensions;
 
@@ -56,18 +55,33 @@ public static class ApiServiceCollectionExtensions
         });
 
         services
-            .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(options =>
+            .AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
-                options.Cookie.Name = "ProjectRiddle.Auth";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SameSite = SameSiteMode.Lax;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                options.SlidingExpiration = true;
-                options.ExpireTimeSpan = TimeSpan.FromDays(14);
-                options.Events.OnRedirectToLogin = CookieAuthenticationProblemDetails.WriteUnauthorizedAsync;
-                options.Events.OnRedirectToAccessDenied = CookieAuthenticationProblemDetails.WriteForbiddenAsync;
-            });
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequiredUniqueChars = 0;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.Lockout.AllowedForNewUsers = false;
+            })
+            .AddEntityFrameworkStores<ProjectRiddleDbContext>()
+            .AddDefaultTokenProviders();
+
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.Name = "ProjectRiddle.Auth";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.Lax;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+            options.SlidingExpiration = true;
+            options.ExpireTimeSpan = TimeSpan.FromDays(14);
+            options.Events.OnRedirectToLogin = CookieAuthenticationProblemDetails.WriteUnauthorizedAsync;
+            options.Events.OnRedirectToAccessDenied = CookieAuthenticationProblemDetails.WriteForbiddenAsync;
+        });
 
         services.AddAuthorization(options =>
         {
@@ -89,9 +103,7 @@ public static class ApiServiceCollectionExtensions
             });
         });
 
-        services.AddScoped<ICurrentUser, HttpCurrentUser>();
         services.AddSingleton<IInternalStatusService, InternalStatusService>();
-        services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IRiddlesService, RiddlesService>();
 
         return services;

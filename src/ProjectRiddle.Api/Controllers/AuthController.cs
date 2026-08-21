@@ -1,12 +1,11 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ProjectRiddle.Api.Authorization;
 using ProjectRiddle.Api.Models.Auth;
-using ProjectRiddle.Core.Interfaces.Services;
+using ProjectRiddle.Core.Results.Models;
+using ProjectRiddle.Infrastructure.Identity;
 
 namespace ProjectRiddle.Api.Controllers;
 
@@ -15,89 +14,111 @@ namespace ProjectRiddle.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController : BaseController
+public sealed partial class AuthController : BaseController
 {
-    private readonly IUsersService usersService;
+    private readonly UserManager<ApplicationUser> userManager;
+    private readonly SignInManager<ApplicationUser> signInManager;
     private readonly IAntiforgery antiforgery;
+    private readonly ILogger<AuthController> logger;
 
     /// <summary>
     /// Initializes the authentication controller.
     /// </summary>
-    /// <param name="usersService">The Core users service.</param>
+    /// <param name="userManager">The ASP.NET Identity user manager.</param>
+    /// <param name="signInManager">The ASP.NET Identity sign-in manager.</param>
     /// <param name="antiforgery">The antiforgery service used to issue CSRF request tokens.</param>
-    public AuthController(IUsersService usersService, IAntiforgery antiforgery)
+    /// <param name="logger">The logger for safe account lifecycle events.</param>
+    public AuthController(
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
+        IAntiforgery antiforgery,
+        ILogger<AuthController> logger)
     {
-        ArgumentNullException.ThrowIfNull(usersService);
+        ArgumentNullException.ThrowIfNull(userManager);
+        ArgumentNullException.ThrowIfNull(signInManager);
         ArgumentNullException.ThrowIfNull(antiforgery);
+        ArgumentNullException.ThrowIfNull(logger);
 
-        this.usersService = usersService;
+        this.userManager = userManager;
+        this.signInManager = signInManager;
         this.antiforgery = antiforgery;
+        this.logger = logger;
     }
 
     /// <summary>
     /// Registers a local account with the user role.
     /// </summary>
     /// <param name="request">The registration request.</param>
-    /// <param name="cancellationToken">The token used to cancel the request.</param>
     /// <returns>The created account when registration succeeds.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the user role cannot be assigned after the account is created.</exception>
     [HttpPost("register")]
     [AllowAnonymous]
     [IgnoreAntiforgeryToken]
     [ProducesResponseType(typeof(SessionResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<SessionResponse>> RegisterAsync(
-        [FromBody] RegisterRequest request,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<SessionResponse>> RegisterAsync([FromBody] RegisterRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await usersService.RegisterAsync(request.ToCoreRegisterUserInput(), cancellationToken);
-        if (result.IsFailure)
+        var user = new ApplicationUser
         {
-            return FromFailure<SessionResponse>(result.Error!);
+            UserName = request.Email.Trim(),
+            Email = request.Email.Trim()
+        };
+        var created = await userManager.CreateAsync(user, request.Password);
+        if (!created.Succeeded)
+        {
+            return FromIdentityFailure(created);
         }
 
-        var response = SessionResponse.FromCoreRegisterUserOutput(result.Value!);
-        return Created("/api/auth/session", response);
+        var roleResult = await userManager.AddToRoleAsync(user, RoleClaimValues.User);
+        if (!roleResult.Succeeded)
+        {
+            throw new InvalidOperationException("The registered account could not be assigned the user role.");
+        }
+
+        LogUserRegistered(logger, user.Id);
+        return Created("/api/auth/session", CreateSessionResponse(user, [RoleClaimValues.User]));
     }
 
     /// <summary>
     /// Verifies credentials and establishes a cookie session.
     /// </summary>
     /// <param name="request">The sign-in request.</param>
-    /// <param name="cancellationToken">The token used to cancel the request.</param>
     /// <returns>The authenticated session when credentials are valid.</returns>
     [HttpPost("sign-in")]
     [AllowAnonymous]
     [IgnoreAntiforgeryToken]
     [ProducesResponseType(typeof(SessionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<SessionResponse>> SignInAsync(
-        [FromBody] SignInRequest request,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<SessionResponse>> SignInAsync([FromBody] SignInRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await usersService.AuthenticateAsync(request.ToCoreAuthenticateUserInput(), cancellationToken);
-        if (result.IsFailure)
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
         {
-            return FromFailure<SessionResponse>(result.Error!);
+            return FromFailure<SessionResponse>(InvalidCredentials());
         }
 
-        var user = result.Value!;
-        var claims = new[]
+        var user = await userManager.FindByEmailAsync(request.Email.Trim());
+        if (user is null)
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, RoleClaimValues.FromRole(user.Role))
-        };
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            new ClaimsPrincipal(identity));
+            return FromFailure<SessionResponse>(InvalidCredentials());
+        }
 
-        return Ok(SessionResponse.FromCoreAuthenticateUserOutput(user));
+        var signIn = await signInManager.CheckPasswordSignInAsync(
+            user,
+            request.Password,
+            lockoutOnFailure: false);
+        if (!signIn.Succeeded)
+        {
+            return FromFailure<SessionResponse>(InvalidCredentials());
+        }
+
+        await signInManager.SignInAsync(user, isPersistent: true);
+        var roles = await userManager.GetRolesAsync(user);
+        return Ok(CreateSessionResponse(user, roles));
     }
 
     /// <summary>
@@ -109,27 +130,31 @@ public sealed class AuthController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult> SignOutAsync()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await signInManager.SignOutAsync();
         return NoContent();
     }
 
     /// <summary>
     /// Gets the account for the current cookie session.
     /// </summary>
-    /// <param name="cancellationToken">The token used to cancel the request.</param>
     /// <returns>The current session when the caller is authenticated.</returns>
     [HttpGet("session")]
     [ProducesResponseType(typeof(SessionResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<SessionResponse>> GetSessionAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<SessionResponse>> GetSessionAsync()
     {
-        var result = await usersService.GetCurrentAsync(cancellationToken);
-        if (result.IsFailure)
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
         {
-            return FromFailure<SessionResponse>(result.Error!);
+            return FromFailure<SessionResponse>(
+                new OperationError(
+                    "Authentication is required.",
+                    ErrorType.Unauthorized,
+                    UserErrorCodes.Unauthorized));
         }
 
-        return Ok(SessionResponse.FromCoreCurrentSessionOutput(result.Value!));
+        var roles = await userManager.GetRolesAsync(user);
+        return Ok(CreateSessionResponse(user, roles));
     }
 
     /// <summary>
@@ -144,4 +169,56 @@ public sealed class AuthController : BaseController
         var tokens = antiforgery.GetAndStoreTokens(HttpContext);
         return Ok(new AntiforgeryTokenResponse { Token = tokens.RequestToken! });
     }
+
+    private static SessionResponse CreateSessionResponse(ApplicationUser user, IEnumerable<string> roles)
+    {
+        return new SessionResponse
+        {
+            Id = user.Id,
+            Email = user.Email!,
+            Role = RoleClaimValues.ToUserRole(roles)
+        };
+    }
+
+    private ActionResult<SessionResponse> FromIdentityFailure(IdentityResult result)
+    {
+        var code = result.Errors.Select(error => error.Code).FirstOrDefault();
+        if (code is "DuplicateEmail" or "DuplicateUserName")
+        {
+            return FromFailure<SessionResponse>(
+                new OperationError(
+                    "An account with this email address already exists.",
+                    ErrorType.Conflict,
+                    UserErrorCodes.EmailConflict));
+        }
+
+        if (code is not null && code.StartsWith("Password", StringComparison.Ordinal))
+        {
+            return FromFailure<SessionResponse>(
+                new OperationError(
+                    "Password must be between 8 and 256 characters.",
+                    ErrorType.Validation,
+                    UserErrorCodes.PasswordInvalid));
+        }
+
+        return FromFailure<SessionResponse>(
+            new OperationError(
+                "A valid email address is required.",
+                ErrorType.Validation,
+                UserErrorCodes.EmailInvalid));
+    }
+
+    private static OperationError InvalidCredentials()
+    {
+        return new OperationError(
+            "Invalid email or password.",
+            ErrorType.Unauthorized,
+            UserErrorCodes.CredentialsInvalid);
+    }
+
+    [LoggerMessage(
+        EventId = 2000,
+        Level = LogLevel.Information,
+        Message = "Registered a local user account. UserId: {UserId}")]
+    private static partial void LogUserRegistered(ILogger logger, Guid userId);
 }

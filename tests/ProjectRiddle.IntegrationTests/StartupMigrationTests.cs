@@ -29,8 +29,8 @@ public sealed class StartupMigrationTests
         var database = scope.ServiceProvider.GetRequiredService<ProjectRiddleDbContext>();
         var appliedMigrations = await database.Database.GetAppliedMigrationsAsync();
 
-        Assert.Contains("20260821000000_InitialBaseline", appliedMigrations);
-        Assert.Contains("20260821080031_AddUsersAndRiddles", appliedMigrations);
+        Assert.Contains(appliedMigrations, name => name.EndsWith("_InitialBaseline", StringComparison.Ordinal));
+        Assert.Contains(appliedMigrations, name => name.EndsWith("_AddUsersAndRiddles", StringComparison.Ordinal));
         Assert.True(await database.Database.CanConnectAsync());
     }
 

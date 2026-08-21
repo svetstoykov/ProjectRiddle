@@ -1,9 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using ProjectRiddle.Api.Authorization;
 using ProjectRiddle.Core.Enums.Users;
-using ProjectRiddle.Core.Interfaces.Repositories;
-using ProjectRiddle.Core.Interfaces.Services;
-using ProjectRiddle.Core.Models.Users;
-using ProjectRiddle.Core.Services.Users;
+using ProjectRiddle.Infrastructure.Identity;
 using ProjectRiddle.IntegrationTests.Harness;
 
 namespace ProjectRiddle.IntegrationTests.Users;
@@ -24,15 +23,14 @@ public sealed class AdminBootstrapTests
             bootstrapEmail: "admin@example.com",
             bootstrapPassword: "password1");
         using var scope = workspace.Factory.Services.CreateScope();
-        var users = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        var administrator = await users.GetByNormalizedEmailAsync(
-            EmailNormalizer.Normalize("admin@example.com"),
-            CancellationToken.None);
-
+        var administrator = await users.FindByEmailAsync("admin@example.com");
         Assert.NotNull(administrator);
-        Assert.Equal(UserRole.Admin, administrator.Role);
+        var roles = await users.GetRolesAsync(administrator);
+        Assert.Equal(UserRole.Admin, RoleClaimValues.ToUserRole(roles));
         Assert.False(string.Equals(administrator.PasswordHash, "password1", StringComparison.Ordinal));
+        Assert.True(await users.CheckPasswordAsync(administrator, "password1"));
     }
 
     /// <summary>
@@ -50,12 +48,16 @@ public sealed class AdminBootstrapTests
             await using (var firstFactory = new ApplicationFactory(databasePath, TestWorkspace.TimeZoneId))
             {
                 using var scope = firstFactory.Services.CreateScope();
-                var users = scope.ServiceProvider.GetRequiredService<IUsersService>();
-                var registered = await users.RegisterAsync(
-                    new RegisterUserInput("admin@example.com", "password1"),
-                    CancellationToken.None);
-                Assert.True(registered.IsSuccess);
-                Assert.Equal(UserRole.User, registered.Value!.Role);
+                var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var registered = new ApplicationUser
+                {
+                    UserName = "admin@example.com",
+                    Email = "admin@example.com"
+                };
+                var created = await users.CreateAsync(registered, "password1");
+                Assert.True(created.Succeeded);
+                var role = await users.AddToRoleAsync(registered, RoleClaimValues.User);
+                Assert.True(role.Succeeded);
             }
 
             await using var secondFactory = new ApplicationFactory(
@@ -64,24 +66,14 @@ public sealed class AdminBootstrapTests
                 bootstrapEmail: "admin@example.com",
                 bootstrapPassword: "other-password");
             using var verifyScope = secondFactory.Services.CreateScope();
-            var userRepository = verifyScope.ServiceProvider.GetRequiredService<IUserRepository>();
-            var existing = await userRepository.GetByNormalizedEmailAsync(
-                EmailNormalizer.Normalize("admin@example.com"),
-                CancellationToken.None);
+            var userManager = verifyScope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var existing = await userManager.FindByEmailAsync("admin@example.com");
 
             Assert.NotNull(existing);
-            Assert.Equal(UserRole.User, existing.Role);
-
-            var usersService = verifyScope.ServiceProvider.GetRequiredService<IUsersService>();
-            var originalPassword = await usersService.AuthenticateAsync(
-                new AuthenticateUserInput("admin@example.com", "password1"),
-                CancellationToken.None);
-            var bootstrapPassword = await usersService.AuthenticateAsync(
-                new AuthenticateUserInput("admin@example.com", "other-password"),
-                CancellationToken.None);
-
-            Assert.True(originalPassword.IsSuccess);
-            Assert.True(bootstrapPassword.IsFailure);
+            var roles = await userManager.GetRolesAsync(existing);
+            Assert.Equal(UserRole.User, RoleClaimValues.ToUserRole(roles));
+            Assert.True(await userManager.CheckPasswordAsync(existing, "password1"));
+            Assert.False(await userManager.CheckPasswordAsync(existing, "other-password"));
         }
         finally
         {

@@ -1,22 +1,21 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ProjectRiddle.Core.Enums.Users;
-using ProjectRiddle.Core.Interfaces.Repositories;
-using ProjectRiddle.Core.Interfaces.Time;
-using ProjectRiddle.Core.Interfaces.Users;
-using ProjectRiddle.Core.Models.Users;
-using ProjectRiddle.Core.Services.Users;
 using ProjectRiddle.Infrastructure.Configuration;
+using ProjectRiddle.Infrastructure.Identity;
 
 namespace ProjectRiddle.Infrastructure.Bootstrap;
 
 /// <summary>
-/// Provisions the first administrator from runtime-only configuration without overwriting an existing account.
+/// Ensures Identity roles exist and provisions the first administrator from runtime-only configuration.
 /// </summary>
 public sealed partial class AdminBootstrapHostedService : IHostedService
 {
+    private const string UserRoleName = "user";
+    private const string AdminRoleName = "admin";
+
     private readonly IServiceScopeFactory scopeFactory;
     private readonly IOptions<AdminBootstrapOptions> options;
     private readonly ILogger<AdminBootstrapHostedService> logger;
@@ -44,6 +43,13 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
     /// <inheritdoc />
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        await using var scope = scopeFactory.CreateAsyncScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        await EnsureRoleExistsAsync(roleManager, UserRoleName);
+        await EnsureRoleExistsAsync(roleManager, AdminRoleName);
+
         var email = options.Value.Email;
         var password = options.Value.Password;
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -51,28 +57,30 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
             return;
         }
 
-        await using var scope = scopeFactory.CreateAsyncScope();
-        var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
-        var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
-        var dateTimeProvider = scope.ServiceProvider.GetRequiredService<IDateTimeProvider>();
-
-        var normalizedEmail = EmailNormalizer.Normalize(email);
-        var existing = await userRepository.GetByNormalizedEmailAsync(normalizedEmail, cancellationToken);
+        var existing = await userManager.FindByEmailAsync(email.Trim());
         if (existing is not null)
         {
             LogBootstrapSkipped(logger);
             return;
         }
 
-        var administrator = new User(
-            Guid.NewGuid(),
-            email.Trim(),
-            normalizedEmail,
-            passwordHasher.HashPassword(password),
-            UserRole.Admin,
-            dateTimeProvider.UtcDateTime);
+        var administrator = new ApplicationUser
+        {
+            UserName = email.Trim(),
+            Email = email.Trim()
+        };
+        var created = await userManager.CreateAsync(administrator, password);
+        if (!created.Succeeded)
+        {
+            throw new InvalidOperationException("Administrator bootstrap failed to create the configured account.");
+        }
 
-        await userRepository.AddAsync(administrator, cancellationToken);
+        var roleResult = await userManager.AddToRoleAsync(administrator, AdminRoleName);
+        if (!roleResult.Succeeded)
+        {
+            throw new InvalidOperationException("Administrator bootstrap failed to assign the admin role.");
+        }
+
         LogBootstrapApplied(logger, administrator.Id);
     }
 
@@ -80,6 +88,20 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
     public Task StopAsync(CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    private static async Task EnsureRoleExistsAsync(RoleManager<ApplicationRole> roleManager, string roleName)
+    {
+        if (await roleManager.RoleExistsAsync(roleName))
+        {
+            return;
+        }
+
+        var created = await roleManager.CreateAsync(new ApplicationRole(roleName));
+        if (!created.Succeeded)
+        {
+            throw new InvalidOperationException($"Failed to create the '{roleName}' role.");
+        }
     }
 
     [LoggerMessage(

@@ -1,7 +1,7 @@
-namespace ProjectRiddle.Core.Services.Users;
+namespace ProjectRiddle.Api.Models.Auth;
 
 /// <summary>
-/// Provides stable codes for expected Users capability failures.
+/// Provides stable codes for expected account-operation failures.
 /// </summary>
 public static class UserErrorCodes
 {
@@ -11,7 +11,7 @@ public static class UserErrorCodes
     public const string EmailInvalid = "users.email.invalid";
 
     /// <summary>
-    /// Identifies a normalized email that is already registered.
+    /// Identifies an email that is already registered.
     /// </summary>
     public const string EmailConflict = "users.email.conflict";
 

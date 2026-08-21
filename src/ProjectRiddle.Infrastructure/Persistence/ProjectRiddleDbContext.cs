@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ProjectRiddle.Infrastructure.Identity;
 
 namespace ProjectRiddle.Infrastructure.Persistence;
 
 /// <summary>
-/// Provides the EF Core persistence boundary for Project Riddle.
+/// Provides the EF Core persistence boundary for Project Riddle, including ASP.NET Identity.
 /// </summary>
-public sealed class ProjectRiddleDbContext : DbContext
+public sealed class ProjectRiddleDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>
 {
     /// <summary>
     /// Initializes the persistence context.
@@ -17,10 +19,10 @@ public sealed class ProjectRiddleDbContext : DbContext
     }
 
     /// <inheritdoc />
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        ArgumentNullException.ThrowIfNull(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ProjectRiddleDbContext).Assembly);
-        base.OnModelCreating(modelBuilder);
+        ArgumentNullException.ThrowIfNull(builder);
+        base.OnModelCreating(builder);
+        builder.ApplyConfigurationsFromAssembly(typeof(ProjectRiddleDbContext).Assembly);
     }
 }
