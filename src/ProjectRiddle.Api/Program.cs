@@ -12,9 +12,18 @@ builder.Host.UseSerilog(
         loggerConfiguration
             .ReadFrom.Configuration(context.Configuration)
             .Enrich.FromLogContext()
+            .Enrich.WithProperty("Application", "ProjectRiddle")
             .WriteTo.Console(
                 formatProvider: CultureInfo.InvariantCulture,
                 theme: AnsiConsoleTheme.Code);
+
+        var seqServerUrl = context.Configuration["Seq:ServerUrl"]?.Trim();
+        if (!string.IsNullOrEmpty(seqServerUrl))
+        {
+            loggerConfiguration.WriteTo.Seq(
+                seqServerUrl,
+                formatProvider: CultureInfo.InvariantCulture);
+        }
     });
 
 builder.Services.AddProjectRiddleApi();

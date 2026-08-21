@@ -1,0 +1,51 @@
+# One service, one named volume, one healthcheck.
+# Project name is pinned so volume/network names do not follow the directory name
+# on the Pi (`project_riddle` vs `project-riddle`).
+name: project-riddle
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: project-riddle:latest
+    container_name: project-riddle
+    # A failed migration takes the host down deliberately; with this policy that
+    # becomes a visible crash loop in `docker logs` rather than silence.
+    restart: unless-stopped
+    ports:
+      - "48200:8080"
+    environment:
+      TZ: Europe/Sofia
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: "8080"
+      # The double underscore is .NET's configuration path separator, so the
+      # SQLite path is overridable here without touching appsettings.json.
+      Persistence__DatabasePath: /data/project-riddle.db
+      Time__TimeZoneId: Europe/Sofia
+      # Seq is a separate compose project on the existing seq-logging network.
+      Seq__ServerUrl: http://seq:5341
+    networks:
+      - default
+      - seq-logging
+    volumes:
+      # Named, so the SQLite file (and later Data Protection keys) survive rebuilds
+      # and container recreation.
+      - project-riddle-data:/data
+    healthcheck:
+      # /api/system/health is the walking-skeleton status endpoint. It fails when
+      # the process is not serving, not merely when the container is running.
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/system/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  seq-logging:
+    external: true
+    name: seq-logging
+
+volumes:
+  project-riddle-data:
+    name: project-riddle-data

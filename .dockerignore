@@ -1,0 +1,21 @@
+# Build output and local state must never enter the context: copying a host-built
+# obj/ into the SDK stage is a reliable way to get a confusing restore failure.
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+src/ProjectRiddle.Api/wwwroot/
+*.db
+*.db-shm
+*.db-wal
+
+.git/
+.gitignore
+docs/
+mockups/
+tests/
+.vs/
+.idea/
+.vscode/
+.DS_Store
+.deploy.env
