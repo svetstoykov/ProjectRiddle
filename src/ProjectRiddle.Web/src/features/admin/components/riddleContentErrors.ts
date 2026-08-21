@@ -20,7 +20,7 @@ export function requiredContentErrors(draft: RiddleDraft): RiddleContentErrors {
     const errors: RiddleContentErrors = {
         clue: draft.clue.trim().length === 0 ? ["Въведете условие."] : [],
         answer: draft.answer.trim().length === 0 ? ["Въведете отговор."] : [],
-        answerPattern: draft.answerPattern.trim().length === 0 ? ["Въведете шаблон на отговора."] : [],
+        answerPattern: draft.answerPattern.trim().length === 0 ? ["Въведете броя букви в отговора."] : [],
         explanation: draft.explanation.trim().length === 0 ? ["Въведете обяснение."] : [],
         ranges: [],
         summary: [],

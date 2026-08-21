@@ -47,7 +47,7 @@ export function RiddleContentForm({ draft, errors, disabled, onChange }: RiddleC
                 <FieldError id={answerErrorId} messages={errors.answer} />
             </div>
             <div className={styles.field}>
-                <label htmlFor={patternId}>Шаблон на отговора</label>
+                <label htmlFor={patternId}>Брой букви в отговора</label>
                 <input
                     id={patternId}
                     type="text"

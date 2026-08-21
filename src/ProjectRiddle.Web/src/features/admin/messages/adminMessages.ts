@@ -5,7 +5,7 @@ const riddleMessages = {
     "riddles.notFound": "Загадката не е намерена.",
     "riddles.clue.invalid": "Въведете валидно условие.",
     "riddles.answer.invalid": "Въведете валиден отговор.",
-    "riddles.answerPattern.invalid": "Въведете валиден шаблон на отговора.",
+    "riddles.answerPattern.invalid": "Въведете валиден брой букви в отговора.",
     "riddles.explanation.invalid": "Въведете валидно обяснение.",
     "riddles.ranges.invalid": "Етикетите по откъси са невалидни.",
     "riddles.publicationDate.invalid": "Въведете валидна дата на публикуване в София.",

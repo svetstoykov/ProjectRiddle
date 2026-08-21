@@ -122,7 +122,7 @@ export function CluePresentation({ clue, answerPattern, ranges, activeKinds }: C
                 ))}
             </p>
             <p className={styles.pattern}>
-                <span className={styles.patternLabel}>Шаблон</span> {answerPattern}
+                <span className={styles.patternLabel}>Брой букви</span> {answerPattern}
             </p>
             {legendKinds.length > 0 ? (
                 <ul className={styles.legend}>

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
-import { useBeforeUnload, useBlocker, useNavigate } from "react-router-dom";
+import { useBeforeUnload, useBlocker, useNavigate, type BlockerFunction } from "react-router-dom";
 
 import { reconcileSessionAfterAuthorizationFailure } from "../../auth/api/sessionQuery";
 import { isApplicationError } from "../../../shared/api/errors";
@@ -9,6 +9,7 @@ import { PageStatus } from "../../../shared/components/PageStatus";
 import { adminRiddleDetailQueryOptions, adminRiddleKeys } from "../api/adminRiddleQueries";
 import { adminRiddlesApi } from "../api/adminRiddlesApi";
 import { riddleMessageForCode, unknownRiddleFailure } from "../messages/adminMessages";
+import type { Riddle } from "../models/adminRiddle";
 import {
     draftFromRiddle,
     draftsEqual,
@@ -32,11 +33,21 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
     const isNew = riddleId === undefined;
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+    const initialRiddleRef = useRef<Riddle | undefined>(
+        riddleId === undefined ? undefined : queryClient.getQueryData<Riddle>(adminRiddleKeys.detail(riddleId)),
+    );
     const stayRef = useRef<HTMLButtonElement>(null);
     const summaryRef = useRef<HTMLDivElement>(null);
-    const [draft, setDraft] = useState<RiddleDraft>(emptyRiddleDraft);
-    const [baseline, setBaseline] = useState<RiddleDraft>(emptyRiddleDraft);
-    const [initializedId, setInitializedId] = useState<string | undefined>(undefined);
+    const createdRiddlePathRef = useRef<string | null>(null);
+    const [draft, setDraft] = useState<RiddleDraft>(() =>
+        initialRiddleRef.current === undefined ? emptyRiddleDraft() : draftFromRiddle(initialRiddleRef.current),
+    );
+    const [baseline, setBaseline] = useState<RiddleDraft>(() =>
+        initialRiddleRef.current === undefined ? emptyRiddleDraft() : draftFromRiddle(initialRiddleRef.current),
+    );
+    const [initializedId, setInitializedId] = useState<string | undefined>(() =>
+        initialRiddleRef.current === undefined ? undefined : riddleId,
+    );
     const [errors, setErrors] = useState<RiddleContentErrors>(emptyRiddleContentErrors);
     const [shouldFocusSummary, setShouldFocusSummary] = useState(false);
     const [missing, setMissing] = useState(false);
@@ -48,7 +59,11 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
     });
 
     const isDirty = !draftsEqual(draft, baseline);
-    const blocker = useBlocker(isDirty);
+    const shouldBlockNavigation = useCallback<BlockerFunction>(
+        ({ nextLocation }) => isDirty && !(isNew && nextLocation.pathname === createdRiddlePathRef.current),
+        [isDirty, isNew],
+    );
+    const blocker = useBlocker(shouldBlockNavigation);
     const authorizationFailure =
         isApplicationError(detailQuery.error) && (detailQuery.error.status === 401 || detailQuery.error.status === 403);
     const notFound =
@@ -108,7 +123,9 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
         onSuccess: async (created) => {
             queryClient.setQueryData(adminRiddleKeys.detail(created.id), created);
             await queryClient.invalidateQueries({ queryKey: adminRiddleKeys.lists() });
+            const createdRiddlePath = `/admin/riddles/${created.id}`;
             const next = draftFromRiddle(created);
+            createdRiddlePathRef.current = createdRiddlePath;
             setDraft(next);
             setBaseline(next);
             setErrors(emptyRiddleContentErrors());
@@ -116,7 +133,7 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
             if (blocker.state === "blocked") {
                 blocker.reset();
             }
-            void navigate(`/admin/riddles/${created.id}`, { replace: true });
+            void navigate(createdRiddlePath, { replace: true });
         },
         onError: (error: unknown) => {
             if (reconcileSessionAfterAuthorizationFailure(queryClient, error)) {

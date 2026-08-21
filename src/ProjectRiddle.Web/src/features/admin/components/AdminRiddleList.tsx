@@ -105,7 +105,7 @@ export function AdminRiddleList({ riddles }: AdminRiddleListProps): ReactElement
                                 <thead>
                                     <tr>
                                         <th>Условие</th>
-                                        <th>Шаблон</th>
+                                        <th>Брой букви</th>
                                         <th>Състояние</th>
                                         <th>{dateLabel(state)}</th>
                                         <th>Обновена</th>
@@ -118,7 +118,7 @@ export function AdminRiddleList({ riddles }: AdminRiddleListProps): ReactElement
                                         return (
                                             <tr key={riddle.id}>
                                                 <td data-label="Условие">{clueExcerpt}</td>
-                                                <td data-label="Шаблон">{riddle.answerPattern}</td>
+                                                <td data-label="Брой букви">{riddle.answerPattern}</td>
                                                 <td data-label="Състояние">
                                                     <span className={styles.chip}>
                                                         {publicationStateLabels[riddle.publicationState]}
