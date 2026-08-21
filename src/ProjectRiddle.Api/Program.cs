@@ -26,8 +26,13 @@ builder.Host.UseSerilog(
         }
     });
 
-builder.Services.AddProjectRiddleInfrastructure(builder.Configuration);
-builder.Services.AddProjectRiddleApi();
+builder.Services
+    .AddProjectRiddleInfrastructure(builder.Configuration)
+    .AddProjectRiddleMvc()
+    .AddProjectRiddleIdentity()
+    .AddProjectRiddleAuthorization()
+    .AddProjectRiddleDataProtection(builder.Configuration, builder.Environment)
+    .AddProjectRiddleApplicationServices();
 
 var app = builder.Build();
 
