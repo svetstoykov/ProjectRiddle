@@ -46,7 +46,7 @@ public sealed class RiddleConfiguration : IEntityTypeConfiguration<Riddle>
                 ranges.Property(range => range.End).IsRequired();
             });
         builder.Navigation(riddle => riddle.Ranges)
-            .HasField("ranges")
+            .HasField("_ranges")
             .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }
