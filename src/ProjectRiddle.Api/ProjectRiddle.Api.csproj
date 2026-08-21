@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ProjectRiddle.Core\ProjectRiddle.Core.csproj" />
     <ProjectReference Include="..\ProjectRiddle.Infrastructure\ProjectRiddle.Infrastructure.csproj" />
   </ItemGroup>

@@ -21,7 +21,7 @@ export function ApplicationLayout(): ReactElement {
             <main className={styles.main}>
                 <Outlet />
             </main>
-            <footer className={styles.footer}>Phase 0 application shell</footer>
+            <footer className={styles.footer}>Project Riddle</footer>
         </div>
     );
 }

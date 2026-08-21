@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-namespace ProjectRiddle.Api.Composition;
+namespace ProjectRiddle.Api.Extensions;
 
 /// <summary>
 /// Maps the single-host API and compiled SPA boundary.

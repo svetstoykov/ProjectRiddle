@@ -3,8 +3,8 @@ const progressStorageKey = "project-riddle.progress";
 export const currentProgressSchemaVersion = 1 as const;
 
 /**
- * Phase 0 keeps only the versioned envelope here. Later phases extend this adapter with typed progress shapes;
- * credentials, session material, answers, and explanations must never be stored in the document.
+ * The adapter stores only typed progress data; credentials, session material, answers, and explanations must never
+ * be stored in the document.
  */
 export interface ProgressDocument {
     readonly schemaVersion: typeof currentProgressSchemaVersion;

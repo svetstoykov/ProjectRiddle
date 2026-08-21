@@ -1,9 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using ProjectRiddle.Api.Infrastructure;
 using ProjectRiddle.Core.Interfaces.Services;
-using ProjectRiddle.Core.Services.Diagnostics;
+using ProjectRiddle.Core.Services.System;
 
-namespace ProjectRiddle.Api.Composition;
+namespace ProjectRiddle.Api.Extensions;
 
 /// <summary>
 /// Registers API delivery and Core application services at the composition boundary.
@@ -11,7 +11,7 @@ namespace ProjectRiddle.Api.Composition;
 public static class ApiServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds controllers, Problem Details, the global exception handler, and Phase 0 Core services.
+    /// Adds controllers, Problem Details, the global exception handler, and Core services.
     /// </summary>
     /// <param name="services">The service collection to configure.</param>
     /// <returns>The supplied service collection.</returns>
@@ -22,7 +22,7 @@ public static class ApiServiceCollectionExtensions
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddControllers();
-        services.AddSingleton<IWalkingSkeletonService, WalkingSkeletonService>();
+        services.AddSingleton<IInternalStatusService, InternalStatusService>();
 
         return services;
     }

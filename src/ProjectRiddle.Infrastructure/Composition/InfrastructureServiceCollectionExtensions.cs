@@ -17,7 +17,7 @@ namespace ProjectRiddle.Infrastructure.Composition;
 public static class InfrastructureServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds SQLite persistence, validated options, and application time services.
+    /// Adds SQLite persistence, validated options, and date-time services.
     /// </summary>
     /// <param name="services">The service collection to configure.</param>
     /// <param name="configuration">The application configuration.</param>
@@ -36,16 +36,15 @@ public static class InfrastructureServiceCollectionExtensions
             .ValidateOnStart();
 
         services
-            .AddOptions<PublicationOptions>()
-            .Bind(configuration.GetSection(PublicationOptions.SectionName))
+            .AddOptions<TimeOptions>()
+            .Bind(configuration.GetSection(TimeOptions.SectionName))
             .ValidateDataAnnotations()
             .Validate(
                 options => CanFindTimeZone(options.TimeZoneId),
-                "The configured publication time zone must exist on the host.")
+                "The configured application time zone must exist on the host.")
             .ValidateOnStart();
 
-        services.AddSingleton<IClock, SystemClock>();
-        services.AddSingleton<IPublicationDateProvider, SofiaPublicationDateProvider>();
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddDbContext<ProjectRiddleDbContext>((serviceProvider, optionsBuilder) =>
         {
             var databaseOptions = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;

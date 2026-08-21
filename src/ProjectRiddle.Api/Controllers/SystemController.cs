@@ -6,46 +6,44 @@ using ProjectRiddle.Core.Interfaces.Services;
 namespace ProjectRiddle.Api.Controllers;
 
 /// <summary>
-/// Exposes the trivial Phase 0 walking-skeleton endpoint.
+/// Exposes the internal application health endpoint.
 /// </summary>
 [ApiController]
 [Route("api/system")]
 public sealed class SystemController : BaseController
 {
-    private readonly IWalkingSkeletonService walkingSkeletonService;
+    private readonly IInternalStatusService internalStatusService;
 
     /// <summary>
     /// Initializes the system controller.
     /// </summary>
-    /// <param name="walkingSkeletonService">The Core service for the walking-skeleton operation.</param>
-    public SystemController(IWalkingSkeletonService walkingSkeletonService)
+    /// <param name="internalStatusService">The Core service for the internal application status.</param>
+    public SystemController(IInternalStatusService internalStatusService)
     {
-        ArgumentNullException.ThrowIfNull(walkingSkeletonService);
+        ArgumentNullException.ThrowIfNull(internalStatusService);
 
-        this.walkingSkeletonService = walkingSkeletonService;
+        this.internalStatusService = internalStatusService;
     }
 
     /// <summary>
-    /// Returns the application readiness response or a deterministic sample failure.
+    /// Gets the current internal application health status.
     /// </summary>
-    /// <param name="request">The endpoint query input.</param>
     /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>The readiness response when the operation succeeds.</returns>
-    [HttpGet("ping")]
+    /// <returns>The current health status when the operation succeeds.</returns>
+    [HttpGet("health")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(WalkingSkeletonResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(InternalStatusResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<WalkingSkeletonResponse>> PingAsync(
-        [FromQuery] WalkingSkeletonRequest request,
+    public async Task<ActionResult<InternalStatusResponse>> GetHealthAsync(
         CancellationToken cancellationToken)
     {
-        var result = await walkingSkeletonService.ExecuteAsync(request.ToCoreInput(), cancellationToken);
+        var result = await internalStatusService.GetAsync(cancellationToken);
 
         if (result.IsFailure)
         {
-            return FromFailure<WalkingSkeletonResponse>(result.Error!);
+            return FromFailure<InternalStatusResponse>(result.Error!);
         }
 
-        return Ok(WalkingSkeletonResponse.FromCoreOutput(result.Value!));
+        return Ok(InternalStatusResponse.FromCoreOutput(result.Value!));
     }
 }
