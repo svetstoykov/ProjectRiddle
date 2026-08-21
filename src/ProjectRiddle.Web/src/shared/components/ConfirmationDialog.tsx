@@ -7,6 +7,7 @@ export interface ConfirmationDialogProps {
     readonly title: string;
     readonly description: string;
     readonly confirmLabel: string;
+    readonly cancelLabel?: string;
     readonly busy: boolean;
     readonly danger: boolean;
     readonly onConfirm: () => void;
@@ -19,6 +20,7 @@ export function ConfirmationDialog({
     title,
     description,
     confirmLabel,
+    cancelLabel = "Отказ",
     busy,
     danger,
     onConfirm,
@@ -84,7 +86,7 @@ export function ConfirmationDialog({
             <p id={descriptionId}>{description}</p>
             <div className={styles.actions}>
                 <button type="button" className="buttonSecondary" autoFocus onClick={onCancel}>
-                    Отказ
+                    {cancelLabel}
                 </button>
                 <button
                     type="button"
