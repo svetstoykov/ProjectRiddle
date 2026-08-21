@@ -49,8 +49,7 @@ export const adminRiddlesApi = {
     },
 
     publish(id: string, publicationDate?: string): Promise<Riddle> {
-        const body: PublishRiddleRequest | undefined =
-            publicationDate === undefined ? undefined : { publicationDate };
+        const body: PublishRiddleRequest | undefined = publicationDate === undefined ? undefined : { publicationDate };
         return request<Riddle>({
             method: "POST",
             url: `/api/riddles/${id}/publish`,
