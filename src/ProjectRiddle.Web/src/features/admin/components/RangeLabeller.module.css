@@ -1,0 +1,54 @@
+.labeller {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.field {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.ranges {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.range {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 2px solid var(--color-deep-violet);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+}
+
+.range p {
+    margin: 0;
+}
+
+.remove {
+    justify-self: start;
+    min-height: 2.5rem;
+    background: var(--color-surface);
+}
+
+.empty {
+    margin: 0;
+    color: var(--color-muted-text);
+}
+
+@media (min-width: 600px) {
+    .range {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+    }
+}
