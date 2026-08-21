@@ -16,10 +16,10 @@ namespace ProjectRiddle.Api.Controllers;
 [Route("api/auth")]
 public sealed partial class AuthController : BaseController
 {
-    private readonly UserManager<ApplicationUser> userManager;
-    private readonly SignInManager<ApplicationUser> signInManager;
-    private readonly IAntiforgery antiforgery;
-    private readonly ILogger<AuthController> logger;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IAntiforgery _antiforgery;
+    private readonly ILogger<AuthController> _logger;
 
     /// <summary>
     /// Initializes the authentication controller.
@@ -39,10 +39,10 @@ public sealed partial class AuthController : BaseController
         ArgumentNullException.ThrowIfNull(antiforgery);
         ArgumentNullException.ThrowIfNull(logger);
 
-        this.userManager = userManager;
-        this.signInManager = signInManager;
-        this.antiforgery = antiforgery;
-        this.logger = logger;
+        this._userManager = userManager;
+        this._signInManager = signInManager;
+        this._antiforgery = antiforgery;
+        this._logger = logger;
     }
 
     /// <summary>
@@ -66,19 +66,19 @@ public sealed partial class AuthController : BaseController
             UserName = request.Email.Trim(),
             Email = request.Email.Trim()
         };
-        var created = await userManager.CreateAsync(user, request.Password);
+        var created = await _userManager.CreateAsync(user, request.Password);
         if (!created.Succeeded)
         {
             return FromIdentityFailure(created);
         }
 
-        var roleResult = await userManager.AddToRoleAsync(user, RoleClaimValues.User);
+        var roleResult = await _userManager.AddToRoleAsync(user, RoleClaimValues.User);
         if (!roleResult.Succeeded)
         {
             throw new InvalidOperationException("The registered account could not be assigned the user role.");
         }
 
-        LogUserRegistered(logger, user.Id);
+        LogUserRegistered(_logger, user.Id);
         return Created("/api/auth/session", CreateSessionResponse(user, [RoleClaimValues.User]));
     }
 
@@ -101,13 +101,13 @@ public sealed partial class AuthController : BaseController
             return FromFailure<SessionResponse>(InvalidCredentials());
         }
 
-        var user = await userManager.FindByEmailAsync(request.Email.Trim());
+        var user = await _userManager.FindByEmailAsync(request.Email.Trim());
         if (user is null)
         {
             return FromFailure<SessionResponse>(InvalidCredentials());
         }
 
-        var signIn = await signInManager.CheckPasswordSignInAsync(
+        var signIn = await _signInManager.CheckPasswordSignInAsync(
             user,
             request.Password,
             lockoutOnFailure: false);
@@ -116,8 +116,8 @@ public sealed partial class AuthController : BaseController
             return FromFailure<SessionResponse>(InvalidCredentials());
         }
 
-        await signInManager.SignInAsync(user, isPersistent: true);
-        var roles = await userManager.GetRolesAsync(user);
+        await _signInManager.SignInAsync(user, isPersistent: true);
+        var roles = await _userManager.GetRolesAsync(user);
         return Ok(CreateSessionResponse(user, roles));
     }
 
@@ -130,7 +130,7 @@ public sealed partial class AuthController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult> SignOutAsync()
     {
-        await signInManager.SignOutAsync();
+        await _signInManager.SignOutAsync();
         return NoContent();
     }
 
@@ -143,7 +143,7 @@ public sealed partial class AuthController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<SessionResponse>> GetSessionAsync()
     {
-        var user = await userManager.GetUserAsync(User);
+        var user = await _userManager.GetUserAsync(User);
         if (user is null)
         {
             return FromFailure<SessionResponse>(
@@ -153,7 +153,7 @@ public sealed partial class AuthController : BaseController
                     UserErrorCodes.Unauthorized));
         }
 
-        var roles = await userManager.GetRolesAsync(user);
+        var roles = await _userManager.GetRolesAsync(user);
         return Ok(CreateSessionResponse(user, roles));
     }
 
@@ -166,7 +166,7 @@ public sealed partial class AuthController : BaseController
     [ProducesResponseType(typeof(AntiforgeryTokenResponse), StatusCodes.Status200OK)]
     public ActionResult<AntiforgeryTokenResponse> GetAntiforgeryToken()
     {
-        var tokens = antiforgery.GetAndStoreTokens(HttpContext);
+        var tokens = _antiforgery.GetAndStoreTokens(HttpContext);
         return Ok(new AntiforgeryTokenResponse { Token = tokens.RequestToken! });
     }
 

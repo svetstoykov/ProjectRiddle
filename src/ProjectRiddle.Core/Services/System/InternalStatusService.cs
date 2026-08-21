@@ -10,7 +10,7 @@ namespace ProjectRiddle.Core.Services.System;
 /// </summary>
 public sealed class InternalStatusService : IInternalStatusService
 {
-    private readonly IDateTimeProvider dateTimeProvider;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     /// <summary>
     /// Initializes the internal status service.
@@ -20,7 +20,7 @@ public sealed class InternalStatusService : IInternalStatusService
     {
         ArgumentNullException.ThrowIfNull(dateTimeProvider);
 
-        this.dateTimeProvider = dateTimeProvider;
+        this._dateTimeProvider = dateTimeProvider;
     }
 
     /// <inheritdoc />
@@ -30,8 +30,8 @@ public sealed class InternalStatusService : IInternalStatusService
 
         var output = new InternalStatusOutput(
             "Project Riddle is healthy.",
-            dateTimeProvider.UtcDateTime,
-            dateTimeProvider.LocalDateTime);
+            _dateTimeProvider.UtcDateTime,
+            _dateTimeProvider.LocalDateTime);
 
         return Task.FromResult(Result.Success(output));
     }

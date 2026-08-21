@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ProjectRiddle.Core.Enums.Riddles;
 using ProjectRiddle.Core.Models.Riddles;
 
 namespace ProjectRiddle.Infrastructure.Persistence.Configurations;

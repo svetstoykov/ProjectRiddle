@@ -10,7 +10,7 @@ namespace ProjectRiddle.Api.Infrastructure;
 /// </summary>
 public sealed partial class GlobalExceptionHandler : IExceptionHandler
 {
-    private readonly ILogger<GlobalExceptionHandler> logger;
+    private readonly ILogger<GlobalExceptionHandler> _logger;
 
     /// <summary>
     /// Initializes the global exception handler.
@@ -20,7 +20,7 @@ public sealed partial class GlobalExceptionHandler : IExceptionHandler
     {
         ArgumentNullException.ThrowIfNull(logger);
 
-        this.logger = logger;
+        this._logger = logger;
     }
 
     /// <inheritdoc />
@@ -33,7 +33,7 @@ public sealed partial class GlobalExceptionHandler : IExceptionHandler
         ArgumentNullException.ThrowIfNull(exception);
 
         var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier;
-        LogUnhandledException(logger, exception, traceId);
+        LogUnhandledException(_logger, exception, traceId);
 
         httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
         httpContext.Response.ContentType = "application/problem+json";

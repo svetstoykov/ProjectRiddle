@@ -7,7 +7,7 @@ namespace ProjectRiddle.Core.Models.Riddles;
 /// </summary>
 public sealed class Riddle
 {
-    private readonly List<RiddleRange> ranges;
+    private readonly List<RiddleRange> _ranges;
 
     /// <summary>
     /// Initializes a riddle.
@@ -47,7 +47,7 @@ public sealed class Riddle
         Explanation = explanation;
         PublicationState = publicationState;
         SofiaPublicationDate = sofiaPublicationDate;
-        ranges = [];
+        _ranges = [];
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
     }
@@ -90,7 +90,7 @@ public sealed class Riddle
     /// <summary>
     /// Gets the labelled structural ranges.
     /// </summary>
-    public IReadOnlyList<RiddleRange> Ranges => ranges;
+    public IReadOnlyList<RiddleRange> Ranges => _ranges;
 
     /// <summary>
     /// Gets the UTC timestamp when the riddle was created.
@@ -140,8 +140,8 @@ public sealed class Riddle
     public void ReplaceRanges(IReadOnlyList<RiddleRange> contentRanges)
     {
         ArgumentNullException.ThrowIfNull(contentRanges);
-        ranges.Clear();
-        ranges.AddRange(contentRanges);
+        _ranges.Clear();
+        _ranges.AddRange(contentRanges);
     }
 
     /// <summary>

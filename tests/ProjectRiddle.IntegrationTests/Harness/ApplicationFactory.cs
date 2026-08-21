@@ -13,11 +13,11 @@ namespace ProjectRiddle.IntegrationTests.Harness;
 /// </summary>
 public sealed class ApplicationFactory : WebApplicationFactory<Program>
 {
-    private readonly string databasePath;
-    private readonly string timeZoneId;
-    private readonly DateTimeOffset? utcNow;
-    private readonly string bootstrapEmail;
-    private readonly string bootstrapPassword;
+    private readonly string _databasePath;
+    private readonly string _timeZoneId;
+    private readonly DateTimeOffset? _utcNow;
+    private readonly string _bootstrapEmail;
+    private readonly string _bootstrapPassword;
 
     /// <summary>
     /// Initializes the test host factory.
@@ -37,11 +37,11 @@ public sealed class ApplicationFactory : WebApplicationFactory<Program>
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
         ArgumentException.ThrowIfNullOrWhiteSpace(timeZoneId);
 
-        this.databasePath = databasePath;
-        this.timeZoneId = timeZoneId;
-        this.utcNow = utcNow;
-        this.bootstrapEmail = bootstrapEmail ?? string.Empty;
-        this.bootstrapPassword = bootstrapPassword ?? string.Empty;
+        this._databasePath = databasePath;
+        this._timeZoneId = timeZoneId;
+        this._utcNow = utcNow;
+        this._bootstrapEmail = bootstrapEmail ?? string.Empty;
+        this._bootstrapPassword = bootstrapPassword ?? string.Empty;
     }
 
     /// <inheritdoc />
@@ -56,20 +56,20 @@ public sealed class ApplicationFactory : WebApplicationFactory<Program>
                 configuration.AddInMemoryCollection(
                     new Dictionary<string, string?>
                     {
-                        ["Persistence:DatabasePath"] = databasePath,
-                        ["Time:TimeZoneId"] = timeZoneId,
-                        ["AdminBootstrap:Email"] = bootstrapEmail,
-                        ["AdminBootstrap:Password"] = bootstrapPassword,
+                        ["Persistence:DatabasePath"] = _databasePath,
+                        ["Time:TimeZoneId"] = _timeZoneId,
+                        ["AdminBootstrap:Email"] = _bootstrapEmail,
+                        ["AdminBootstrap:Password"] = _bootstrapPassword,
                         ["Seq:ServerUrl"] = string.Empty
                     });
             });
 
-        if (utcNow is null)
+        if (_utcNow is null)
         {
             return;
         }
 
-        var clock = new FixedDateTimeProvider(utcNow.Value, timeZoneId);
+        var clock = new FixedDateTimeProvider(_utcNow.Value, _timeZoneId);
         builder.ConfigureTestServices(
             services =>
             {

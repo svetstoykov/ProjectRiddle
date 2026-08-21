@@ -7,7 +7,7 @@ namespace ProjectRiddle.IntegrationTests.Harness;
 /// </summary>
 public sealed class FixedDateTimeProvider : IDateTimeProvider
 {
-    private readonly TimeZoneInfo timeZone;
+    private readonly TimeZoneInfo _timeZone;
 
     /// <summary>
     /// Initializes a controllable clock.
@@ -19,14 +19,14 @@ public sealed class FixedDateTimeProvider : IDateTimeProvider
         ArgumentException.ThrowIfNullOrWhiteSpace(timeZoneId);
 
         UtcDateTime = utcNow;
-        timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+        _timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
     }
 
     /// <inheritdoc />
     public DateTimeOffset UtcDateTime { get; set; }
 
     /// <inheritdoc />
-    public DateTimeOffset LocalDateTime => TimeZoneInfo.ConvertTime(UtcDateTime, timeZone);
+    public DateTimeOffset LocalDateTime => TimeZoneInfo.ConvertTime(UtcDateTime, _timeZone);
 
     /// <inheritdoc />
     public DateOnly LocalDate

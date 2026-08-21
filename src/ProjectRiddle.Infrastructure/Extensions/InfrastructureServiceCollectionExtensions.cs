@@ -12,7 +12,7 @@ using ProjectRiddle.Infrastructure.Persistence;
 using ProjectRiddle.Infrastructure.Repositories.Riddles;
 using ProjectRiddle.Infrastructure.Time;
 
-namespace ProjectRiddle.Infrastructure.Composition;
+namespace ProjectRiddle.Infrastructure.Extensions;
 
 /// <summary>
 /// Registers Infrastructure capabilities at the application composition boundary.

@@ -12,7 +12,7 @@ namespace ProjectRiddle.Api.Controllers;
 [Route("api/system")]
 public sealed class SystemController : BaseController
 {
-    private readonly IInternalStatusService internalStatusService;
+    private readonly IInternalStatusService _internalStatusService;
 
     /// <summary>
     /// Initializes the system controller.
@@ -22,7 +22,7 @@ public sealed class SystemController : BaseController
     {
         ArgumentNullException.ThrowIfNull(internalStatusService);
 
-        this.internalStatusService = internalStatusService;
+        this._internalStatusService = internalStatusService;
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public sealed class SystemController : BaseController
     public async Task<ActionResult<InternalStatusResponse>> GetHealthAsync(
         CancellationToken cancellationToken)
     {
-        var result = await internalStatusService.GetAsync(cancellationToken);
+        var result = await _internalStatusService.GetAsync(cancellationToken);
 
         if (result.IsFailure)
         {

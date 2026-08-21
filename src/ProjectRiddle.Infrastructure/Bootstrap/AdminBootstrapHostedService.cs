@@ -16,9 +16,9 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
     private const string UserRoleName = "user";
     private const string AdminRoleName = "admin";
 
-    private readonly IServiceScopeFactory scopeFactory;
-    private readonly IOptions<AdminBootstrapOptions> options;
-    private readonly ILogger<AdminBootstrapHostedService> logger;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IOptions<AdminBootstrapOptions> _options;
+    private readonly ILogger<AdminBootstrapHostedService> _logger;
 
     /// <summary>
     /// Initializes the administrator bootstrap hosted service.
@@ -35,23 +35,23 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(logger);
 
-        this.scopeFactory = scopeFactory;
-        this.options = options;
-        this.logger = logger;
+        this._scopeFactory = scopeFactory;
+        this._options = options;
+        this._logger = logger;
     }
 
     /// <inheritdoc />
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await using var scope = scopeFactory.CreateAsyncScope();
+        await using var scope = _scopeFactory.CreateAsyncScope();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
         await EnsureRoleExistsAsync(roleManager, UserRoleName);
         await EnsureRoleExistsAsync(roleManager, AdminRoleName);
 
-        var email = options.Value.Email;
-        var password = options.Value.Password;
+        var email = _options.Value.Email;
+        var password = _options.Value.Password;
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
             return;
@@ -60,7 +60,7 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
         var existing = await userManager.FindByEmailAsync(email.Trim());
         if (existing is not null)
         {
-            LogBootstrapSkipped(logger);
+            LogBootstrapSkipped(_logger);
             return;
         }
 
@@ -81,7 +81,7 @@ public sealed partial class AdminBootstrapHostedService : IHostedService
             throw new InvalidOperationException("Administrator bootstrap failed to assign the admin role.");
         }
 
-        LogBootstrapApplied(logger, administrator.Id);
+        LogBootstrapApplied(_logger, administrator.Id);
     }
 
     /// <inheritdoc />

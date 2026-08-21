@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using ProjectRiddle.Core.Enums.Riddles;
 using ProjectRiddle.Core.Interfaces.Services;
-using ProjectRiddle.Core.Interfaces.Time;
 using ProjectRiddle.Core.Models.Riddles;
 using ProjectRiddle.Core.Results.Models;
 using ProjectRiddle.Core.Services.Riddles;

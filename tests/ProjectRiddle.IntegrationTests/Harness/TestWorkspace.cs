@@ -5,7 +5,6 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectRiddle.Api.Models.Auth;
 using ProjectRiddle.Core.Enums.Riddles;
-using ProjectRiddle.Core.Interfaces.Services;
 using ProjectRiddle.Core.Models.Riddles;
 
 namespace ProjectRiddle.IntegrationTests.Harness;

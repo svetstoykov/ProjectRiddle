@@ -14,9 +14,9 @@ namespace ProjectRiddle.Core.Services.Riddles;
 /// </summary>
 public sealed partial class RiddlesService : IRiddlesService
 {
-    private readonly IRiddleRepository riddleRepository;
-    private readonly IDateTimeProvider dateTimeProvider;
-    private readonly ILogger<RiddlesService> logger;
+    private readonly IRiddleRepository _riddleRepository;
+    private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly ILogger<RiddlesService> _logger;
 
     /// <summary>
     /// Initializes the riddles service.
@@ -33,9 +33,9 @@ public sealed partial class RiddlesService : IRiddlesService
         ArgumentNullException.ThrowIfNull(dateTimeProvider);
         ArgumentNullException.ThrowIfNull(logger);
 
-        this.riddleRepository = riddleRepository;
-        this.dateTimeProvider = dateTimeProvider;
-        this.logger = logger;
+        this._riddleRepository = riddleRepository;
+        this._dateTimeProvider = dateTimeProvider;
+        this._logger = logger;
     }
 
     /// <inheritdoc />
@@ -50,7 +50,7 @@ public sealed partial class RiddlesService : IRiddlesService
             return Result.Failure<RiddleOutput>(content.Error!);
         }
 
-        var utcNow = dateTimeProvider.UtcDateTime;
+        var utcNow = _dateTimeProvider.UtcDateTime;
         var riddle = new Riddle(
             Guid.NewGuid(),
             content.Value!.Clue,
@@ -63,8 +63,8 @@ public sealed partial class RiddlesService : IRiddlesService
             utcNow);
         riddle.ReplaceRanges(content.Value.Ranges);
 
-        await riddleRepository.AddAsync(riddle, cancellationToken);
-        LogRiddleCreated(logger, riddle.Id);
+        await _riddleRepository.AddAsync(riddle, cancellationToken);
+        LogRiddleCreated(_logger, riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -73,7 +73,7 @@ public sealed partial class RiddlesService : IRiddlesService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await riddleRepository.GetByIdAsync(id, cancellationToken);
+        var riddle = await _riddleRepository.GetByIdAsync(id, cancellationToken);
         if (riddle is null)
         {
             return NotFound<RiddleOutput>();
@@ -87,7 +87,7 @@ public sealed partial class RiddlesService : IRiddlesService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddles = await riddleRepository.ListAsync(cancellationToken);
+        var riddles = await _riddleRepository.ListAsync(cancellationToken);
         var ordered = riddles
             .OrderBy(riddle => riddle.PublicationState)
             .ThenByDescending(riddle => riddle.SofiaPublicationDate)
@@ -104,7 +104,7 @@ public sealed partial class RiddlesService : IRiddlesService
         ArgumentNullException.ThrowIfNull(input);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await riddleRepository.GetByIdAsync(input.Id, cancellationToken);
+        var riddle = await _riddleRepository.GetByIdAsync(input.Id, cancellationToken);
         if (riddle is null)
         {
             return NotFound<RiddleOutput>();
@@ -122,10 +122,10 @@ public sealed partial class RiddlesService : IRiddlesService
             content.Value.AnswerPattern,
             content.Value.Explanation,
             content.Value.Ranges,
-            dateTimeProvider.UtcDateTime);
+            _dateTimeProvider.UtcDateTime);
 
-        await riddleRepository.UpdateAsync(riddle, cancellationToken);
-        LogRiddleUpdated(logger, riddle.Id);
+        await _riddleRepository.UpdateAsync(riddle, cancellationToken);
+        LogRiddleUpdated(_logger, riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -137,7 +137,7 @@ public sealed partial class RiddlesService : IRiddlesService
         ArgumentNullException.ThrowIfNull(input);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await riddleRepository.GetByIdAsync(input.Id, cancellationToken);
+        var riddle = await _riddleRepository.GetByIdAsync(input.Id, cancellationToken);
         if (riddle is null)
         {
             return NotFound<RiddleOutput>();
@@ -149,7 +149,7 @@ public sealed partial class RiddlesService : IRiddlesService
             return InvalidTransition<RiddleOutput>();
         }
 
-        if (input.PublicationDate < dateTimeProvider.LocalDate)
+        if (input.PublicationDate < _dateTimeProvider.LocalDate)
         {
             return Result.Failure<RiddleOutput>(
                 new OperationError(
@@ -164,18 +164,18 @@ public sealed partial class RiddlesService : IRiddlesService
             return Result.Failure<RiddleOutput>(occupancy.Error!);
         }
 
-        riddle.Schedule(input.PublicationDate, dateTimeProvider.UtcDateTime);
+        riddle.Schedule(input.PublicationDate, _dateTimeProvider.UtcDateTime);
 
         try
         {
-            await riddleRepository.UpdateAsync(riddle, cancellationToken);
+            await _riddleRepository.UpdateAsync(riddle, cancellationToken);
         }
         catch (DuplicatePublicationDateException)
         {
             return DateConflict<RiddleOutput>();
         }
 
-        LogRiddleScheduled(logger, riddle.Id);
+        LogRiddleScheduled(_logger, riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -187,7 +187,7 @@ public sealed partial class RiddlesService : IRiddlesService
         ArgumentNullException.ThrowIfNull(input);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await riddleRepository.GetByIdAsync(input.Id, cancellationToken);
+        var riddle = await _riddleRepository.GetByIdAsync(input.Id, cancellationToken);
         if (riddle is null)
         {
             return NotFound<RiddleOutput>();
@@ -214,18 +214,18 @@ public sealed partial class RiddlesService : IRiddlesService
             return Result.Failure<RiddleOutput>(occupancy.Error!);
         }
 
-        riddle.Publish(publicationDate.Value, dateTimeProvider.UtcDateTime);
+        riddle.Publish(publicationDate.Value, _dateTimeProvider.UtcDateTime);
 
         try
         {
-            await riddleRepository.UpdateAsync(riddle, cancellationToken);
+            await _riddleRepository.UpdateAsync(riddle, cancellationToken);
         }
         catch (DuplicatePublicationDateException)
         {
             return DateConflict<RiddleOutput>();
         }
 
-        LogRiddlePublished(logger, riddle.Id);
+        LogRiddlePublished(_logger, riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -234,7 +234,7 @@ public sealed partial class RiddlesService : IRiddlesService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await riddleRepository.GetByIdAsync(id, cancellationToken);
+        var riddle = await _riddleRepository.GetByIdAsync(id, cancellationToken);
         if (riddle is null)
         {
             return NotFound<RiddleOutput>();
@@ -246,9 +246,9 @@ public sealed partial class RiddlesService : IRiddlesService
             return InvalidTransition<RiddleOutput>();
         }
 
-        riddle.Unpublish(dateTimeProvider.UtcDateTime);
-        await riddleRepository.UpdateAsync(riddle, cancellationToken);
-        LogRiddleUnpublished(logger, riddle.Id);
+        riddle.Unpublish(_dateTimeProvider.UtcDateTime);
+        await _riddleRepository.UpdateAsync(riddle, cancellationToken);
+        LogRiddleUnpublished(_logger, riddle.Id);
         return Result.Success(ToOutput(riddle));
     }
 
@@ -257,7 +257,7 @@ public sealed partial class RiddlesService : IRiddlesService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await riddleRepository.GetByIdAsync(id, cancellationToken);
+        var riddle = await _riddleRepository.GetByIdAsync(id, cancellationToken);
         if (riddle is null)
         {
             return Result.Failure(
@@ -277,8 +277,8 @@ public sealed partial class RiddlesService : IRiddlesService
                     RiddleErrorCodes.DeleteNotPermitted));
         }
 
-        await riddleRepository.DeleteAsync(riddle, cancellationToken);
-        LogRiddleDeleted(logger, riddle.Id);
+        await _riddleRepository.DeleteAsync(riddle, cancellationToken);
+        LogRiddleDeleted(_logger, riddle.Id);
         return Result.Success();
     }
 
@@ -287,7 +287,7 @@ public sealed partial class RiddlesService : IRiddlesService
         Guid riddleId,
         CancellationToken cancellationToken)
     {
-        var occupant = await riddleRepository.GetOccupyingByPublicationDateAsync(publicationDate, cancellationToken);
+        var occupant = await _riddleRepository.GetOccupyingByPublicationDateAsync(publicationDate, cancellationToken);
         if (occupant is not null && occupant.Id != riddleId)
         {
             return Result.Failure(

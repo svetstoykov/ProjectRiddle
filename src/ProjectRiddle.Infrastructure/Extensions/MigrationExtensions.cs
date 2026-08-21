@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ProjectRiddle.Infrastructure.Persistence;
 
-namespace ProjectRiddle.Infrastructure.Composition;
+namespace ProjectRiddle.Infrastructure.Extensions;
 
 /// <summary>
 /// Provides the startup migration boundary for the application host.

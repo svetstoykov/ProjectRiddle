@@ -1,6 +1,6 @@
 using System.Globalization;
 using ProjectRiddle.Api.Extensions;
-using ProjectRiddle.Infrastructure.Composition;
+using ProjectRiddle.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 
@@ -45,7 +45,10 @@ app.MapProjectRiddleSpaFallback(app.Environment);
 
 app.Run();
 
-/// <summary>
-/// Exposes the generated host entry point to the integration-test host factory.
-/// </summary>
-public partial class Program;
+namespace ProjectRiddle.Api
+{
+    /// <summary>
+    /// Exposes the generated host entry point to the integration-test host factory.
+    /// </summary>
+    public partial class Program;
+}

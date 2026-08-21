@@ -9,7 +9,7 @@ namespace ProjectRiddle.Api.Authorization;
 /// </summary>
 public sealed class AutoValidateAntiforgeryFilter : IAsyncAuthorizationFilter
 {
-    private readonly IAntiforgery antiforgery;
+    private readonly IAntiforgery _antiforgery;
 
     /// <summary>
     /// Initializes the CSRF validation filter.
@@ -18,7 +18,7 @@ public sealed class AutoValidateAntiforgeryFilter : IAsyncAuthorizationFilter
     public AutoValidateAntiforgeryFilter(IAntiforgery antiforgery)
     {
         ArgumentNullException.ThrowIfNull(antiforgery);
-        this.antiforgery = antiforgery;
+        this._antiforgery = antiforgery;
     }
 
     /// <inheritdoc />
@@ -34,7 +34,7 @@ public sealed class AutoValidateAntiforgeryFilter : IAsyncAuthorizationFilter
 
         try
         {
-            await antiforgery.ValidateRequestAsync(context.HttpContext);
+            await _antiforgery.ValidateRequestAsync(context.HttpContext);
         }
         catch (AntiforgeryValidationException)
         {

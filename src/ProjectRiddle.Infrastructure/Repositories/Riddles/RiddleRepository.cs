@@ -13,7 +13,7 @@ namespace ProjectRiddle.Infrastructure.Repositories.Riddles;
 /// </summary>
 public sealed class RiddleRepository : IRiddleRepository
 {
-    private readonly ProjectRiddleDbContext dbContext;
+    private readonly ProjectRiddleDbContext _dbContext;
 
     /// <summary>
     /// Initializes the riddle repository.
@@ -22,13 +22,13 @@ public sealed class RiddleRepository : IRiddleRepository
     public RiddleRepository(ProjectRiddleDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
-        this.dbContext = dbContext;
+        this._dbContext = dbContext;
     }
 
     /// <inheritdoc />
     public Task<Riddle?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        return dbContext.Set<Riddle>()
+        return _dbContext.Set<Riddle>()
             .Include(riddle => riddle.Ranges)
             .SingleOrDefaultAsync(riddle => riddle.Id == id, cancellationToken);
     }
@@ -36,7 +36,7 @@ public sealed class RiddleRepository : IRiddleRepository
     /// <inheritdoc />
     public async Task<IReadOnlyList<Riddle>> ListAsync(CancellationToken cancellationToken)
     {
-        return await dbContext.Set<Riddle>()
+        return await _dbContext.Set<Riddle>()
             .Include(riddle => riddle.Ranges)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
@@ -47,7 +47,7 @@ public sealed class RiddleRepository : IRiddleRepository
         DateOnly publicationDate,
         CancellationToken cancellationToken)
     {
-        return dbContext.Set<Riddle>()
+        return _dbContext.Set<Riddle>()
             .Include(riddle => riddle.Ranges)
             .SingleOrDefaultAsync(
                 riddle => riddle.SofiaPublicationDate == publicationDate
@@ -60,7 +60,7 @@ public sealed class RiddleRepository : IRiddleRepository
     public async Task AddAsync(Riddle riddle, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(riddle);
-        dbContext.Set<Riddle>().Add(riddle);
+        _dbContext.Set<Riddle>().Add(riddle);
         await SaveOccupyingChangeAsync(riddle, cancellationToken);
     }
 
@@ -68,7 +68,7 @@ public sealed class RiddleRepository : IRiddleRepository
     public async Task UpdateAsync(Riddle riddle, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(riddle);
-        dbContext.Set<Riddle>().Update(riddle);
+        _dbContext.Set<Riddle>().Update(riddle);
         await SaveOccupyingChangeAsync(riddle, cancellationToken);
     }
 
@@ -76,15 +76,15 @@ public sealed class RiddleRepository : IRiddleRepository
     public async Task DeleteAsync(Riddle riddle, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(riddle);
-        dbContext.Set<Riddle>().Remove(riddle);
-        await dbContext.SaveChangesAsync(cancellationToken);
+        _dbContext.Set<Riddle>().Remove(riddle);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     private async Task SaveOccupyingChangeAsync(Riddle riddle, CancellationToken cancellationToken)
     {
         try
         {
-            await dbContext.SaveChangesAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
         catch (DbUpdateException exception) when (IsUniqueConstraint(exception) && riddle.SofiaPublicationDate is not null)
         {
