@@ -41,6 +41,12 @@
     --color-muted-text: #494456;
     --color-border: #7a7488;
     --color-deep-violet: #2d0066;
+    --color-hint-definition: rgb(72 0 178 / 18%);
+    --color-hint-definition-edge: #4800b2;
+    --color-hint-indicator: rgb(151 0 151 / 18%);
+    --color-hint-indicator-edge: #970097;
+    --color-hint-fodder: rgb(239 255 0 / 60%);
+    --color-hint-fodder-edge: #5c6300;
     --radius-sm: 0.25rem;
     --radius-md: 0.75rem;
     --radius-lg: 1rem;

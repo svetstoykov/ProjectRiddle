@@ -106,33 +106,44 @@ function splitClue(
 
 export function CluePresentation({ clue, answerPattern, ranges, activeKinds }: CluePresentationProps): ReactElement {
     const segments = splitClue(clue, ranges, activeKinds);
-    const legendKinds = kindOrder.filter((kind) => activeKinds.has(kind));
 
     return (
         <div className={styles.presentation}>
             <p className={styles.clue} lang="bg">
-                {segments.map((segment) => (
-                    <span
-                        key={`${segment.start}:${segment.end}`}
-                        className={[styles.segment, ...segment.kinds.map((kind) => kindClassNames[kind])].join(" ")}
-                        data-kinds={segment.kinds.join(" ")}
-                    >
-                        {segment.text}
-                    </span>
-                ))}
+                {segments.map((segment) =>
+                    segment.kinds.length === 0 ? (
+                        <span key={`${segment.start}:${segment.end}`} className={styles.segment}>
+                            {segment.text}
+                        </span>
+                    ) : (
+                        <mark
+                            key={`${segment.start}:${segment.end}`}
+                            className={[styles.segment, ...segment.kinds.map((kind) => kindClassNames[kind])].join(" ")}
+                            data-kinds={segment.kinds.join(" ")}
+                        >
+                            {segment.text}
+                        </mark>
+                    ),
+                )}
             </p>
             <p className={styles.pattern}>
                 <span className={styles.patternLabel}>Брой букви</span> {answerPattern}
             </p>
-            {legendKinds.length > 0 ? (
-                <ul className={styles.legend}>
-                    {legendKinds.map((kind) => (
-                        <li key={kind} className={`${styles.legendItem} ${kindClassNames[kind]}`}>
+            <ul className={styles.legend}>
+                {kindOrder.map((kind) => {
+                    const isActive = activeKinds.has(kind);
+
+                    return (
+                        <li
+                            key={kind}
+                            className={[styles.legendItem, isActive ? undefined : styles.legendIdle].join(" ")}
+                        >
+                            <span className={`${styles.swatch} ${kindClassNames[kind]}`} aria-hidden="true" />
                             {kindLabels[kind]}
                         </li>
-                    ))}
-                </ul>
-            ) : null}
+                    );
+                })}
+            </ul>
         </div>
     );
 }

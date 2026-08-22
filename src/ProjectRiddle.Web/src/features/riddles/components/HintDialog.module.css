@@ -1,0 +1,137 @@
+/*
+ * The assists open as a sheet pinned to the bottom edge rather than a centred modal, so the clue and the answer tiles
+ * stay readable behind it. The backdrop is deliberately clear: no tint and no blur.
+ */
+.dialog {
+    inset: auto 0 0;
+    width: min(100%, 32rem);
+    max-height: 80svh;
+    margin: 0 auto;
+    padding: 0;
+    overflow-y: auto;
+    border: 3px solid var(--color-deep-violet);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background: var(--color-surface);
+    box-shadow: 0 -6px 0 var(--color-deep-violet);
+    color: var(--color-text);
+}
+
+.dialog[open] {
+    animation: riseFromBottom 220ms ease-out;
+}
+
+.dialog::backdrop {
+    background: none;
+}
+
+@keyframes riseFromBottom {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.sheet {
+    padding: 1rem 1.25rem 1.5rem;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.close {
+    flex: none;
+    width: 2.5rem;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    min-height: 2.5rem;
+    padding: 0;
+    border-width: 2px;
+    background: var(--color-surface-low);
+    box-shadow: none;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.hints {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.5rem 0.9rem;
+    border: 2px solid var(--color-deep-violet);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-low);
+    box-shadow: none;
+    font-size: 0.9375rem;
+    text-align: left;
+}
+
+.row[aria-pressed="true"] {
+    background: var(--color-electric-yellow);
+}
+
+.rowLabel {
+    flex: 1;
+}
+
+.rowState {
+    color: var(--color-muted-text);
+    font-size: 0.8125rem;
+    font-weight: 400;
+}
+
+.row:disabled .rowState {
+    color: inherit;
+}
+
+.swatch {
+    flex: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: 2px solid var(--color-deep-violet);
+    border-radius: var(--radius-sm);
+}
+
+.definition {
+    background-color: var(--color-hint-definition);
+    box-shadow: inset 0 -0.2em 0 var(--color-hint-definition-edge);
+}
+
+.indicator {
+    background-color: var(--color-hint-indicator);
+    box-shadow: inset 0 -0.2em 0 var(--color-hint-indicator-edge);
+}
+
+.fodder {
+    background-color: var(--color-hint-fodder);
+    box-shadow: inset 0 -0.2em 0 var(--color-hint-fodder-edge);
+}
+
+.divider {
+    height: 0;
+    margin: 1rem 0;
+    border: 0;
+    border-top: 2px solid var(--color-border);
+}

@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 
 import { buildAnswerWords, buildSubmission, letterCountOf, parseAnswerPattern } from "../models/answerTiles";
 import type { PublicRiddlePlay } from "../models/publicRiddle";
@@ -7,8 +7,7 @@ import type { RiddleRangeKind } from "../models/riddleRange";
 import { AnswerTiles, type AnswerWordView } from "./AnswerTiles";
 import { BulgarianKeyboard } from "./BulgarianKeyboard";
 import { CluePresentation } from "./CluePresentation";
-import { HintControls } from "./HintControls";
-import { RevealControl } from "./RevealControl";
+import { HintDialog } from "./HintDialog";
 import { RiddleOutcome } from "./RiddleOutcome";
 import styles from "./RiddlePlayer.module.css";
 
@@ -25,6 +24,19 @@ export interface RiddlePlayerProps {
 
 const cyrillicLetter = /^\p{Script=Cyrillic}$/u;
 
+function isActivatableTarget(target: EventTarget | null): boolean {
+    return target instanceof HTMLButtonElement || target instanceof HTMLAnchorElement;
+}
+
+function isTextEntryTarget(target: EventTarget | null): boolean {
+    return (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+    );
+}
+
 export function RiddlePlayer({
     play,
     playState,
@@ -40,14 +52,8 @@ export function RiddlePlayer({
     const [entries, setEntries] = useState<readonly string[]>(() => Array.from({ length: letterCount }, () => ""));
     const [selectedPosition, setSelectedPosition] = useState<number | undefined>(undefined);
     const [hiddenHints, setHiddenHints] = useState<ReadonlySet<RiddleRangeKind>>(() => new Set());
-
-    if (wordLengths.length === 0) {
-        return (
-            <p className={styles.unavailable} role="alert">
-                Тази загадка не може да бъде показана. Опитай отново по-късно.
-            </p>
-        );
-    }
+    const [isHintDialogOpen, setIsHintDialogOpen] = useState(false);
+    const hintTriggerRef = useRef<HTMLButtonElement>(null);
 
     const revealedByPosition = new Map(playState.revealedLetters.map((letter) => [letter.position, letter.character]));
     const isLocked = (position: number): boolean => revealedByPosition.has(position);
@@ -84,17 +90,6 @@ export function RiddlePlayer({
     ).length;
     const editableCount = letterCount - revealedByPosition.size;
     const canSubmit = !isTerminal && editableCount > 0 && filledEditableCount === editableCount;
-
-    const words: readonly AnswerWordView[] = buildAnswerWords(wordLengths).map((word) => ({
-        wordIndex: word.wordIndex,
-        tiles: word.positions.map((position) => ({
-            position,
-            character: characterAt(position),
-            isLocked: isLocked(position),
-        })),
-    }));
-
-    const visibleHints = new Set(playState.progress.usedHints.filter((kind) => !hiddenHints.has(kind)));
 
     function writeLetter(letter: string): void {
         if (isTerminal || activePosition === undefined) {
@@ -145,33 +140,64 @@ export function RiddlePlayer({
         });
     }
 
-    function handleKeyDown(event: KeyboardEvent<HTMLElement>): void {
-        if (isTerminal || event.ctrlKey || event.metaKey || event.altKey) {
-            return;
+    // The board has no text input to hold focus, so physical typing is read from the document. The listener is
+    // re-registered after every render because each handler must see the current cursor and board state.
+    useEffect(() => {
+        function handleKeyDown(event: KeyboardEvent): void {
+            if (isTerminal || isHintDialogOpen || event.ctrlKey || event.metaKey || event.altKey) {
+                return;
+            }
+
+            if (isTextEntryTarget(event.target)) {
+                return;
+            }
+
+            if (event.key === "Backspace") {
+                event.preventDefault();
+                eraseLetter();
+                return;
+            }
+
+            // A focused control owns its own activation keys, so Enter submits only when the board itself holds focus.
+            if (event.key === "Enter" && !isActivatableTarget(event.target)) {
+                event.preventDefault();
+                submitAnswer();
+                return;
+            }
+
+            if (event.key.length === 1 && cyrillicLetter.test(event.key)) {
+                event.preventDefault();
+                writeLetter(event.key.toLocaleUpperCase("bg"));
+            }
         }
 
-        const isOnScreenKey = event.target instanceof HTMLButtonElement && event.target.dataset.playerKey === "true";
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    });
 
-        if (event.key === "Backspace") {
-            event.preventDefault();
-            eraseLetter();
-            return;
-        }
-
-        if (event.key === "Enter" && !isOnScreenKey) {
-            event.preventDefault();
-            submitAnswer();
-            return;
-        }
-
-        if (event.key.length === 1 && cyrillicLetter.test(event.key)) {
-            event.preventDefault();
-            writeLetter(event.key.toLocaleUpperCase("bg"));
-        }
+    if (wordLengths.length === 0) {
+        return (
+            <p className={styles.unavailable} role="alert">
+                Тази загадка не може да бъде показана. Опитай отново по-късно.
+            </p>
+        );
     }
 
+    const words: readonly AnswerWordView[] = buildAnswerWords(wordLengths).map((word) => ({
+        wordIndex: word.wordIndex,
+        tiles: word.positions.map((position) => ({
+            position,
+            character: characterAt(position),
+            isLocked: isLocked(position),
+        })),
+    }));
+
+    const visibleHints = new Set(playState.progress.usedHints.filter((kind) => !hiddenHints.has(kind)));
+
     return (
-        <section className={styles.player} aria-label="Загадка" onKeyDown={handleKeyDown}>
+        <section className={styles.player} aria-label="Загадка">
             <CluePresentation
                 clue={play.clue}
                 answerPattern={play.answerPattern}
@@ -197,22 +223,36 @@ export function RiddlePlayer({
                 onSelectPosition={setSelectedPosition}
             />
             <div className={styles.assists}>
-                <HintControls
-                    usedHints={playState.progress.usedHints}
-                    visibleHints={visibleHints}
-                    pendingHint={pendingHint}
-                    disabled={isTerminal}
-                    onUnlock={onUseHint}
-                    onToggle={toggleHint}
-                />
-                <RevealControl
-                    revealedCount={playState.progress.revealedPositions.length}
-                    letterCount={letterCount}
-                    disabled={playState.progress.status === "solved"}
-                    isRevealing={isRevealing}
-                    onReveal={onRevealLetter}
-                />
+                <button
+                    ref={hintTriggerRef}
+                    type="button"
+                    className={styles.hintTrigger}
+                    aria-haspopup="dialog"
+                    aria-expanded={isHintDialogOpen}
+                    onClick={() => {
+                        setIsHintDialogOpen(true);
+                    }}
+                >
+                    Подсказки
+                </button>
             </div>
+            <HintDialog
+                open={isHintDialogOpen}
+                usedHints={playState.progress.usedHints}
+                visibleHints={visibleHints}
+                pendingHint={pendingHint}
+                revealedCount={playState.progress.revealedPositions.length}
+                letterCount={letterCount}
+                isRevealing={isRevealing}
+                disabled={isTerminal}
+                onUnlock={onUseHint}
+                onToggle={toggleHint}
+                onReveal={onRevealLetter}
+                onClose={() => {
+                    setIsHintDialogOpen(false);
+                }}
+                returnFocusRef={hintTriggerRef}
+            />
             <BulgarianKeyboard
                 onLetter={writeLetter}
                 onBackspace={eraseLetter}

@@ -33,7 +33,6 @@ export function BulgarianKeyboard({
                         <button
                             key={letter}
                             type="button"
-                            data-player-key="true"
                             className={styles.key}
                             disabled={disabled}
                             onClick={() => {
@@ -48,7 +47,6 @@ export function BulgarianKeyboard({
             <div className={styles.actions}>
                 <button
                     type="button"
-                    data-player-key="true"
                     className={styles.backspace}
                     aria-label="Изтрий последната буква"
                     disabled={disabled}
@@ -58,7 +56,6 @@ export function BulgarianKeyboard({
                 </button>
                 <button
                     type="button"
-                    data-player-key="true"
                     className={styles.check}
                     aria-busy={isSubmitting}
                     disabled={disabled || !canSubmit || isSubmitting}
