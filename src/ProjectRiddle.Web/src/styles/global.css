@@ -30,6 +30,7 @@
     --color-electric-yellow: #efff00;
     --color-tertiary: #970097;
     --color-success: #007a55;
+    --color-correct-green: #00ffab;
     --color-danger: #ba1a1a;
     --color-danger-surface: #ffdad6;
     --color-surface: #fdf7ff;
@@ -46,6 +47,14 @@
     --radius-pill: 9999px;
     --shadow-hard: 4px 4px 0 #2d0066;
     --content-width: 75rem;
+    --tile-size: 42px;
+    --tile-gap: 4px;
+}
+
+@media (min-width: 600px) {
+    :root {
+        --tile-size: 56px;
+    }
 }
 
 * {
