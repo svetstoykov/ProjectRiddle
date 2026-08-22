@@ -1,0 +1,53 @@
+.keyboard {
+    display: grid;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.key {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 2.75rem;
+    padding: 0.5rem 0;
+    border: 2px solid var(--color-deep-violet);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-low);
+    box-shadow: 2px 2px 0 var(--color-deep-violet);
+    color: var(--color-deep-violet);
+    font-family: "Anybody", ui-sans-serif, system-ui, sans-serif;
+    font-size: 1.0625rem;
+    font-weight: 700;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.backspace {
+    flex: 0 0 auto;
+    background: var(--color-surface-high);
+    box-shadow: 2px 2px 0 var(--color-deep-violet);
+    border-width: 2px;
+    border-radius: var(--radius-md);
+}
+
+.check {
+    flex: 1 1 auto;
+}
+
+@media (max-width: 599px) {
+    .keyboard {
+        position: sticky;
+        bottom: 0;
+        padding: 0.5rem 0 max(0.5rem, env(safe-area-inset-bottom));
+        background: var(--color-surface);
+    }
+}
