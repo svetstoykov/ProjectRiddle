@@ -1,0 +1,38 @@
+.player {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 48rem;
+    margin: 0 auto;
+}
+
+.assists {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.unavailable {
+    margin: 0;
+    padding: 1rem;
+    border: 2px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    background: var(--color-danger-surface);
+    color: var(--color-danger);
+}
+
+@media (min-width: 600px) and (max-width: 1024px) {
+    .player {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .player > :global(:first-child) {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+    }
+}
+
+@media (min-width: 1025px) {
+    .player {
+        max-width: 60rem;
+    }
+}
