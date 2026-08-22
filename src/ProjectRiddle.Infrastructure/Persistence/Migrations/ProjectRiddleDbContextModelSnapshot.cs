@@ -408,7 +408,6 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                                 .HasColumnType("TEXT");
 
                             b1.Property<int>("LetterPosition")
-                                .ValueGeneratedOnAdd()
                                 .HasColumnType("INTEGER");
 
                             b1.HasKey("RiddleProgressId", "LetterPosition");
