@@ -7,7 +7,9 @@ import { AnonymousOnlyRoute, AdminRoute, AuthenticatedRoute } from "../../featur
 import { AccessDeniedPage } from "../../features/auth/pages/AccessDeniedPage";
 import { RegisterPage } from "../../features/auth/pages/RegisterPage";
 import { SignInPage } from "../../features/auth/pages/SignInPage";
-import { HomePage } from "../../features/system/pages/HomePage";
+import { ArchivePage } from "../../features/riddles/pages/ArchivePage";
+import { HomePage } from "../../features/riddles/pages/HomePage";
+import { RiddlePlayerPage } from "../../features/riddles/pages/RiddlePlayerPage";
 import { ApplicationLayout } from "./ApplicationLayout";
 import { NotFoundPage } from "./NotFoundPage";
 import { SessionBoundary } from "./SessionBoundary";
@@ -17,6 +19,9 @@ export const appRouter = createBrowserRouter(
         <Route element={<SessionBoundary />}>
             <Route element={<ApplicationLayout />}>
                 <Route index element={<HomePage />} />
+                <Route path="riddles/today" element={<RiddlePlayerPage />} />
+                <Route path="riddles/:riddleId" element={<RiddlePlayerPage />} />
+                <Route path="archive" element={<ArchivePage />} />
                 <Route element={<AnonymousOnlyRoute />}>
                     <Route path="register" element={<RegisterPage />} />
                     <Route path="sign-in" element={<SignInPage />} />

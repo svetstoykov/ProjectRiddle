@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactElement } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 import { FieldError } from "../../../shared/components/FieldError";
 import { clearAntiforgeryToken } from "../../../shared/api/client";
@@ -8,6 +8,7 @@ import { authApi } from "../api/authApi";
 import { AccountErrorSummary } from "../components/AccountErrorSummary";
 import { mapAccountErrors } from "../components/accountErrors";
 import { PasswordField } from "../components/PasswordField";
+import { safeReturnPath } from "../routing/returnPath";
 import styles from "./AuthPage.module.css";
 import formStyles from "../components/AccountForm.module.css";
 
@@ -20,6 +21,7 @@ function hasBrowserEmailShape(value: string): boolean {
 
 export function RegisterPage(): ReactElement {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const emailId = useId();
     const passwordId = useId();
     const confirmationId = useId();
@@ -45,7 +47,10 @@ export function RegisterPage(): ReactElement {
         mutationFn: authApi.register,
         onSuccess: () => {
             clearAntiforgeryToken();
-            void navigate("/sign-in", {
+            const returnTo = searchParams.get("returnTo");
+            const signInPath =
+                returnTo === null ? "/sign-in" : `/sign-in?returnTo=${encodeURIComponent(safeReturnPath(returnTo))}`;
+            void navigate(signInPath, {
                 replace: true,
                 state: {
                     registrationEmail: email.trim(),
