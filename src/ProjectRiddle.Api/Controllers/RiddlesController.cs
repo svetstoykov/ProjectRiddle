@@ -18,16 +18,16 @@ namespace ProjectRiddle.Api.Controllers;
 [Route("api/riddles")]
 public sealed class RiddlesController : BaseController
 {
-    private readonly IPublicRiddlesService _publicRiddlesService;
+    private readonly IRiddlesService _riddlesService;
 
     /// <summary>
     /// Initializes the public riddles controller.
     /// </summary>
-    /// <param name="publicRiddlesService">The Core public riddles service.</param>
-    public RiddlesController(IPublicRiddlesService publicRiddlesService)
+    /// <param name="riddlesService">The Core riddles service.</param>
+    public RiddlesController(IRiddlesService riddlesService)
     {
-        ArgumentNullException.ThrowIfNull(publicRiddlesService);
-        this._publicRiddlesService = publicRiddlesService;
+        ArgumentNullException.ThrowIfNull(riddlesService);
+        this._riddlesService = riddlesService;
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public sealed class RiddlesController : BaseController
         [FromQuery] int pageSize = PublicRiddleLimits.DefaultPageSize,
         CancellationToken cancellationToken = default)
     {
-        var result = await _publicRiddlesService.ListArchiveAsync(
+        var result = await _riddlesService.ListArchiveAsync(
             new ListPublicRiddlesInput(page, pageSize),
             cancellationToken);
         if (result.IsFailure)
@@ -67,7 +67,7 @@ public sealed class RiddlesController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PublicRiddlePlayResponse>> GetTodayAsync(CancellationToken cancellationToken)
     {
-        var result = await _publicRiddlesService.GetTodayAsync(cancellationToken);
+        var result = await _riddlesService.GetTodayAsync(cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<PublicRiddlePlayResponse>(result.Error!);
@@ -86,7 +86,7 @@ public sealed class RiddlesController : BaseController
     [ProducesResponseType(typeof(PublicRiddleWeekResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<PublicRiddleWeekResponse>> ListWeekAsync(CancellationToken cancellationToken)
     {
-        var result = await _publicRiddlesService.ListWeekAsync(cancellationToken);
+        var result = await _riddlesService.ListWeekAsync(cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<PublicRiddleWeekResponse>(result.Error!);
@@ -108,7 +108,7 @@ public sealed class RiddlesController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PublicRiddlePlayResponse>> GetPlayAsync(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _publicRiddlesService.GetPlayAsync(id, cancellationToken);
+        var result = await _riddlesService.GetPlayAsync(id, cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<PublicRiddlePlayResponse>(result.Error!);
@@ -137,7 +137,7 @@ public sealed class RiddlesController : BaseController
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await _publicRiddlesService.SubmitAnswerAsync(
+        var result = await _riddlesService.SubmitAnswerAsync(
             request.ToCoreSubmitRiddleAnswerInput(id),
             cancellationToken);
         if (result.IsFailure)
@@ -168,7 +168,7 @@ public sealed class RiddlesController : BaseController
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await _publicRiddlesService.UseHintAsync(request.ToCoreUseRiddleHintInput(id), cancellationToken);
+        var result = await _riddlesService.UseHintAsync(request.ToCoreUseRiddleHintInput(id), cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<RiddlePlayStateResponse>(result.Error!);
@@ -196,7 +196,7 @@ public sealed class RiddlesController : BaseController
     {
         request ??= new RevealRiddleLetterRequest();
 
-        var result = await _publicRiddlesService.RevealLetterAsync(
+        var result = await _riddlesService.RevealLetterAsync(
             request.ToCoreRevealRiddleLetterInput(id),
             cancellationToken);
         if (result.IsFailure)
@@ -226,7 +226,7 @@ public sealed class RiddlesController : BaseController
     {
         request ??= new ResumeRiddleRequest();
 
-        var result = await _publicRiddlesService.ResumeAsync(request.ToCoreResumeRiddleInput(id), cancellationToken);
+        var result = await _riddlesService.ResumeAsync(request.ToCoreResumeRiddleInput(id), cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<RiddlePlayStateResponse>(result.Error!);
@@ -251,7 +251,7 @@ public sealed class RiddlesController : BaseController
         [FromQuery] DateOnly toDate,
         CancellationToken cancellationToken)
     {
-        var result = await _publicRiddlesService.ListProgressAsync(
+        var result = await _riddlesService.ListProgressAsync(
             new ListAccountRiddleProgressInput(fromDate, toDate),
             cancellationToken);
         if (result.IsFailure)
@@ -279,7 +279,7 @@ public sealed class RiddlesController : BaseController
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await _publicRiddlesService.ImportProgressAsync(
+        var result = await _riddlesService.ImportProgressAsync(
             request.ToCoreAnonymousRiddleProgressInput(),
             cancellationToken);
         if (result.IsFailure)

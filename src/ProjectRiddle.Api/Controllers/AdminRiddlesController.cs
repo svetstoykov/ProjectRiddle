@@ -15,16 +15,16 @@ namespace ProjectRiddle.Api.Controllers;
 [Route("api/admin/riddles")]
 public sealed class AdminRiddlesController : BaseController
 {
-    private readonly IRiddlesService _riddlesService;
+    private readonly IAdminRiddlesService _adminRiddlesService;
 
     /// <summary>
     /// Initializes the administrative riddles controller.
     /// </summary>
-    /// <param name="riddlesService">The Core riddles service.</param>
-    public AdminRiddlesController(IRiddlesService riddlesService)
+    /// <param name="adminRiddlesService">The Core administrative riddles service.</param>
+    public AdminRiddlesController(IAdminRiddlesService adminRiddlesService)
     {
-        ArgumentNullException.ThrowIfNull(riddlesService);
-        this._riddlesService = riddlesService;
+        ArgumentNullException.ThrowIfNull(adminRiddlesService);
+        this._adminRiddlesService = adminRiddlesService;
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public sealed class AdminRiddlesController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<RiddleListResponse>> ListAsync(CancellationToken cancellationToken)
     {
-        var result = await _riddlesService.ListAsync(cancellationToken);
+        var result = await _adminRiddlesService.ListAsync(cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<RiddleListResponse>(result.Error!);
@@ -58,7 +58,7 @@ public sealed class AdminRiddlesController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RiddleResponse>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _riddlesService.GetByIdAsync(id, cancellationToken);
+        var result = await _adminRiddlesService.GetByIdAsync(id, cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<RiddleResponse>(result.Error!);
@@ -82,7 +82,7 @@ public sealed class AdminRiddlesController : BaseController
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await _riddlesService.CreateAsync(request.ToCoreCreateRiddleInput(), cancellationToken);
+        var result = await _adminRiddlesService.CreateAsync(request.ToCoreCreateRiddleInput(), cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<RiddleResponse>(result.Error!);
@@ -110,7 +110,7 @@ public sealed class AdminRiddlesController : BaseController
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var result = await _riddlesService.ScheduleAsync(request.ToCoreScheduleRiddleInput(id), cancellationToken);
+        var result = await _adminRiddlesService.ScheduleAsync(request.ToCoreScheduleRiddleInput(id), cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<RiddleResponse>(result.Error!);
@@ -137,7 +137,7 @@ public sealed class AdminRiddlesController : BaseController
     {
         request ??= new PublishRiddleRequest();
 
-        var result = await _riddlesService.PublishAsync(request.ToCorePublishRiddleInput(id), cancellationToken);
+        var result = await _adminRiddlesService.PublishAsync(request.ToCorePublishRiddleInput(id), cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<RiddleResponse>(result.Error!);
@@ -157,7 +157,7 @@ public sealed class AdminRiddlesController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<ActionResult<RiddleResponse>> UnpublishAsync(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _riddlesService.UnpublishAsync(id, cancellationToken);
+        var result = await _adminRiddlesService.UnpublishAsync(id, cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure<RiddleResponse>(result.Error!);
@@ -178,7 +178,7 @@ public sealed class AdminRiddlesController : BaseController
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<ActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        var result = await _riddlesService.DeleteAsync(id, cancellationToken);
+        var result = await _adminRiddlesService.DeleteAsync(id, cancellationToken);
         if (result.IsFailure)
         {
             return FromFailure(result.Error!);

@@ -1,65 +1,103 @@
-using ProjectRiddle.Core.Models.Riddles.Authoring;
+using ProjectRiddle.Core.Models.Riddles.Discovery;
+using ProjectRiddle.Core.Models.Riddles.Play;
+using ProjectRiddle.Core.Models.Riddles.Progress;
 using ProjectRiddle.Core.Results.Models;
 
 namespace ProjectRiddle.Core.Interfaces.Services;
 
 /// <summary>
-/// Provides administrative authoring and publication operations for riddles.
+/// Provides public riddle discovery, play, and account progress operations.
 /// </summary>
 public interface IRiddlesService
 {
     /// <summary>
-    /// Creates a draft riddle.
+    /// Lists a page of safe archive metadata.
     /// </summary>
-    /// <param name="input">The create input. Cannot be <see langword="null" />.</param>
+    /// <param name="input">The paging input. Cannot be <see langword="null" />.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>The created riddle, or an expected failure.</returns>
-    Task<Result<RiddleOutput>> CreateAsync(CreateRiddleInput input, CancellationToken cancellationToken);
+    /// <returns>The archive page, or an expected failure.</returns>
+    Task<Result<PublicRiddleListOutput>> ListArchiveAsync(
+        ListPublicRiddlesInput input,
+        CancellationToken cancellationToken);
 
     /// <summary>
-    /// Gets one riddle by identifier.
+    /// Gets today's eligible public play projection.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>Today's play projection, or an expected failure.</returns>
+    Task<Result<PublicRiddlePlayOutput>> GetTodayAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Lists safe metadata for published riddles in the current local week through today.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The week discovery items, or an expected failure.</returns>
+    Task<Result<IReadOnlyList<PublicRiddleDiscoveryItemOutput>>> ListWeekAsync(
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the initial play projection for a public riddle.
     /// </summary>
     /// <param name="id">The riddle identifier.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>The riddle, or an expected failure.</returns>
-    Task<Result<RiddleOutput>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    /// <returns>The play projection, or an expected failure.</returns>
+    Task<Result<PublicRiddlePlayOutput>> GetPlayAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Lists every riddle.
+    /// Checks a submitted answer and updates progress.
     /// </summary>
+    /// <param name="input">The answer input. Cannot be <see langword="null" />.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>The riddle list, or an expected failure.</returns>
-    Task<Result<ListRiddlesOutput>> ListAsync(CancellationToken cancellationToken);
+    /// <returns>The resulting play state, or an expected failure.</returns>
+    Task<Result<RiddlePlayStateOutput>> SubmitAnswerAsync(
+        SubmitRiddleAnswerInput input,
+        CancellationToken cancellationToken);
 
     /// <summary>
-    /// Schedules a riddle onto a Sofia calendar date.
+    /// Records one structural hint kind on progress.
     /// </summary>
-    /// <param name="input">The schedule input. Cannot be <see langword="null" />.</param>
+    /// <param name="input">The hint input. Cannot be <see langword="null" />.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>The scheduled riddle, or an expected failure.</returns>
-    Task<Result<RiddleOutput>> ScheduleAsync(ScheduleRiddleInput input, CancellationToken cancellationToken);
+    /// <returns>The resulting play state, or an expected failure.</returns>
+    Task<Result<RiddlePlayStateOutput>> UseHintAsync(
+        UseRiddleHintInput input,
+        CancellationToken cancellationToken);
 
     /// <summary>
-    /// Publishes a riddle onto a Sofia calendar date.
+    /// Reveals one previously unrevealed letter.
     /// </summary>
-    /// <param name="input">The publish input. Cannot be <see langword="null" />.</param>
+    /// <param name="input">The reveal input. Cannot be <see langword="null" />.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>The published riddle, or an expected failure.</returns>
-    Task<Result<RiddleOutput>> PublishAsync(PublishRiddleInput input, CancellationToken cancellationToken);
+    /// <returns>The resulting play state, or an expected failure.</returns>
+    Task<Result<RiddlePlayStateOutput>> RevealLetterAsync(
+        RevealRiddleLetterInput input,
+        CancellationToken cancellationToken);
 
     /// <summary>
-    /// Unpublishes a scheduled or published riddle.
+    /// Rehydrates permitted play state from anonymous or account progress.
     /// </summary>
-    /// <param name="id">The riddle identifier.</param>
+    /// <param name="input">The resume input. Cannot be <see langword="null" />.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>The unpublished riddle, or an expected failure.</returns>
-    Task<Result<RiddleOutput>> UnpublishAsync(Guid id, CancellationToken cancellationToken);
+    /// <returns>The resulting play state, or an expected failure.</returns>
+    Task<Result<RiddlePlayStateOutput>> ResumeAsync(ResumeRiddleInput input, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Deletes a riddle when the current publication state permits deletion.
+    /// Lists account-owned riddle progress for a bounded local-date range.
     /// </summary>
-    /// <param name="id">The riddle identifier.</param>
+    /// <param name="input">The date-range input. Cannot be <see langword="null" />.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>A successful result, or an expected failure.</returns>
-    Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken);
+    /// <returns>The progress list, or an expected failure.</returns>
+    Task<Result<AccountRiddleProgressListOutput>> ListProgressAsync(
+        ListAccountRiddleProgressInput input,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Merges a typed anonymous progress snapshot into the current account record.
+    /// </summary>
+    /// <param name="input">The imported snapshot. Cannot be <see langword="null" />.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The merged progress snapshot, or an expected failure.</returns>
+    Task<Result<RiddleProgressSnapshotOutput>> ImportProgressAsync(
+        AnonymousRiddleProgressInput input,
+        CancellationToken cancellationToken);
 }

@@ -31,14 +31,14 @@ public sealed class TestWorkspace
         Clock = new FixedDateTimeProvider(utcNow, TimeZoneId);
         Account = new MutableCurrentAccount(accountId);
         var riddles = new InMemoryRiddleRepository();
-        Service = new RiddlesService(riddles, Clock, NullLogger<RiddlesService>.Instance);
-        PublicService = new PublicRiddlesService(
+        AdminService = new AdminRiddlesService(riddles, Clock, NullLogger<AdminRiddlesService>.Instance);
+        Service = new RiddlesService(
             riddles,
             new InMemoryRiddleProgressRepository(riddles),
             Account,
             Clock,
             randomNumberGenerator ?? new ScriptedRandomNumberGenerator(),
-            NullLogger<PublicRiddlesService>.Instance);
+            NullLogger<RiddlesService>.Instance);
     }
 
     /// <summary>
@@ -52,14 +52,14 @@ public sealed class TestWorkspace
     public MutableCurrentAccount Account { get; }
 
     /// <summary>
+    /// Gets the Core administrative riddles service under test.
+    /// </summary>
+    public IAdminRiddlesService AdminService { get; }
+
+    /// <summary>
     /// Gets the Core riddles service under test.
     /// </summary>
     public IRiddlesService Service { get; }
-
-    /// <summary>
-    /// Gets the Core public riddles service under test.
-    /// </summary>
-    public IPublicRiddlesService PublicService { get; }
 
     /// <summary>
     /// Creates a valid riddle create input.
