@@ -1,0 +1,44 @@
+.card {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 2px solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-low);
+    box-shadow: 2px 2px 0 var(--color-deep-violet);
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.date {
+    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.excerpt {
+    font-size: 1.0625rem;
+    line-height: 1.5;
+}
+
+.meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    color: var(--color-muted-text);
+    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.8125rem;
+}
+
+.outcome {
+    padding: 0.15rem 0.6rem;
+    border: 2px solid var(--color-deep-violet);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-deep-violet);
+    font-weight: 700;
+}

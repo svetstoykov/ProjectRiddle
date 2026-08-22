@@ -49,6 +49,9 @@ export function ApplicationLayout(): ReactElement {
                         <NavLink className={styles.link} to="/">
                             Начало
                         </NavLink>
+                        <NavLink className={styles.link} to="/archive">
+                            Архив
+                        </NavLink>
                         {session === null ? (
                             <>
                                 <NavLink className={styles.link} to="/register">
