@@ -5,6 +5,7 @@ const riddleMessages = {
     "riddles.notFound": "Загадката не е намерена.",
     "riddles.clue.invalid": "Въведете валидно условие.",
     "riddles.answer.invalid": "Въведете валиден отговор.",
+    "riddles.answer.format.invalid": "Отговорът може да съдържа само букви, разделени с по един интервал.",
     "riddles.explanation.invalid": "Въведете валидно обяснение.",
     "riddles.ranges.invalid": "Етикетите по откъси са невалидни.",
     "riddles.publicationDate.invalid": "Въведете валидна дата на публикуване в София.",

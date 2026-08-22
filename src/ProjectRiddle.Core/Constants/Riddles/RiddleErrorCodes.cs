@@ -21,6 +21,11 @@ public static class RiddleErrorCodes
     public const string AnswerInvalid = "riddles.answer.invalid";
 
     /// <summary>
+    /// Identifies an answer that contains characters other than letters and single interior spaces.
+    /// </summary>
+    public const string AnswerFormatInvalid = "riddles.answer.format.invalid";
+
+    /// <summary>
     /// Identifies explanation text that is missing or whitespace.
     /// </summary>
     public const string ExplanationInvalid = "riddles.explanation.invalid";

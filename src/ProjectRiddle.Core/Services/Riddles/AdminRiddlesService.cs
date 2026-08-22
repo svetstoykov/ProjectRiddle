@@ -317,6 +317,12 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
             return Result.Failure<ValidatedRiddleContent>(patternResult.Error!);
         }
 
+        var answerFormat = AuthoredAnswerFormat.Validate(trimmedAnswer);
+        if (answerFormat.IsFailure)
+        {
+            return Result.Failure<ValidatedRiddleContent>(answerFormat.Error!);
+        }
+
         var rangeResult = RiddleRangeValidator.Validate(trimmedClue, ranges);
         if (rangeResult.IsFailure)
         {
