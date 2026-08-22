@@ -1,0 +1,20 @@
+.card {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+    padding: 1.5rem;
+    border: 3px solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-clue-surface);
+    box-shadow: var(--shadow-hard);
+}
+
+.card > :global(div) {
+    width: 100%;
+}
+
+.lead {
+    margin: 0;
+    color: var(--color-muted-text);
+    line-height: 1.6;
+}
