@@ -1,7 +1,8 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using ProjectRiddle.Core.Enums.Riddles;
+using ProjectRiddle.Core.Interfaces.Randomness;
 using ProjectRiddle.Core.Interfaces.Services;
-using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Authoring;
 using ProjectRiddle.Core.Services.Riddles;
 
 namespace ProjectRiddle.IntegrationTests.Harness;
@@ -20,12 +21,23 @@ public sealed class TestWorkspace
     /// Initializes a Core riddle test workspace.
     /// </summary>
     /// <param name="utcNow">The fixed UTC instant.</param>
-    public TestWorkspace(DateTimeOffset utcNow)
+    /// <param name="accountId">The current account identifier, or <see langword="null" /> for an anonymous caller.</param>
+    /// <param name="randomNumberGenerator">The optional scripted random source for letter reveals.</param>
+    public TestWorkspace(
+        DateTimeOffset utcNow,
+        Guid? accountId = null,
+        IRandomNumberGenerator? randomNumberGenerator = null)
     {
         Clock = new FixedDateTimeProvider(utcNow, TimeZoneId);
+        Account = new MutableCurrentAccount(accountId);
+        var riddles = new InMemoryRiddleRepository();
+        AdminService = new AdminRiddlesService(riddles, Clock, NullLogger<AdminRiddlesService>.Instance);
         Service = new RiddlesService(
-            new InMemoryRiddleRepository(),
+            riddles,
+            new InMemoryRiddleProgressRepository(riddles),
+            Account,
             Clock,
+            randomNumberGenerator ?? new ScriptedRandomNumberGenerator(),
             NullLogger<RiddlesService>.Instance);
     }
 
@@ -33,6 +45,16 @@ public sealed class TestWorkspace
     /// Gets the controllable clock used by the service.
     /// </summary>
     public FixedDateTimeProvider Clock { get; }
+
+    /// <summary>
+    /// Gets the controllable current-account identity.
+    /// </summary>
+    public MutableCurrentAccount Account { get; }
+
+    /// <summary>
+    /// Gets the Core administrative riddles service under test.
+    /// </summary>
+    public IAdminRiddlesService AdminService { get; }
 
     /// <summary>
     /// Gets the Core riddles service under test.

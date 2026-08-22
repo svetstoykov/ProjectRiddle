@@ -1,7 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ProjectRiddle.Api.Authorization;
+using ProjectRiddle.Api.Identity;
 using ProjectRiddle.Api.Infrastructure;
+using ProjectRiddle.Core.Interfaces.Accounts;
 
 namespace ProjectRiddle.Api.Extensions;
 
@@ -23,6 +25,7 @@ public static class MvcServiceCollectionExtensions
         services.AddProblemDetails();
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentAccount, HttpContextCurrentAccount>();
         services.AddControllers(options =>
             {
                 options.Filters.Add<AutoValidateAntiforgeryFilter>();

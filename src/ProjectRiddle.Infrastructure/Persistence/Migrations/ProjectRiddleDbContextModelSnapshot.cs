@@ -164,6 +164,37 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                     b.ToTable("Riddles", (string)null);
                 });
 
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AnswerAttemptCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("RiddleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RiddleId");
+
+                    b.HasIndex("AccountId", "RiddleId")
+                        .IsUnique();
+
+                    b.ToTable("RiddleProgress", (string)null);
+                });
+
             modelBuilder.Entity("ProjectRiddle.Infrastructure.Identity.ApplicationRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -339,6 +370,58 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                         });
 
                     b.Navigation("Ranges");
+                });
+
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgress", b =>
+                {
+                    b.HasOne("ProjectRiddle.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectRiddle.Core.Models.Riddles.Riddle", null)
+                        .WithMany()
+                        .HasForeignKey("RiddleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsMany("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgressHint", "Hints", b1 =>
+                        {
+                            b1.Property<Guid>("RiddleProgressId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Kind")
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("RiddleProgressId", "Kind");
+
+                            b1.ToTable("RiddleProgressHints", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("RiddleProgressId");
+                        });
+
+                    b.OwnsMany("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgressPosition", "Positions", b1 =>
+                        {
+                            b1.Property<Guid>("RiddleProgressId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("LetterPosition")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("INTEGER");
+
+                            b1.HasKey("RiddleProgressId", "LetterPosition");
+
+                            b1.ToTable("RiddleProgressPositions", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("RiddleProgressId");
+                        });
+
+                    b.Navigation("Hints");
+
+                    b.Navigation("Positions");
                 });
 #pragma warning restore 612, 618
         }

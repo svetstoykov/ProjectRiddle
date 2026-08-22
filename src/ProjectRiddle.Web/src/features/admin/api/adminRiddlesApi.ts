@@ -11,7 +11,7 @@ export const adminRiddlesApi = {
     async list(): Promise<Riddle[]> {
         const response = await request<RiddleListResponse>({
             method: "GET",
-            url: "/api/riddles",
+            url: "/api/admin/riddles",
         });
         return [...response.riddles];
     },
@@ -19,22 +19,14 @@ export const adminRiddlesApi = {
     get(id: string): Promise<Riddle> {
         return request<Riddle>({
             method: "GET",
-            url: `/api/riddles/${id}`,
+            url: `/api/admin/riddles/${id}`,
         });
     },
 
     create(input: RiddleContentRequest): Promise<Riddle> {
         return request<Riddle>({
             method: "POST",
-            url: "/api/riddles",
-            data: input,
-        });
-    },
-
-    update(id: string, input: RiddleContentRequest): Promise<Riddle> {
-        return request<Riddle>({
-            method: "PUT",
-            url: `/api/riddles/${id}`,
+            url: "/api/admin/riddles",
             data: input,
         });
     },
@@ -43,7 +35,7 @@ export const adminRiddlesApi = {
         const body: ScheduleRiddleRequest = { publicationDate };
         return request<Riddle>({
             method: "POST",
-            url: `/api/riddles/${id}/schedule`,
+            url: `/api/admin/riddles/${id}/schedule`,
             data: body,
         });
     },
@@ -52,7 +44,7 @@ export const adminRiddlesApi = {
         const body: PublishRiddleRequest | undefined = publicationDate === undefined ? undefined : { publicationDate };
         return request<Riddle>({
             method: "POST",
-            url: `/api/riddles/${id}/publish`,
+            url: `/api/admin/riddles/${id}/publish`,
             data: body,
         });
     },
@@ -60,14 +52,14 @@ export const adminRiddlesApi = {
     unpublish(id: string): Promise<Riddle> {
         return request<Riddle>({
             method: "POST",
-            url: `/api/riddles/${id}/unpublish`,
+            url: `/api/admin/riddles/${id}/unpublish`,
         });
     },
 
     delete(id: string): Promise<void> {
         return request<void>({
             method: "DELETE",
-            url: `/api/riddles/${id}`,
+            url: `/api/admin/riddles/${id}`,
         });
     },
 };

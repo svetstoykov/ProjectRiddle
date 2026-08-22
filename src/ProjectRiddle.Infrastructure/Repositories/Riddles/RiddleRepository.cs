@@ -34,6 +34,23 @@ public sealed class RiddleRepository : IRiddleRepository
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<Riddle>> GetByIdsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(ids);
+        if (ids.Count == 0)
+        {
+            return [];
+        }
+
+        return await _dbContext.Set<Riddle>()
+            .Include(riddle => riddle.Ranges)
+            .Where(riddle => ids.Contains(riddle.Id))
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<Riddle>> ListAsync(CancellationToken cancellationToken)
     {
         return await _dbContext.Set<Riddle>()
@@ -53,6 +70,67 @@ public sealed class RiddleRepository : IRiddleRepository
                 riddle => riddle.SofiaPublicationDate == publicationDate
                     && (riddle.PublicationState == RiddlePublicationState.Scheduled
                         || riddle.PublicationState == RiddlePublicationState.Published),
+                cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<Riddle?> GetPublishedByPublicationDateAsync(
+        DateOnly publicationDate,
+        CancellationToken cancellationToken)
+    {
+        return _dbContext.Set<Riddle>()
+            .Include(riddle => riddle.Ranges)
+            .SingleOrDefaultAsync(
+                riddle => riddle.SofiaPublicationDate == publicationDate
+                    && riddle.PublicationState == RiddlePublicationState.Published,
+                cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Riddle>> ListPublishedBetweenAsync(
+        DateOnly fromDate,
+        DateOnly toDate,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.Set<Riddle>()
+            .Include(riddle => riddle.Ranges)
+            .AsNoTracking()
+            .Where(
+                riddle => riddle.PublicationState == RiddlePublicationState.Published
+                    && riddle.SofiaPublicationDate != null
+                    && riddle.SofiaPublicationDate >= fromDate
+                    && riddle.SofiaPublicationDate <= toDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Riddle>> ListPublishedArchivePageAsync(
+        DateOnly beforeDate,
+        int skip,
+        int take,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.Set<Riddle>()
+            .Include(riddle => riddle.Ranges)
+            .AsNoTracking()
+            .Where(
+                riddle => riddle.PublicationState == RiddlePublicationState.Published
+                    && riddle.SofiaPublicationDate != null
+                    && riddle.SofiaPublicationDate < beforeDate)
+            .OrderByDescending(riddle => riddle.SofiaPublicationDate)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public Task<int> CountPublishedArchiveAsync(DateOnly beforeDate, CancellationToken cancellationToken)
+    {
+        return _dbContext.Set<Riddle>()
+            .CountAsync(
+                riddle => riddle.PublicationState == RiddlePublicationState.Published
+                    && riddle.SofiaPublicationDate != null
+                    && riddle.SofiaPublicationDate < beforeDate,
                 cancellationToken);
     }
 

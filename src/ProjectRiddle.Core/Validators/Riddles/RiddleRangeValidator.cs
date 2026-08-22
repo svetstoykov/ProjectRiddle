@@ -1,5 +1,5 @@
 using ProjectRiddle.Core.Constants.Riddles;
-using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Authoring;
 using ProjectRiddle.Core.Results.Models;
 
 namespace ProjectRiddle.Core.Validators.Riddles;

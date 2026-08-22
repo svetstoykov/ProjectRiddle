@@ -20,6 +20,7 @@ public static class ApplicationServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.AddSingleton<IInternalStatusService, InternalStatusService>();
+        services.AddScoped<IAdminRiddlesService, AdminRiddlesService>();
         services.AddScoped<IRiddlesService, RiddlesService>();
 
         return services;

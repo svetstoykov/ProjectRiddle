@@ -16,6 +16,14 @@ public interface IRiddleRepository
     Task<Riddle?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Gets riddles with the supplied identifiers.
+    /// </summary>
+    /// <param name="ids">The riddle identifiers. Cannot be <see langword="null" />.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The matching riddles.</returns>
+    Task<IReadOnlyList<Riddle>> GetByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Lists every stored riddle.
     /// </summary>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
@@ -29,6 +37,48 @@ public interface IRiddleRepository
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
     /// <returns>The occupying riddle when one exists; otherwise <see langword="null" />.</returns>
     Task<Riddle?> GetOccupyingByPublicationDateAsync(DateOnly publicationDate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the published riddle occupying the supplied local publication date.
+    /// </summary>
+    /// <param name="publicationDate">The local publication date.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The published riddle when one exists; otherwise <see langword="null" />.</returns>
+    Task<Riddle?> GetPublishedByPublicationDateAsync(DateOnly publicationDate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Lists published riddles whose local publication date is in the inclusive range.
+    /// </summary>
+    /// <param name="fromDate">The inclusive start date.</param>
+    /// <param name="toDate">The inclusive end date.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The matching published riddles.</returns>
+    Task<IReadOnlyList<Riddle>> ListPublishedBetweenAsync(
+        DateOnly fromDate,
+        DateOnly toDate,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Lists a page of published archive riddles whose local publication date is before <paramref name="beforeDate" />.
+    /// </summary>
+    /// <param name="beforeDate">The exclusive local date upper bound.</param>
+    /// <param name="skip">The number of records to skip. Cannot be negative.</param>
+    /// <param name="take">The number of records to take. Must be greater than zero.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The archive page ordered by publication date descending.</returns>
+    Task<IReadOnlyList<Riddle>> ListPublishedArchivePageAsync(
+        DateOnly beforeDate,
+        int skip,
+        int take,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Counts published archive riddles whose local publication date is before <paramref name="beforeDate" />.
+    /// </summary>
+    /// <param name="beforeDate">The exclusive local date upper bound.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The archive count.</returns>
+    Task<int> CountPublishedArchiveAsync(DateOnly beforeDate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Adds a new riddle and saves the change.
