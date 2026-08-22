@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using ProjectRiddle.Api.Authorization;
-using ProjectRiddle.Api.Models.Riddles;
+using ProjectRiddle.Api.Models.Riddles.Authoring;
 using ProjectRiddle.Core.Interfaces.Services;
 
 namespace ProjectRiddle.Api.Controllers;

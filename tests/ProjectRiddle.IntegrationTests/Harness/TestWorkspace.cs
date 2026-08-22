@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using ProjectRiddle.Core.Enums.Riddles;
 using ProjectRiddle.Core.Interfaces.Randomness;
 using ProjectRiddle.Core.Interfaces.Services;
-using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Authoring;
 using ProjectRiddle.Core.Services.Riddles;
 
 namespace ProjectRiddle.IntegrationTests.Harness;

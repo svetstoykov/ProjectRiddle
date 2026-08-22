@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using ProjectRiddle.Api.Models.Riddles;
+using ProjectRiddle.Api.Models.Riddles.Discovery;
+using ProjectRiddle.Api.Models.Riddles.Play;
+using ProjectRiddle.Api.Models.Riddles.Progress;
 using ProjectRiddle.Core.Constants.Riddles;
 using ProjectRiddle.Core.Interfaces.Services;
-using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Discovery;
+using ProjectRiddle.Core.Models.Riddles.Progress;
 
 namespace ProjectRiddle.Api.Controllers;
 

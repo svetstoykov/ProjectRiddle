@@ -8,6 +8,9 @@ using ProjectRiddle.Core.Interfaces.Repositories;
 using ProjectRiddle.Core.Interfaces.Services;
 using ProjectRiddle.Core.Interfaces.Time;
 using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Discovery;
+using ProjectRiddle.Core.Models.Riddles.Play;
+using ProjectRiddle.Core.Models.Riddles.Progress;
 using ProjectRiddle.Core.Results.Models;
 using ProjectRiddle.Core.Validators.Riddles;
 

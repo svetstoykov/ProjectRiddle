@@ -1,4 +1,6 @@
-using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Discovery;
+using ProjectRiddle.Core.Models.Riddles.Play;
+using ProjectRiddle.Core.Models.Riddles.Progress;
 using ProjectRiddle.Core.Results.Models;
 
 namespace ProjectRiddle.Core.Interfaces.Services;

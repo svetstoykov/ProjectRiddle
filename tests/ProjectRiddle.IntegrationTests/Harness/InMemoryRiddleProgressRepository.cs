@@ -1,5 +1,5 @@
 using ProjectRiddle.Core.Interfaces.Repositories;
-using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Progress;
 
 namespace ProjectRiddle.IntegrationTests.Harness;
 

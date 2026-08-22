@@ -1,6 +1,6 @@
 using ProjectRiddle.Core.Constants.Riddles;
 using ProjectRiddle.Core.Enums.Riddles;
-using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Authoring;
 using ProjectRiddle.Core.Results.Models;
 using ProjectRiddle.Core.Services.Riddles;
 using ProjectRiddle.IntegrationTests.Harness;

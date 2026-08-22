@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Progress;
 using ProjectRiddle.Infrastructure.Identity;
 
 namespace ProjectRiddle.Infrastructure.Persistence.Configurations;

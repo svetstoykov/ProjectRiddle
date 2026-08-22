@@ -166,7 +166,7 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                     b.ToTable("Riddles", (string)null);
                 });
 
-            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.RiddleProgress", b =>
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgress", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
@@ -374,7 +374,7 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                     b.Navigation("Ranges");
                 });
 
-            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.RiddleProgress", b =>
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgress", b =>
                 {
                     b.HasOne("ProjectRiddle.Infrastructure.Identity.ApplicationUser", null)
                         .WithMany()
@@ -388,7 +388,7 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsMany("ProjectRiddle.Core.Models.Riddles.RiddleProgressHint", "Hints", b1 =>
+                    b.OwnsMany("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgressHint", "Hints", b1 =>
                         {
                             b1.Property<Guid>("RiddleProgressId")
                                 .HasColumnType("TEXT");
@@ -404,7 +404,7 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("RiddleProgressId");
                         });
 
-                    b.OwnsMany("ProjectRiddle.Core.Models.Riddles.RiddleProgressPosition", "Positions", b1 =>
+                    b.OwnsMany("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgressPosition", "Positions", b1 =>
                         {
                             b1.Property<Guid>("RiddleProgressId")
                                 .HasColumnType("TEXT");

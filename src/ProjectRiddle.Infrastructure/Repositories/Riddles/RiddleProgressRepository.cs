@@ -4,6 +4,7 @@ using ProjectRiddle.Core.Enums.Riddles;
 using ProjectRiddle.Core.Exceptions;
 using ProjectRiddle.Core.Interfaces.Repositories;
 using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Progress;
 using ProjectRiddle.Infrastructure.Persistence;
 
 namespace ProjectRiddle.Infrastructure.Repositories.Riddles;

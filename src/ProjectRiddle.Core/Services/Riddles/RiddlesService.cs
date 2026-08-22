@@ -6,6 +6,7 @@ using ProjectRiddle.Core.Interfaces.Repositories;
 using ProjectRiddle.Core.Interfaces.Services;
 using ProjectRiddle.Core.Interfaces.Time;
 using ProjectRiddle.Core.Models.Riddles;
+using ProjectRiddle.Core.Models.Riddles.Authoring;
 using ProjectRiddle.Core.Results.Models;
 using ProjectRiddle.Core.Validators.Riddles;
 
