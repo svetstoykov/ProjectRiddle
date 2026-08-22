@@ -1,0 +1,22 @@
+.control {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.reveal {
+    min-height: 2.5rem;
+    padding: 0.4rem 0.9rem;
+    border-width: 2px;
+    background: var(--color-surface-low);
+    box-shadow: 2px 2px 0 var(--color-deep-violet);
+    font-size: 0.9375rem;
+}
+
+.counter {
+    margin: 0;
+    color: var(--color-muted-text);
+    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.875rem;
+}

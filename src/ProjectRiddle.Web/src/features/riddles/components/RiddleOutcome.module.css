@@ -1,0 +1,40 @@
+.outcome {
+    padding: 1rem;
+    border: 3px solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-low);
+}
+
+.outcome.solved {
+    border-color: var(--color-success);
+    background: var(--color-clue-surface);
+}
+
+.outcome.revealed {
+    border-style: dashed;
+    border-color: var(--color-border);
+}
+
+.title {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+}
+
+.message {
+    margin: 0 0 0.5rem;
+    color: var(--color-muted-text);
+}
+
+.explanation {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.incorrect {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border: 2px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    background: var(--color-danger-surface);
+    color: var(--color-danger);
+}
