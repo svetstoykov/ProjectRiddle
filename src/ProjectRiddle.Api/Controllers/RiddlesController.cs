@@ -80,7 +80,7 @@ public sealed class RiddlesController : BaseController
     /// Lists safe metadata for published riddles in the current local week through today.
     /// </summary>
     /// <param name="cancellationToken">The token used to cancel the request.</param>
-    /// <returns>The week discovery items.</returns>
+    /// <returns>The week bounds, the current local date, and the week discovery items.</returns>
     [HttpGet("week")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PublicRiddleWeekResponse), StatusCodes.Status200OK)]
@@ -92,7 +92,7 @@ public sealed class RiddlesController : BaseController
             return FromFailure<PublicRiddleWeekResponse>(result.Error!);
         }
 
-        return Ok(PublicRiddleWeekResponse.FromCoreWeekItems(result.Value!));
+        return Ok(PublicRiddleWeekResponse.FromCorePublicRiddleWeekOutput(result.Value!));
     }
 
     /// <summary>

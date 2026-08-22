@@ -8,21 +8,40 @@ namespace ProjectRiddle.Api.Models.Riddles.Discovery;
 public sealed record PublicRiddleWeekResponse
 {
     /// <summary>
+    /// Gets the Monday of the current local week.
+    /// </summary>
+    public required DateOnly WeekStart { get; init; }
+
+    /// <summary>
+    /// Gets the Sunday of the current local week.
+    /// </summary>
+    public required DateOnly WeekEnd { get; init; }
+
+    /// <summary>
+    /// Gets the configured local date at the time of the read.
+    /// </summary>
+    public required DateOnly Today { get; init; }
+
+    /// <summary>
     /// Gets the discovery items in publication-date order.
     /// </summary>
     public required IReadOnlyList<PublicRiddleDiscoveryItemResponse> Items { get; init; }
 
     /// <summary>
-    /// Maps Core week items to the API response.
+    /// Maps a Core week projection to the API response.
     /// </summary>
-    /// <param name="items">The Core items. Cannot be <see langword="null" />.</param>
+    /// <param name="output">The Core output. Cannot be <see langword="null" />.</param>
     /// <returns>The corresponding API response.</returns>
-    public static PublicRiddleWeekResponse FromCoreWeekItems(IReadOnlyList<PublicRiddleDiscoveryItemOutput> items)
+    public static PublicRiddleWeekResponse FromCorePublicRiddleWeekOutput(PublicRiddleWeekOutput output)
     {
-        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(output);
         return new PublicRiddleWeekResponse
         {
-            Items = items.Select(PublicRiddleDiscoveryItemResponse.FromCorePublicRiddleDiscoveryItemOutput).ToArray()
+            WeekStart = output.WeekStart,
+            WeekEnd = output.WeekEnd,
+            Today = output.Today,
+            Items = output.Items.Select(PublicRiddleDiscoveryItemResponse.FromCorePublicRiddleDiscoveryItemOutput)
+                .ToArray()
         };
     }
 }

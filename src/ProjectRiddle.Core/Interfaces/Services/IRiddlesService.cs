@@ -31,9 +31,8 @@ public interface IRiddlesService
     /// Lists safe metadata for published riddles in the current local week through today.
     /// </summary>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>The week discovery items, or an expected failure.</returns>
-    Task<Result<IReadOnlyList<PublicRiddleDiscoveryItemOutput>>> ListWeekAsync(
-        CancellationToken cancellationToken);
+    /// <returns>The week bounds, the current local date, and the week discovery items, or an expected failure.</returns>
+    Task<Result<PublicRiddleWeekOutput>> ListWeekAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets the initial play projection for a public riddle.

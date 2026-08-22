@@ -107,9 +107,9 @@ public sealed class RiddlesServiceTests
 
         var week = await workspace.Service.ListWeekAsync(CancellationToken.None);
         Assert.True(week.IsSuccess);
-        Assert.Equal(2, week.Value!.Count);
-        Assert.Contains(week.Value, item => item.Id == archive.Id);
-        Assert.Contains(week.Value, item => item.Id == today.Id);
+        Assert.Equal(2, week.Value!.Items.Count);
+        Assert.Contains(week.Value.Items, item => item.Id == archive.Id);
+        Assert.Contains(week.Value.Items, item => item.Id == today.Id);
 
         var play = await workspace.Service.GetTodayAsync(CancellationToken.None);
         Assert.True(play.IsSuccess);
@@ -406,6 +406,46 @@ public sealed class RiddlesServiceTests
             CancellationToken.None);
         Assert.True(progress.IsSuccess);
         Assert.Empty(progress.Value!.Items);
+    }
+
+    /// <summary>
+    /// Verifies that the week projection carries the configured local week bounds and local date.
+    /// </summary>
+    /// <returns>A task that represents the test operation.</returns>
+    [Fact]
+    public async Task WeekCarriesTheConfiguredLocalDates()
+    {
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
+        await PublishAsync(workspace, Today);
+
+        var week = await workspace.Service.ListWeekAsync(CancellationToken.None);
+
+        Assert.True(week.IsSuccess);
+        Assert.Equal(new DateOnly(2026, 8, 17), week.Value!.WeekStart);
+        Assert.Equal(new DateOnly(2026, 8, 23), week.Value.WeekEnd);
+        Assert.Equal(Today, week.Value.Today);
+        Assert.Single(week.Value.Items);
+    }
+
+    /// <summary>
+    /// Verifies that the week bounds follow the configured local date across a midnight rollover.
+    /// </summary>
+    /// <returns>A task that represents the test operation.</returns>
+    [Fact]
+    public async Task WeekBoundsFollowTheLocalDateAcrossMidnight()
+    {
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
+        await PublishAsync(workspace, Today);
+
+        workspace.Clock.UtcDateTime = new DateTimeOffset(2026, 8, 23, 21, 30, 0, TimeSpan.Zero);
+
+        var week = await workspace.Service.ListWeekAsync(CancellationToken.None);
+
+        Assert.True(week.IsSuccess);
+        Assert.Equal(new DateOnly(2026, 8, 24), week.Value!.WeekStart);
+        Assert.Equal(new DateOnly(2026, 8, 30), week.Value.WeekEnd);
+        Assert.Equal(new DateOnly(2026, 8, 24), week.Value.Today);
+        Assert.Empty(week.Value.Items);
     }
 
     /// <summary>

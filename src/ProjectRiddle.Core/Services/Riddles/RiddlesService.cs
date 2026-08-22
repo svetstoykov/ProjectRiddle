@@ -116,20 +116,19 @@ public sealed class RiddlesService : IRiddlesService
     }
 
     /// <inheritdoc />
-    public async Task<Result<IReadOnlyList<PublicRiddleDiscoveryItemOutput>>> ListWeekAsync(
-        CancellationToken cancellationToken)
+    public async Task<Result<PublicRiddleWeekOutput>> ListWeekAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         var today = _dateTimeProvider.LocalDate;
-        var (monday, _) = LocalCalendarWeek.Containing(today);
+        var (monday, sunday) = LocalCalendarWeek.Containing(today);
         var riddles = await _riddleRepository.ListPublishedBetweenAsync(monday, today, cancellationToken);
         var items = riddles
             .OrderBy(riddle => riddle.SofiaPublicationDate)
             .Select(ToDiscoveryItem)
             .ToArray();
 
-        return Result.Success<IReadOnlyList<PublicRiddleDiscoveryItemOutput>>(items);
+        return Result.Success(new PublicRiddleWeekOutput(monday, sunday, today, items));
     }
 
     /// <inheritdoc />
