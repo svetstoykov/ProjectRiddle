@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState, type ReactElement } from "react";
 
-import { buildAnswerWords, buildSubmission, letterCountOf, parseAnswerPattern } from "../models/answerTiles";
+import {
+    answerCharacters,
+    buildAnswerWords,
+    buildSubmission,
+    letterCountOf,
+    parseAnswerPattern,
+} from "../models/answerTiles";
 import type { PublicRiddlePlay } from "../models/publicRiddle";
 import type { RiddlePlayState } from "../models/riddleProgress";
 import type { RiddleRangeKind } from "../models/riddleRange";
@@ -24,9 +30,23 @@ export interface RiddlePlayerProps {
 
 const cyrillicLetter = /^\p{Script=Cyrillic}$/u;
 const hintKindCount = 3;
+const incorrectAnswerMessage = "Отговорът не е верен. Поправи буквите и опитай отново.";
 
 function isActivatableTarget(target: EventTarget | null): boolean {
     return target instanceof HTMLButtonElement || target instanceof HTMLAnchorElement;
+}
+
+function solutionCharacters(
+    answer: string | undefined,
+    isTerminal: boolean,
+    letterCount: number,
+): readonly string[] | undefined {
+    if (!isTerminal || answer === undefined) {
+        return undefined;
+    }
+
+    const characters = answerCharacters(answer);
+    return characters.length === letterCount ? characters : undefined;
 }
 
 function isTextEntryTarget(target: EventTarget | null): boolean {
@@ -59,8 +79,12 @@ export function RiddlePlayer({
 
     const revealedByPosition = new Map(playState.revealedLetters.map((letter) => [letter.position, letter.character]));
     const isLocked = (position: number): boolean => revealedByPosition.has(position);
-    const characterAt = (position: number): string => revealedByPosition.get(position) ?? entries[position] ?? "";
     const isTerminal = playState.progress.status !== "inProgress";
+    // A finished riddle arrives with its answer, so a board resumed after solving shows the solution rather than the
+    // empty tiles of a fresh visit. A length that disagrees with the pattern is ignored instead of filled in part.
+    const solution = solutionCharacters(playState.answer, isTerminal, letterCount);
+    const characterAt = (position: number): string =>
+        solution?.[position] ?? revealedByPosition.get(position) ?? entries[position] ?? "";
 
     const nextEditablePosition = (from: number): number | undefined => {
         for (let position = Math.max(0, from); position < letterCount; position += 1) {
@@ -92,7 +116,13 @@ export function RiddlePlayer({
     ).length;
     const editableCount = letterCount - revealedByPosition.size;
     const canSubmit = !isTerminal && editableCount > 0 && filledEditableCount === editableCount;
-    const showIncorrect = playState.isCorrect === false && !hasEditedSinceSubmission;
+    const showIncorrect = !isTerminal && playState.isCorrect === false && !hasEditedSinceSubmission;
+    // Rejection and the fill reminder are mutually exclusive, so one line under the board carries both.
+    const statusMessage = showIncorrect
+        ? incorrectAnswerMessage
+        : !isTerminal && !canSubmit
+          ? "Попълни всички букви"
+          : "";
 
     function writeLetter(letter: string): void {
         if (isTerminal || activePosition === undefined) {
@@ -211,37 +241,12 @@ export function RiddlePlayer({
                     answerPattern={play.answerPattern}
                     ranges={play.ranges}
                     activeKinds={visibleHints}
-                    action={
-                        <button
-                            ref={hintTriggerRef}
-                            type="button"
-                            className={`buttonSecondary ${styles.hintTrigger}`}
-                            aria-haspopup="dialog"
-                            aria-expanded={isHintDialogOpen}
-                            onClick={() => {
-                                setIsHintDialogOpen(true);
-                            }}
-                        >
-                            Подсказки ·{" "}
-                            <span className={styles.hintCount}>
-                                {usedHintCount}/{hintKindCount}
-                            </span>
-                        </button>
-                    }
-                />
-            </div>
-            <div className={styles.outcomeSlot}>
-                <RiddleOutcome
-                    status={playState.progress.status}
-                    lastAnswerIncorrect={showIncorrect}
-                    answerAttemptCount={playState.progress.answerAttemptCount}
-                    explanation={playState.explanation}
                 />
             </div>
             <div className={styles.boardSlot}>
                 <AnswerTiles
                     words={words}
-                    activePosition={activePosition}
+                    activePosition={isTerminal ? undefined : activePosition}
                     tone={
                         playState.progress.status === "solved"
                             ? "solved"
@@ -253,7 +258,54 @@ export function RiddlePlayer({
                     rejectToken={playState.progress.answerAttemptCount}
                     onSelectPosition={setSelectedPosition}
                 />
-                <p className={styles.submitHint}>{!isTerminal && !canSubmit ? "Попълни всички букви" : "\u00a0"}</p>
+                <p className={styles.status}>
+                    {/*
+                     * A hidden copy of the longest message holds the line open, so a rejected answer reports itself in
+                     * place instead of growing the column and pushing the keyboard down the screen.
+                     */}
+                    <span className={styles.statusSizer} aria-hidden="true">
+                        {incorrectAnswerMessage}
+                    </span>
+                    <span
+                        className={[styles.statusText, showIncorrect ? styles.statusIncorrect : undefined].join(" ")}
+                        role="status"
+                    >
+                        {statusMessage}
+                    </span>
+                </p>
+            </div>
+            <div className={styles.outcomeSlot}>
+                <RiddleOutcome
+                    status={playState.progress.status}
+                    answerAttemptCount={playState.progress.answerAttemptCount}
+                    explanation={playState.explanation}
+                />
+            </div>
+            <div className={styles.actions}>
+                <button
+                    ref={hintTriggerRef}
+                    type="button"
+                    className={`buttonSecondary ${styles.hintTrigger}`}
+                    aria-haspopup="dialog"
+                    aria-expanded={isHintDialogOpen}
+                    onClick={() => {
+                        setIsHintDialogOpen(true);
+                    }}
+                >
+                    Подсказки ·{" "}
+                    <span className={styles.hintCount}>
+                        {usedHintCount}/{hintKindCount}
+                    </span>
+                </button>
+                <button
+                    type="button"
+                    className={styles.submit}
+                    aria-busy={isSubmitting}
+                    disabled={isTerminal || !canSubmit || isSubmitting}
+                    onClick={submitAnswer}
+                >
+                    {isSubmitting ? "Проверяваме…" : "Провери"}
+                </button>
             </div>
             <HintDialog
                 open={isHintDialogOpen}
@@ -273,14 +325,7 @@ export function RiddlePlayer({
                 returnFocusRef={hintTriggerRef}
             />
             <div className={styles.keyboardSlot}>
-                <BulgarianKeyboard
-                    onLetter={writeLetter}
-                    onBackspace={eraseLetter}
-                    onSubmit={submitAnswer}
-                    canSubmit={canSubmit}
-                    isSubmitting={isSubmitting}
-                    disabled={isTerminal}
-                />
+                <BulgarianKeyboard onLetter={writeLetter} onBackspace={eraseLetter} disabled={isTerminal} />
             </div>
         </section>
     );

@@ -22,8 +22,3 @@
 .explanation {
     line-height: var(--leading-body);
 }
-
-.incorrect {
-    composes: noticeDanger from "../../../styles/surfaces.module.css";
-    color: var(--color-danger);
-}

@@ -86,7 +86,8 @@ public sealed class RiddlesServiceTests
     }
 
     /// <summary>
-    /// Verifies that public discovery projections omit answer-sensitive fields.
+    /// Verifies that public discovery projections omit answer-sensitive fields, and that the clue excerpt of an
+    /// account-only riddle is withheld from an anonymous caller while the publication date and answer pattern remain.
     /// </summary>
     /// <returns>A task that represents the test operation.</returns>
     [Fact]
@@ -96,13 +97,27 @@ public sealed class RiddlesServiceTests
         var archive = await PublishAsync(workspace, new DateOnly(2026, 8, 19), "архивна бяла врана лети");
         var today = await PublishAsync(workspace, Today);
 
+        var anonymousList = await workspace.Service.ListArchiveAsync(
+            new ListPublicRiddlesInput(1, 31),
+            CancellationToken.None);
+        Assert.True(anonymousList.IsSuccess);
+        Assert.Equal(1, anonymousList.Value!.TotalCount);
+        Assert.Equal(archive.Id, anonymousList.Value.Items[0].Id);
+        Assert.Null(anonymousList.Value.Items[0].ClueExcerpt);
+        Assert.Equal(archive.AnswerPattern, anonymousList.Value.Items[0].AnswerPattern);
+
+        var anonymousWeek = await workspace.Service.ListWeekAsync(CancellationToken.None);
+        Assert.True(anonymousWeek.IsSuccess);
+        Assert.Equal(2, anonymousWeek.Value!.Items.Count);
+        Assert.Null(anonymousWeek.Value.Items.Single(item => item.Id == archive.Id).ClueExcerpt);
+        Assert.NotNull(anonymousWeek.Value.Items.Single(item => item.Id == today.Id).ClueExcerpt);
+
+        workspace.Account.AccountId = AccountId;
         var list = await workspace.Service.ListArchiveAsync(
             new ListPublicRiddlesInput(1, 31),
             CancellationToken.None);
         Assert.True(list.IsSuccess);
-        Assert.Equal(1, list.Value!.TotalCount);
-        Assert.Equal(archive.Id, list.Value.Items[0].Id);
-        Assert.Equal("архивна бяла врана лети", list.Value.Items[0].ClueExcerpt);
+        Assert.Equal("архивна бяла врана лети", list.Value!.Items[0].ClueExcerpt);
         Assert.DoesNotContain("Обяснение", list.Value.Items[0].ClueExcerpt);
 
         var week = await workspace.Service.ListWeekAsync(CancellationToken.None);

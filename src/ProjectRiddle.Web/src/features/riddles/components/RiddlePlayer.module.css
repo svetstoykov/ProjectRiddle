@@ -1,15 +1,20 @@
+/*
+ * Solving reads as one centred column on every viewport: clue, tiles, actions, keyboard. Nothing sits beside anything
+ * else, so the clue keeps a full reading measure and the board stays under the reader's eye instead of off to a side.
+ */
 .player {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-5);
-    max-width: 48rem;
+    gap: var(--space-6);
+    width: min(100%, 44rem);
     margin: 0 auto;
 }
 
 .clueSlot,
 .outcomeSlot,
 .boardSlot,
+.actions,
 .keyboardSlot {
+    width: 100%;
     min-width: 0;
 }
 
@@ -23,18 +28,53 @@
     display: none;
 }
 
-.submitHint {
-    min-height: 1.35rem;
+/*
+ * The status line stacks its messages in a single grid cell over a hidden copy of the longest one. The line therefore
+ * always occupies the height that the rejection message needs at the current width, and feedback after a wrong answer
+ * appears without moving the buttons or the keyboard.
+ */
+.status {
+    display: grid;
     margin: 0;
-    color: var(--color-muted-text);
     font-family: var(--font-label);
     font-size: var(--text-label);
     text-align: center;
 }
 
-.hintTrigger {
-    min-height: var(--control-height-sm);
-    padding: var(--space-2) var(--space-4);
+.status > * {
+    grid-area: 1 / 1;
+}
+
+.statusSizer {
+    visibility: hidden;
+}
+
+.statusText {
+    color: var(--color-muted-text);
+}
+
+.statusIncorrect {
+    color: var(--color-danger);
+    font-weight: 700;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+}
+
+.hintTrigger,
+.submit {
+    min-height: var(--control-height-lg);
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-subtitle);
+}
+
+.submit {
+    min-width: 14ch;
+    text-transform: uppercase;
 }
 
 .hintCount {
@@ -48,46 +88,8 @@
     color: var(--color-danger);
 }
 
-@media (pointer: coarse) {
-    .hintTrigger {
-        min-height: var(--control-height);
-    }
-}
-
-@media (min-width: 600px) {
+@media (max-width: 599px) {
     .player {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-areas:
-            "clue    board"
-            "outcome keyboard";
-        align-items: start;
-    }
-
-    .clueSlot {
-        grid-area: clue;
-    }
-
-    .outcomeSlot {
-        grid-area: outcome;
-    }
-
-    .boardSlot {
-        grid-area: board;
-    }
-
-    .keyboardSlot {
-        grid-area: keyboard;
-    }
-
-    .outcomeSlot:empty {
-        display: block;
-        visibility: hidden;
-        min-height: 0;
-    }
-}
-
-@media (min-width: 1025px) {
-    .player {
-        max-width: 60rem;
+        gap: var(--space-5);
     }
 }

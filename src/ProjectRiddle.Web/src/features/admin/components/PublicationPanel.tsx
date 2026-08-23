@@ -11,6 +11,7 @@ import { adminRiddleKeys } from "../api/adminRiddleQueries";
 import { adminRiddlesApi } from "../api/adminRiddlesApi";
 import { publicationStateLabels, riddleMessageForCode, unknownRiddleFailure } from "../messages/adminMessages";
 import type { Riddle } from "../models/adminRiddle";
+import { todayInSofia } from "../models/publicationDate";
 import styles from "./PublicationPanel.module.css";
 
 export interface PublicationPanelProps {
@@ -38,14 +39,16 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
     const dateErrorId = useId();
     const unpublishRef = useRef<HTMLButtonElement>(null);
     const deleteRef = useRef<HTMLButtonElement>(null);
-    const [publicationDate, setPublicationDate] = useState(riddle.sofiaPublicationDate ?? "");
+    // An unscheduled riddle opens on today in Sofia so the common case needs no typing. Nothing is sent until a
+    // publication command is pressed.
+    const [publicationDate, setPublicationDate] = useState(riddle.sofiaPublicationDate ?? todayInSofia());
     const [dateErrors, setDateErrors] = useState<readonly string[]>([]);
     const [summary, setSummary] = useState<readonly string[]>([]);
     const [notice, setNotice] = useState<string | null>(null);
     const [confirm, setConfirm] = useState<"unpublish" | "delete" | null>(null);
 
     useEffect(() => {
-        setPublicationDate(riddle.sofiaPublicationDate ?? "");
+        setPublicationDate(riddle.sofiaPublicationDate ?? todayInSofia());
     }, [riddle.id, riddle.sofiaPublicationDate]);
 
     const commands = commandsByState[riddle.publicationState];

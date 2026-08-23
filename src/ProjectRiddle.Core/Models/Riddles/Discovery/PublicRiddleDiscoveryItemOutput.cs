@@ -5,10 +5,12 @@ namespace ProjectRiddle.Core.Models.Riddles.Discovery;
 /// </summary>
 /// <param name="Id">The stable riddle identifier.</param>
 /// <param name="PublicationDate">The local publication date.</param>
-/// <param name="ClueExcerpt">The bounded clue excerpt.</param>
+/// <param name="ClueExcerpt">
+/// The bounded clue excerpt, or <see langword="null" /> when the caller cannot open the riddle.
+/// </param>
 /// <param name="AnswerPattern">The public answer pattern.</param>
 public sealed record PublicRiddleDiscoveryItemOutput(
     Guid Id,
     DateOnly PublicationDate,
-    string ClueExcerpt,
+    string? ClueExcerpt,
     string AnswerPattern);

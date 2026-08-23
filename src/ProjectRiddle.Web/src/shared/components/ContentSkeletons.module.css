@@ -79,8 +79,8 @@
 
 .player {
     display: grid;
-    gap: var(--space-5);
-    max-width: 48rem;
+    gap: var(--space-6);
+    width: min(100%, 44rem);
     margin: 0 auto;
 }
 

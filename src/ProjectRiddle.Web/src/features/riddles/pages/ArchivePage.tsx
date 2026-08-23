@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
+import { Link } from "react-router-dom";
 
 import { CardGridSkeleton } from "../../../shared/components/ContentSkeletons";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
@@ -97,6 +98,23 @@ export function ArchivePage(): ReactElement {
             <DocumentTitle title="Архив" />
             <p className="eyebrow">Архив</p>
             <h1 id="archive-title">Предишни загадки</h1>
+            {isAuthenticated ? null : (
+                <section className={styles.unlockPrompt} aria-labelledby="archive-unlock-title">
+                    <h2 id="archive-unlock-title">Архивът се отключва с профил</h2>
+                    <p className={styles.unlockMessage}>
+                        Днешната загадка е свободна за всички. Условията на предишните дни се четат и играят с профил, а
+                        напредъкът ти остава запазен.
+                    </p>
+                    <div className={styles.unlockActions}>
+                        <Link className="button" to="/register?returnTo=%2Farchive">
+                            Регистрация
+                        </Link>
+                        <Link className="button buttonSecondary" to="/sign-in?returnTo=%2Farchive">
+                            Вход
+                        </Link>
+                    </div>
+                </section>
+            )}
             {items.length === 0 ? (
                 <p role="status">Все още няма архивни загадки.</p>
             ) : (

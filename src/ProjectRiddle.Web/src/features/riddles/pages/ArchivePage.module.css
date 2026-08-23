@@ -4,6 +4,25 @@
     justify-items: start;
 }
 
+.unlockPrompt {
+    composes: card from "../../../styles/surfaces.module.css";
+    display: grid;
+    justify-items: start;
+    gap: var(--space-3);
+    width: 100%;
+}
+
+.unlockMessage {
+    max-width: var(--reading-width);
+    color: var(--color-muted-text);
+}
+
+.unlockActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
 .month {
     display: grid;
     gap: var(--space-3);

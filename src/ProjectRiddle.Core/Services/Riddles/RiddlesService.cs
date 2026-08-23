@@ -445,8 +445,7 @@ public sealed class RiddlesService : IRiddlesService
                     RiddleErrorCodes.NotFound));
         }
 
-        var publicationDate = riddle!.SofiaPublicationDate!.Value;
-        if (publicationDate < _dateTimeProvider.LocalDate && _currentAccount.AccountId is null)
+        if (RequiresAccount(riddle!.SofiaPublicationDate!.Value))
         {
             return Result.Failure<Riddle>(
                 new OperationError(
@@ -456,6 +455,17 @@ public sealed class RiddlesService : IRiddlesService
         }
 
         return Result.Success(riddle);
+    }
+
+    /// <summary>
+    /// Reports whether the current caller is barred from the riddle published on the given local date. Today's riddle
+    /// is free for everyone; an earlier one needs an account.
+    /// </summary>
+    /// <param name="publicationDate">The local publication date.</param>
+    /// <returns><see langword="true" /> when the caller needs an account it does not have.</returns>
+    private bool RequiresAccount(DateOnly publicationDate)
+    {
+        return publicationDate < _dateTimeProvider.LocalDate && _currentAccount.AccountId is null;
     }
 
     private bool IsPublicContent(Riddle? riddle)
@@ -582,12 +592,20 @@ public sealed class RiddlesService : IRiddlesService
             ErrorType.Unauthorized);
     }
 
-    private static PublicRiddleDiscoveryItemOutput ToDiscoveryItem(Riddle riddle)
+    /// <summary>
+    /// Projects a discovery item. The clue excerpt is withheld from a caller that cannot open the riddle, so an
+    /// account-only clue never reaches the client in the first place.
+    /// </summary>
+    /// <param name="riddle">The published riddle.</param>
+    /// <returns>The discovery item for the current caller.</returns>
+    private PublicRiddleDiscoveryItemOutput ToDiscoveryItem(Riddle riddle)
     {
+        var publicationDate = riddle.SofiaPublicationDate!.Value;
+
         return new PublicRiddleDiscoveryItemOutput(
             riddle.Id,
-            riddle.SofiaPublicationDate!.Value,
-            ClueExcerpt.FromClue(riddle.Clue),
+            publicationDate,
+            RequiresAccount(publicationDate) ? null : ClueExcerpt.FromClue(riddle.Clue),
             riddle.AnswerPattern);
     }
 

@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement } from "react";
 
 import type { RiddleRangeKind } from "../models/riddleRange";
 import styles from "./CluePresentation.module.css";
@@ -14,7 +14,6 @@ export interface CluePresentationProps {
     readonly answerPattern: string;
     readonly ranges: readonly ClueRange[];
     readonly activeKinds: ReadonlySet<RiddleRangeKind>;
-    readonly action?: ReactNode;
 }
 
 const kindOrder: readonly RiddleRangeKind[] = ["definition", "indicator", "fodder"];
@@ -105,19 +104,12 @@ function splitClue(
     return segments;
 }
 
-export function CluePresentation({
-    clue,
-    answerPattern,
-    ranges,
-    activeKinds,
-    action,
-}: CluePresentationProps): ReactElement {
+export function CluePresentation({ clue, answerPattern, ranges, activeKinds }: CluePresentationProps): ReactElement {
     const segments = splitClue(clue, ranges, activeKinds);
 
     return (
         <div className={styles.presentation}>
             <div className={styles.clue}>
-                {action !== undefined ? <div className={styles.action}>{action}</div> : null}
                 <p className={styles.clueText} lang="bg">
                     {segments.map((segment) =>
                         segment.kinds.length === 0 ? (
@@ -136,11 +128,15 @@ export function CluePresentation({
                             </mark>
                         ),
                     )}
+                    {/* Cryptic clues carry their letter count as an enumeration at the end of the clue itself. */}
+                    {answerPattern === "" ? null : (
+                        <>
+                            {" "}
+                            <span className={styles.enumeration}>({answerPattern})</span>
+                        </>
+                    )}
                 </p>
             </div>
-            <p className={styles.pattern}>
-                <span className={styles.patternLabel}>Брой букви:</span> ({answerPattern})
-            </p>
             <ul className={styles.legend}>
                 {kindOrder.map((kind) => {
                     const isActive = activeKinds.has(kind);

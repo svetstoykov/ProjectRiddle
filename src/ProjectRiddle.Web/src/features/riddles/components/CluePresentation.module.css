@@ -3,24 +3,21 @@
     gap: var(--space-3);
 }
 
+/* The clue is what a solver reads first, so it stands alone on a plain card with room to breathe around the text. */
 .clue {
     display: grid;
     gap: var(--space-3);
-    padding: var(--space-4);
+    padding: var(--space-5) var(--space-6);
     overflow-wrap: anywhere;
     border: var(--border-thick) solid var(--color-deep-violet);
     border-radius: var(--radius-lg);
     background: var(--color-surface-lowest);
 }
 
-.action {
-    justify-self: end;
-}
-
 .clueText {
     font-size: var(--text-clue);
     font-weight: 500;
-    line-height: var(--leading-body);
+    line-height: var(--leading-snug);
 }
 
 /*
@@ -77,13 +74,10 @@
     );
 }
 
-.pattern {
+/* The enumeration belongs to the clue sentence, so it keeps the clue's type and never breaks away from its last word. */
+.enumeration {
     color: var(--color-muted-text);
-    font-family: var(--font-label);
-}
-
-.patternLabel {
-    font-weight: 700;
+    white-space: nowrap;
 }
 
 /* Every kind stays in the legend at all times so that showing or hiding a hint cannot change the block's height. */

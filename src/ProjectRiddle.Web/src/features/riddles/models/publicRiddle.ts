@@ -17,7 +17,8 @@ export interface PublicRiddlePlay {
 export interface PublicRiddleDiscoveryItem {
     readonly id: string;
     readonly publicationDate: string;
-    readonly clueExcerpt: string;
+    /** The bounded clue excerpt, or `null` when the server withholds it because the riddle needs an account. */
+    readonly clueExcerpt: string | null;
     readonly answerPattern: string;
 }
 

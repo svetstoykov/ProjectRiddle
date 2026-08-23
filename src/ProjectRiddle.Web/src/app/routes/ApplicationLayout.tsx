@@ -4,6 +4,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { authApi } from "../../features/auth/api/authApi";
 import {
+    discardSessionScopedRiddleQueries,
     reconcileSessionAfterAuthorizationFailure,
     sessionKey,
     sessionQueryOptions,
@@ -43,6 +44,7 @@ export function ApplicationLayout(): ReactElement {
         onSuccess: () => {
             setSignOutError(null);
             queryClient.setQueryData(sessionKey, null);
+            discardSessionScopedRiddleQueries(queryClient);
             clearAntiforgeryToken();
             notifications.success("Излязохте от профила си.");
             void navigate("/", { replace: true });

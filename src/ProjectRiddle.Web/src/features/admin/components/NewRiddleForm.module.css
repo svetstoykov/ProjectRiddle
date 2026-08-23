@@ -1,6 +1,13 @@
+/* Authoring runs top to bottom in one column: the labeller, the fields, the preview, and finally the save action. */
 .form {
     display: grid;
     gap: var(--space-5);
+    width: min(100%, 56rem);
+    margin-inline: auto;
+}
+
+.form > * {
+    min-width: 0;
 }
 
 .header {
@@ -12,29 +19,7 @@
     color: var(--color-muted-text);
 }
 
-.layout {
-    display: grid;
-    gap: var(--space-5);
-}
-
-.layout > * {
-    min-width: 0;
-}
-
-.authoring {
-    display: grid;
-    gap: var(--space-4);
-    align-content: start;
-}
-
 .save {
     justify-self: start;
     min-width: 11ch;
-}
-
-@media (min-width: 900px) {
-    .layout {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        align-items: start;
-    }
 }

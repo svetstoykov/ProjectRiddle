@@ -115,21 +115,11 @@ export function NewRiddleForm(): ReactElement {
                 headingId="riddle-content-error-heading"
                 summaryRef={summaryRef}
             />
-            <div className={styles.layout}>
-                <div className={styles.authoring}>
-                    <RiddleContentForm draft={draft} errors={errors} disabled={saving} onChange={setDraft} />
-                    <button
-                        type="button"
-                        className={styles.save}
-                        aria-busy={saving}
-                        disabled={saving}
-                        onClick={handleSave}
-                    >
-                        {saving ? "Запазване…" : "Запази"}
-                    </button>
-                </div>
-                <RiddlePreview clue={draft.clue} answer={draft.answer} ranges={draft.ranges} />
-            </div>
+            <RiddleContentForm draft={draft} errors={errors} disabled={saving} onChange={setDraft} />
+            <RiddlePreview clue={draft.clue} answer={draft.answer} ranges={draft.ranges} />
+            <button type="button" className={styles.save} aria-busy={saving} disabled={saving} onClick={handleSave}>
+                {saving ? "Запазване…" : "Запази"}
+            </button>
             <ConfirmationDialog
                 open={blocker.state === "blocked"}
                 title="Незапазени промени"
