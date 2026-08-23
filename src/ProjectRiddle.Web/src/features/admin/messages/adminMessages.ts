@@ -38,6 +38,6 @@ export function riddleMessageForCode(code: string | undefined): string | undefin
 }
 
 export function unknownRiddleFailure(traceId: string | undefined): string {
-    const fallback = "Заявката не можа да бъде изпълнена.";
+    const fallback = "Заявката не може да бъде изпълнена.";
     return traceId === undefined ? fallback : `${fallback} Код за проследяване: ${traceId}`;
 }

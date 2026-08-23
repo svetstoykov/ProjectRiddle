@@ -84,26 +84,66 @@
 .legend {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
+    gap: var(--space-2) var(--space-3);
     padding: 0;
     list-style: none;
 }
 
+/*
+ * A legend entry explains its own term on demand, so it is a button. It keeps the flat look of a caption instead of
+ * the application's pill button: the clue and the board are what the eye should reach for first.
+ */
 .legendItem {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
+    min-height: var(--control-height-sm);
+    padding: var(--space-1) var(--space-2);
+    border: var(--border-thin) solid transparent;
+    border-radius: var(--radius-pill);
+    background: none;
+    box-shadow: none;
+    color: var(--color-text);
     font-family: var(--font-label);
     font-size: var(--text-label);
     font-weight: 700;
 }
 
+@media (hover: hover) {
+    button.legendItem:hover:not(:disabled) {
+        background: var(--color-surface-low);
+        border-color: var(--color-border-subtle);
+        box-shadow: none;
+        transform: none;
+    }
+}
+
+button.legendItem:active:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+}
+
+/* The question mark reads as the affordance for the explanation, and it never changes size with the hint state. */
+.legendInfo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: var(--border-thin) solid currentcolor;
+    border-radius: var(--radius-pill);
+    color: var(--color-muted-text);
+    font-size: var(--text-label-sm);
+    line-height: 1;
+}
+
 /* Only colour and the swatch fill change with state; the metrics stay identical so the legend never re-wraps. */
-.legendIdle {
+.legendIdle .legendItem {
     color: var(--color-muted-text);
 }
 
 .swatch {
+    flex: none;
     width: 1rem;
     height: 1rem;
     border: var(--border-thin) solid var(--color-deep-violet);

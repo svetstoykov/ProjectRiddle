@@ -17,8 +17,8 @@ export interface AnswerTilesProps {
     readonly words: readonly AnswerWordView[];
     readonly activePosition: number | undefined;
     readonly tone: "playing" | "solved" | "revealed";
-    readonly rejected: boolean;
-    readonly rejectToken: number;
+    /** The attempt number that was just refused, while its flash lasts; `undefined` at every other moment. */
+    readonly rejectedAttempt: number | undefined;
     readonly onSelectPosition: (position: number) => void;
 }
 
@@ -36,12 +36,19 @@ export function AnswerTiles({
     words,
     activePosition,
     tone,
-    rejected,
-    rejectToken,
+    rejectedAttempt,
     onSelectPosition,
 }: AnswerTilesProps): ReactElement {
     const longestWord = Math.max(...words.map((word) => word.tiles.length));
     const toneClass = tone === "playing" ? undefined : toneClassNames[tone];
+    // Two refusals in a row would otherwise keep the same class and leave the shake mid-flight, because a CSS
+    // animation only restarts when its name changes. Alternating names by attempt number always restarts it.
+    const rejectedClass =
+        rejectedAttempt === undefined
+            ? undefined
+            : rejectedAttempt % 2 === 0
+              ? styles.rejectedEven
+              : styles.rejectedOdd;
     const activeWord = words.find((word) => word.tiles.some((tile) => tile.position === activePosition));
     const activeIndexInWord =
         activeWord === undefined ? undefined : activeWord.tiles.findIndex((tile) => tile.position === activePosition);
@@ -53,9 +60,8 @@ export function AnswerTiles({
     return (
         <>
             <div
-                className={[styles.board, toneClass].filter(Boolean).join(" ")}
+                className={[styles.board, toneClass, rejectedClass].filter(Boolean).join(" ")}
                 style={{ "--longest-word": longestWord } as CSSProperties}
-                data-rejected={rejected ? rejectToken : undefined}
                 role="group"
                 aria-label="Отговор"
             >

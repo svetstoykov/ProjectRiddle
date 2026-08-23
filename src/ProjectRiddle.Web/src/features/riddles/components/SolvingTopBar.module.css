@@ -1,0 +1,64 @@
+/*
+ * The whole chrome of the solving screen: a way back and the day being played. The back control sits in its own
+ * column so the date stays centred on the screen however wide the date string is.
+ */
+.bar {
+    display: grid;
+    grid-template-columns: var(--control-height) 1fr var(--control-height);
+    align-items: center;
+    gap: var(--space-3);
+    width: min(100%, 44rem);
+    margin: 0 auto;
+    padding: var(--space-3) var(--gutter);
+}
+
+.back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-height);
+    height: var(--control-height);
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-1);
+    color: var(--color-deep-violet);
+    line-height: 1;
+    text-decoration: none;
+    transition:
+        transform var(--motion-press) var(--ease-out),
+        box-shadow var(--motion-press) var(--ease-out),
+        background-color var(--motion-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+    .back:hover {
+        background: var(--color-surface-low);
+        box-shadow: var(--shadow-2);
+        transform: translate(-1px, -1px);
+    }
+}
+
+.back:active {
+    transform: translate(var(--press-offset-sm), var(--press-offset-sm));
+    box-shadow: var(--shadow-none);
+}
+
+.icon {
+    width: 1.375rem;
+    height: 1.375rem;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.date {
+    margin: 0;
+    color: var(--color-muted-text);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: 700;
+    text-align: center;
+}

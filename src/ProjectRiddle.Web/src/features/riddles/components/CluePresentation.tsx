@@ -1,5 +1,6 @@
-import type { ReactElement } from "react";
+import { useRef, useState, type ReactElement } from "react";
 
+import { InfoDialog } from "../../../shared/components/InfoDialog";
 import type { RiddleRangeKind } from "../models/riddleRange";
 import styles from "./CluePresentation.module.css";
 
@@ -22,6 +23,15 @@ const kindLabels: Record<RiddleRangeKind, string> = {
     definition: "Дефиниция",
     indicator: "Индикатор",
     fodder: "Материал",
+};
+
+/* What each part of a cryptic clue does, in the words a first-time solver needs rather than the jargon. */
+const kindExplanations: Record<RiddleRangeKind, string> = {
+    definition:
+        "Частта, която значи същото като отговора, както в обикновена кръстословица. Стои в началото или в края на загадката — никога по средата.",
+    indicator:
+        "Думите, които подсказват какво да направиш с материала: да го разбъркаш, обърнеш, скъсиш или да извадиш скрити в него букви.",
+    fodder: "Буквите и думите, върху които действа индикаторът. От тях, след указаната обработка, се получава отговорът.",
 };
 
 const kindClassNames: Record<RiddleRangeKind, string> = {
@@ -106,6 +116,9 @@ function splitClue(
 
 export function CluePresentation({ clue, answerPattern, ranges, activeKinds }: CluePresentationProps): ReactElement {
     const segments = splitClue(clue, ranges, activeKinds);
+    const [explainedKind, setExplainedKind] = useState<RiddleRangeKind | undefined>(undefined);
+    // The trigger is whichever legend entry was pressed, so the dialog returns focus to the term the reader asked about.
+    const triggerRef = useRef<HTMLButtonElement | null>(null);
 
     return (
         <div className={styles.presentation}>
@@ -142,16 +155,37 @@ export function CluePresentation({ clue, answerPattern, ranges, activeKinds }: C
                     const isActive = activeKinds.has(kind);
 
                     return (
-                        <li
-                            key={kind}
-                            className={[styles.legendItem, isActive ? undefined : styles.legendIdle].join(" ")}
-                        >
-                            <span className={`${styles.swatch} ${kindClassNames[kind]}`} aria-hidden="true" />
-                            {kindLabels[kind]}
+                        <li key={kind} className={isActive ? undefined : styles.legendIdle}>
+                            <button
+                                type="button"
+                                className={styles.legendItem}
+                                aria-haspopup="dialog"
+                                aria-label={`${kindLabels[kind]} — какво означава?`}
+                                onClick={(event) => {
+                                    triggerRef.current = event.currentTarget;
+                                    setExplainedKind(kind);
+                                }}
+                            >
+                                <span className={`${styles.swatch} ${kindClassNames[kind]}`} aria-hidden="true" />
+                                {kindLabels[kind]}
+                                <span className={styles.legendInfo} aria-hidden="true">
+                                    ?
+                                </span>
+                            </button>
                         </li>
                     );
                 })}
             </ul>
+            <InfoDialog
+                open={explainedKind !== undefined}
+                title={explainedKind === undefined ? "" : kindLabels[explainedKind]}
+                onClose={() => {
+                    setExplainedKind(undefined);
+                }}
+                returnFocusRef={triggerRef}
+            >
+                <p>{explainedKind === undefined ? null : kindExplanations[explainedKind]}</p>
+            </InfoDialog>
         </div>
     );
 }

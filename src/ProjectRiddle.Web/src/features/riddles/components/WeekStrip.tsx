@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ReactElement } from "react";
+import { useRef, useState, type ReactElement } from "react";
 import { Link } from "react-router-dom";
 
+import { MembershipDialog } from "../../auth/components/MembershipDialog";
 import { accountRiddleProgressQueryOptions } from "../api/riddleQueries";
 import { addLocalDays, compareLocalDates, formatDayNumber, formatFullDate, formatWeekday } from "../models/localDate";
 import type { PublicRiddleWeek } from "../models/publicRiddle";
@@ -57,6 +58,8 @@ function DayMark({ marker }: { readonly marker: DayMarker }): ReactElement | nul
 
 export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactElement {
     const progressQuery = useQuery(accountRiddleProgressQueryOptions(week.weekStart, week.weekEnd, isAuthenticated));
+    const [gatedPath, setGatedPath] = useState<string | null>(null);
+    const gateTriggerRef = useRef<HTMLAnchorElement | null>(null);
 
     const days = Array.from({ length: 7 }, (_unused, offset) => addLocalDays(week.weekStart, offset));
     const itemsByDate = new Map(week.items.map((item) => [item.publicationDate, item]));
@@ -94,9 +97,8 @@ export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactEleme
             );
         }
 
-        // Every day other than today is account-only, so a signed-out visitor goes straight to the access notice
-        // instead of a request whose outcome is already known.
         const requiresAccount = !isToday && !isAuthenticated;
+        const path = isToday ? "/riddles/today" : `/riddles/${item.id}`;
         const outcome = outcomeByRiddleId.get(item.id);
         const marker: DayMarker = requiresAccount
             ? "locked"
@@ -113,6 +115,8 @@ export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactEleme
                 ? "неиграна"
                 : outcomeLabels[outcome];
 
+        // An account-only day keeps its destination — the riddle is really there and the server is what withholds it —
+        // but the click is answered with the account prompt, so the visitor keeps their place in the week.
         return (
             <Link
                 className={[
@@ -121,9 +125,17 @@ export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactEleme
                     isToday ? styles.today : undefined,
                     requiresAccount ? styles.locked : undefined,
                 ].join(" ")}
-                to={isToday ? "/riddles/today" : `/riddles/${item.id}`}
-                state={requiresAccount ? { requiresAccount: true } : undefined}
+                to={path}
                 aria-label={`${formatFullDate(day)}: ${state}`}
+                onClick={
+                    requiresAccount
+                        ? (event) => {
+                              event.preventDefault();
+                              gateTriggerRef.current = event.currentTarget;
+                              setGatedPath(path);
+                          }
+                        : undefined
+                }
             >
                 {head}
                 <DayMark marker={marker} />
@@ -146,8 +158,15 @@ export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactEleme
             <p className={styles.footnote}>
                 {isAuthenticated
                     ? "Всеки ден от седмицата остава достъпен в профила ти."
-                    : "Днешната загадка е свободна. По-ранните дни се играят с профил."}
+                    : "Днешната загадка е свободна. По-ранните дни се отключват с профил."}
             </p>
+            <MembershipDialog
+                returnTo={gatedPath}
+                onClose={() => {
+                    setGatedPath(null);
+                }}
+                returnFocusRef={gateTriggerRef}
+            />
         </section>
     );
 }

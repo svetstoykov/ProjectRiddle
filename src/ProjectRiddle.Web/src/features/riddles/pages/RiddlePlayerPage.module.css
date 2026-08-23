@@ -1,0 +1,23 @@
+.screen {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    min-height: 0;
+    height: 100%;
+}
+
+/* The stage is one region that hands its whole height to whatever fills it: the board, or a notice about why the
+   board is not there. */
+.stage {
+    display: grid;
+    min-height: 0;
+}
+
+.notice {
+    width: min(100%, 44rem);
+    margin: 0 auto;
+    padding: var(--space-5) var(--gutter);
+    overflow-y: auto;
+    align-content: start;
+    display: grid;
+    gap: var(--space-4);
+}

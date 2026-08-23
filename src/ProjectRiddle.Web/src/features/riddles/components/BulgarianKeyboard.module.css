@@ -58,18 +58,3 @@ button.key:active:not(:disabled):not([aria-busy="true"]) {
         min-height: var(--control-height-lg);
     }
 }
-
-@media (max-width: 599px) {
-    .keyboard {
-        position: sticky;
-        bottom: 0;
-        z-index: 2;
-        width: 100vw;
-        margin-inline: calc(50% - 50vw);
-        padding: var(--space-3) var(--gutter) max(var(--space-3), env(safe-area-inset-bottom));
-        border-top: var(--border-thin) solid var(--color-deep-violet);
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        background: var(--color-surface-lowest);
-        box-shadow: var(--shadow-sheet);
-    }
-}

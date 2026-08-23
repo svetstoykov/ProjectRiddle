@@ -89,9 +89,9 @@
 .row {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
+    gap: var(--space-3);
     width: 100%;
-    min-height: 3rem;
+    min-height: 3.25rem;
     padding: var(--space-2) var(--space-3);
     border: var(--border-thin) solid var(--color-deep-violet);
     border-radius: var(--radius-md);
@@ -99,18 +99,43 @@
     text-align: left;
 }
 
-.unlock {
-    background: var(--color-electric-yellow);
+/*
+ * An assist that has not been used yet stands off the sheet: white, outlined in the brand violet, raised, and
+ * carrying an accent chip for what pressing it does. An assist already in play wears its own highlight colour — the
+ * same tint it paints on the clue — so the row and the marked words read as one thing. Hiding a hint drains that
+ * colour back out, which is exactly what happens on the clue.
+ */
+.available {
+    background: var(--color-surface-lowest);
     box-shadow: var(--shadow-1);
+    font-weight: 700;
 }
 
 .used {
-    background: var(--color-surface-lowest);
+    border-color: var(--row-edge, var(--color-border));
+    background: var(--row-tint, var(--color-surface-low));
     box-shadow: none;
 }
 
-.used[aria-pressed="true"] {
+.used[aria-pressed="false"] {
+    border-color: var(--color-border-subtle);
     background: var(--color-surface-low);
+    color: var(--color-muted-text);
+}
+
+.rowDefinition {
+    --row-tint: var(--color-hint-definition);
+    --row-edge: var(--color-hint-definition-edge);
+}
+
+.rowIndicator {
+    --row-tint: var(--color-hint-indicator);
+    --row-edge: var(--color-hint-indicator-edge);
+}
+
+.rowFodder {
+    --row-tint: var(--color-hint-fodder);
+    --row-edge: var(--color-hint-fodder-edge);
 }
 
 .rowLabel {
@@ -118,6 +143,7 @@
 }
 
 .rowState {
+    flex: none;
     color: var(--color-muted-text);
     font-size: var(--text-label);
     font-weight: 400;
@@ -127,12 +153,31 @@
     color: inherit;
 }
 
+/* The call to action reads as a chip so the row keeps one obvious target for the eye without a second button. */
+.rowAction {
+    composes: chip from "../../../styles/surfaces.module.css";
+    flex: none;
+}
+
+.row:disabled .rowAction {
+    border-color: var(--color-border);
+    background: var(--color-surface-high);
+    color: var(--color-muted-text);
+}
+
 .swatch {
     flex: none;
     width: 1.125rem;
     height: 1.125rem;
     border: var(--border-thin) solid var(--color-deep-violet);
     border-radius: var(--radius-xs);
+}
+
+/* A locked assist shows an empty outline: the highlight colour is part of what unlocking reveals. */
+.swatchLocked {
+    border-style: dashed;
+    border-color: var(--color-border);
+    background: none;
 }
 
 .definition {
@@ -167,9 +212,20 @@
 }
 
 @media (hover: hover) {
-    button.used:hover:not(:disabled):not([aria-busy="true"]) {
-        background: var(--color-surface-low);
+    button.available:hover:not(:disabled):not([aria-busy="true"]) {
+        background: var(--color-surface-lowest);
         transform: translate(-1px, -1px);
+        box-shadow: var(--shadow-2);
+    }
+
+    button.used:hover:not(:disabled):not([aria-busy="true"]) {
+        border-color: var(--row-edge, var(--color-border));
+        transform: none;
         box-shadow: var(--shadow-1);
     }
+}
+
+button.row:active:not(:disabled):not([aria-busy="true"]) {
+    transform: translate(var(--press-offset-sm), var(--press-offset-sm));
+    box-shadow: var(--shadow-none);
 }

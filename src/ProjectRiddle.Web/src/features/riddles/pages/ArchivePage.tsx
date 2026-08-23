@@ -1,11 +1,11 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import type { ReactElement } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState, type ReactElement } from "react";
 
 import { CardGridSkeleton } from "../../../shared/components/ContentSkeletons";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { sessionQueryOptions } from "../../auth/api/sessionQuery";
+import { MembershipDialog } from "../../auth/components/MembershipDialog";
 import { accountRiddleProgressQueryOptions, riddleArchiveInfiniteQueryOptions } from "../api/riddleQueries";
 import { ArchiveCard } from "../components/ArchiveCard";
 import { addLocalDays, formatMonth, monthKey } from "../models/localDate";
@@ -46,6 +46,8 @@ export function ArchivePage(): ReactElement {
     const sessionQuery = useQuery(sessionQueryOptions);
     const archiveQuery = useInfiniteQuery(riddleArchiveInfiniteQueryOptions());
     const isAuthenticated = (sessionQuery.data ?? null) !== null;
+    const [gatedPath, setGatedPath] = useState<string | null>(null);
+    const gateTriggerRef = useRef<HTMLAnchorElement | null>(null);
 
     const items = archiveQuery.data?.pages.flatMap((page) => page.items) ?? [];
     const newest = items.at(0)?.publicationDate;
@@ -81,7 +83,7 @@ export function ArchivePage(): ReactElement {
                     tone="error"
                     eyebrow="Архив"
                     title="Архивът временно не е достъпен"
-                    message="Заявката не можа да бъде изпълнена."
+                    message="Заявката не може да бъде изпълнена."
                     action={{
                         label: "Опитай отново",
                         onClick: () => {
@@ -98,23 +100,6 @@ export function ArchivePage(): ReactElement {
             <DocumentTitle title="Архив" />
             <p className="eyebrow">Архив</p>
             <h1 id="archive-title">Предишни загадки</h1>
-            {isAuthenticated ? null : (
-                <section className={styles.unlockPrompt} aria-labelledby="archive-unlock-title">
-                    <h2 id="archive-unlock-title">Архивът се отключва с профил</h2>
-                    <p className={styles.unlockMessage}>
-                        Днешната загадка е свободна за всички. Условията на предишните дни се четат и играят с профил, а
-                        напредъкът ти остава запазен.
-                    </p>
-                    <div className={styles.unlockActions}>
-                        <Link className="button" to="/register?returnTo=%2Farchive">
-                            Регистрация
-                        </Link>
-                        <Link className="button buttonSecondary" to="/sign-in?returnTo=%2Farchive">
-                            Вход
-                        </Link>
-                    </div>
-                </section>
-            )}
             {items.length === 0 ? (
                 <p role="status">Все още няма архивни загадки.</p>
             ) : (
@@ -128,6 +113,10 @@ export function ArchivePage(): ReactElement {
                                         item={item}
                                         outcome={outcomeByRiddleId.get(item.id)}
                                         isAuthenticated={isAuthenticated}
+                                        onAccountRequired={(trigger) => {
+                                            gateTriggerRef.current = trigger;
+                                            setGatedPath(`/riddles/${item.id}`);
+                                        }}
                                     />
                                 </li>
                             ))}
@@ -148,6 +137,13 @@ export function ArchivePage(): ReactElement {
                     {archiveQuery.isFetchingNextPage ? "Зареждаме…" : "Покажи още"}
                 </button>
             ) : null}
+            <MembershipDialog
+                returnTo={gatedPath}
+                onClose={() => {
+                    setGatedPath(null);
+                }}
+                returnFocusRef={gateTriggerRef}
+            />
         </section>
     );
 }

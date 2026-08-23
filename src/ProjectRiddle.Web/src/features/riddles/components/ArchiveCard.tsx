@@ -10,6 +10,8 @@ export interface ArchiveCardProps {
     readonly item: PublicRiddleDiscoveryItem;
     readonly outcome: RiddleProgressStatus | undefined;
     readonly isAuthenticated: boolean;
+    /** Called instead of opening the riddle when the visitor has no account, with the card as the prompt's origin. */
+    readonly onAccountRequired: (trigger: HTMLAnchorElement) => void;
 }
 
 const outcomeLabels: Record<RiddleProgressStatus, string> = {
@@ -22,16 +24,24 @@ const outcomeLabels: Record<RiddleProgressStatus, string> = {
  * A signed-out visitor sees the day and the letter count, while the clue itself stays veiled: enough to show that the
  * archive holds real riddles, and a reason to make an account. The veil is drawn rather than applied over the text,
  * because the server withholds the excerpt for a riddle the caller cannot open, so there is nothing to uncover in the
- * page source, the network response, or the query cache.
+ * page source, the network response, or the query cache. The card keeps its destination either way and answers a
+ * signed-out click with the account prompt rather than a screen the visitor did not ask for.
  */
-export function ArchiveCard({ item, outcome, isAuthenticated }: ArchiveCardProps): ReactElement {
+export function ArchiveCard({ item, outcome, isAuthenticated, onAccountRequired }: ArchiveCardProps): ReactElement {
     const excerpt = item.clueExcerpt;
 
     return (
         <Link
             className={styles.card}
             to={`/riddles/${item.id}`}
-            state={isAuthenticated ? undefined : { requiresAccount: true }}
+            onClick={
+                isAuthenticated
+                    ? undefined
+                    : (event) => {
+                          event.preventDefault();
+                          onAccountRequired(event.currentTarget);
+                      }
+            }
         >
             <span className={styles.date}>{formatFullDate(item.publicationDate)}</span>
             {excerpt === null ? (

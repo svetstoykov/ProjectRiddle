@@ -13,29 +13,37 @@ import { RiddlePlayerPage } from "../../features/riddles/pages/RiddlePlayerPage"
 import { ApplicationLayout } from "./ApplicationLayout";
 import { NotFoundPage } from "./NotFoundPage";
 import { SessionBoundary } from "./SessionBoundary";
+import { SolvingLayout } from "./SolvingLayout";
 
 export const appRouter = createBrowserRouter(
     createRoutesFromElements(
-        <Route element={<ApplicationLayout />}>
-            <Route element={<SessionBoundary />}>
-                <Route index element={<HomePage />} />
-                <Route path="riddles/today" element={<RiddlePlayerPage />} />
-                <Route path="riddles/:riddleId" element={<RiddlePlayerPage />} />
-                <Route path="archive" element={<ArchivePage />} />
-                <Route element={<AnonymousOnlyRoute />}>
-                    <Route path="register" element={<RegisterPage />} />
-                    <Route path="sign-in" element={<SignInPage />} />
+        <Route>
+            {/* Solving runs in its own shell: the riddle takes the whole screen and the page draws its own way back. */}
+            <Route element={<SolvingLayout />}>
+                <Route element={<SessionBoundary />}>
+                    <Route path="riddles/today" element={<RiddlePlayerPage />} />
+                    <Route path="riddles/:riddleId" element={<RiddlePlayerPage />} />
                 </Route>
-                <Route element={<AuthenticatedRoute />}>
-                    <Route path="access-denied" element={<AccessDeniedPage />} />
+            </Route>
+            <Route element={<ApplicationLayout />}>
+                <Route element={<SessionBoundary />}>
+                    <Route index element={<HomePage />} />
+                    <Route path="archive" element={<ArchivePage />} />
+                    <Route element={<AnonymousOnlyRoute />}>
+                        <Route path="register" element={<RegisterPage />} />
+                        <Route path="sign-in" element={<SignInPage />} />
+                    </Route>
+                    <Route element={<AuthenticatedRoute />}>
+                        <Route path="access-denied" element={<AccessDeniedPage />} />
+                    </Route>
+                    <Route element={<AdminRoute />}>
+                        <Route path="admin" element={<Navigate replace to="/admin/riddles" />} />
+                        <Route path="admin/riddles" element={<AdminRiddleListPage />} />
+                        <Route path="admin/riddles/new" element={<NewRiddlePage />} />
+                        <Route path="admin/riddles/:riddleId" element={<RiddleDetailPage />} />
+                    </Route>
+                    <Route path="*" element={<NotFoundPage />} />
                 </Route>
-                <Route element={<AdminRoute />}>
-                    <Route path="admin" element={<Navigate replace to="/admin/riddles" />} />
-                    <Route path="admin/riddles" element={<AdminRiddleListPage />} />
-                    <Route path="admin/riddles/new" element={<NewRiddlePage />} />
-                    <Route path="admin/riddles/:riddleId" element={<RiddleDetailPage />} />
-                </Route>
-                <Route path="*" element={<NotFoundPage />} />
             </Route>
         </Route>,
     ),

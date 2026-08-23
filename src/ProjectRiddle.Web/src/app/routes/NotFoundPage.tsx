@@ -10,7 +10,7 @@ export function NotFoundPage(): ReactElement {
             <DocumentTitle title="Страницата не е намерена" />
             <p className="eyebrow">404</p>
             <h1 id="not-found-title">Страницата не е намерена</h1>
-            <p>Поисканата страница не съществува.</p>
+            <p>Страницата не съществува.</p>
             <Link className="button" to="/">
                 Към началото
             </Link>

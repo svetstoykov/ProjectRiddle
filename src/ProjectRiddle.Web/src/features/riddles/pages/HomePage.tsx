@@ -26,8 +26,8 @@ export function HomePage(): ReactElement {
                 <PageStatus
                     tone="error"
                     eyebrow="Начало"
-                    title="Седмицата временно не е достъпна"
-                    message="Заявката не можа да бъде изпълнена."
+                    title="Седмичните загадки временно не са достъпни"
+                    message="Заявката не може да бъде изпълнена."
                     action={{
                         label: "Опитай отново",
                         onClick: () => {
@@ -47,7 +47,7 @@ export function HomePage(): ReactElement {
                     tone="error"
                     eyebrow="Начало"
                     title="Днешната загадка временно не е достъпна"
-                    message="Заявката не можа да бъде изпълнена."
+                    message="Заявката не може да бъде изпълнена."
                     action={{
                         label: "Опитай отново",
                         onClick: () => {
@@ -66,7 +66,7 @@ export function HomePage(): ReactElement {
             <>
                 <DocumentTitle title="Начало" />
                 <p className="visuallyHidden" role="status">
-                    Зареждаме седмицата…
+                    Зареждаме седмичните загадки…
                 </p>
                 <HomePageSkeleton />
             </>

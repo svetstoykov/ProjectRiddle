@@ -1,0 +1,11 @@
+/*
+ * `100dvh` follows the browser's own chrome as it collapses on a phone, so the keyboard band inside the screen stays
+ * on the bottom edge instead of hiding under an address bar. Nothing here scrolls; the page decides what does.
+ */
+.shell {
+    display: grid;
+    grid-template-rows: 1fr;
+    height: 100dvh;
+    overflow: hidden;
+    background: var(--color-surface);
+}

@@ -39,10 +39,18 @@ const swatchClassNames: Record<RiddleRangeKind, string> = {
     fodder: styles.fodder ?? "fodder",
 };
 
+/* Carries the hint's own highlight colour into the row that owns it. */
+const rowClassNames: Record<RiddleRangeKind, string> = {
+    definition: styles.rowDefinition ?? "rowDefinition",
+    indicator: styles.rowIndicator ?? "rowIndicator",
+    fodder: styles.rowFodder ?? "rowFodder",
+};
+
 /**
  * Presents every assist in one sheet that rises from the bottom edge over a clear backdrop, so the clue and the answer
  * tiles stay legible while it is open. Commands that change server state close the sheet, because their result is only
- * visible on the board.
+ * visible on the board. An assist that is still available is raised and carries what it costs; a spent one lies flat
+ * and only toggles its highlight, so the two never rely on colour alone to tell them apart.
  */
 export function HintDialog({
     open,
@@ -136,7 +144,7 @@ export function HintDialog({
                                 {isUsed ? (
                                     <button
                                         type="button"
-                                        className={`${styles.row} ${styles.used}`}
+                                        className={`${styles.row} ${rowClassNames[kind]} ${styles.used}`}
                                         aria-pressed={isVisible}
                                         onClick={() => {
                                             onToggle(kind);
@@ -152,7 +160,7 @@ export function HintDialog({
                                 ) : (
                                     <button
                                         type="button"
-                                        className={`${styles.row} ${styles.unlock}`}
+                                        className={`${styles.row} ${styles.available}`}
                                         aria-busy={isPending}
                                         disabled={disabled || isPending}
                                         onClick={() => {
@@ -161,12 +169,13 @@ export function HintDialog({
                                         }}
                                     >
                                         <span
-                                            className={`${styles.swatch} ${swatchClassNames[kind]}`}
+                                            className={`${styles.swatch} ${styles.swatchLocked}`}
                                             aria-hidden="true"
                                         />
                                         <span className={styles.rowLabel}>
                                             {isPending ? "Отключваме…" : unlockLabels[kind]}
                                         </span>
+                                        <span className={styles.rowAction}>Отключи</span>
                                     </button>
                                 )}
                             </li>
@@ -176,7 +185,7 @@ export function HintDialog({
                 <hr className={styles.divider} />
                 <button
                     type="button"
-                    className={`${styles.row} ${styles.unlock}`}
+                    className={`${styles.row} ${styles.available}`}
                     aria-busy={isRevealing}
                     disabled={disabled || isRevealing || revealExhausted}
                     onClick={() => {
@@ -188,6 +197,7 @@ export function HintDialog({
                     <span className={styles.rowState}>
                         {revealedCount} от {letterCount}
                     </span>
+                    <span className={styles.rowAction}>Разкрий</span>
                 </button>
             </div>
         </dialog>

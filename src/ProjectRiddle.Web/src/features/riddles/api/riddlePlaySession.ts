@@ -45,18 +45,14 @@ function requiresAccount(error: unknown): boolean {
     return isApplicationError(error) && error.status === 401;
 }
 
-export function useRiddlePlaySession(riddleId: string | undefined, knownToRequireAccount: boolean): RiddlePlaySession {
+export function useRiddlePlaySession(riddleId: string | undefined): RiddlePlaySession {
     const queryClient = useQueryClient();
     const sessionQuery = useQuery(sessionQueryOptions);
     const isAuthenticated = (sessionQuery.data ?? null) !== null;
-    const isGated = knownToRequireAccount && !isAuthenticated;
     const [hasRolledOver, setHasRolledOver] = useState(false);
 
-    const todayQuery = useQuery({ ...todayRiddleQueryOptions(), enabled: !isGated && riddleId === undefined });
-    const playQuery = useQuery({
-        ...riddlePlayQueryOptions(riddleId ?? ""),
-        enabled: !isGated && riddleId !== undefined,
-    });
+    const todayQuery = useQuery({ ...todayRiddleQueryOptions(), enabled: riddleId === undefined });
+    const playQuery = useQuery({ ...riddlePlayQueryOptions(riddleId ?? ""), enabled: riddleId !== undefined });
 
     const play = riddleId === undefined ? todayQuery.data : playQuery.data;
     const projectionError = riddleId === undefined ? todayQuery.error : playQuery.error;
@@ -64,7 +60,7 @@ export function useRiddlePlaySession(riddleId: string | undefined, knownToRequir
 
     const playStateQuery = useQuery({
         ...riddlePlayStateQueryOptions(activeRiddleId ?? "", isAuthenticated),
-        enabled: !isGated && activeRiddleId !== undefined,
+        enabled: activeRiddleId !== undefined,
     });
 
     // Discard a record that describes a different riddle before the new board accepts input. The read path already
@@ -100,7 +96,7 @@ export function useRiddlePlaySession(riddleId: string | undefined, knownToRequir
             return;
         }
 
-        notifications.error("Действието не можа да бъде изпълнено. Опитай отново.");
+        notifications.error("Действието не може да бъде изпълнено. Опитай отново.");
     }
 
     const answerMutation = useMutation({
@@ -138,7 +134,7 @@ export function useRiddlePlaySession(riddleId: string | undefined, knownToRequir
     const failure = projectionError ?? playStateQuery.error;
 
     function resolveStatus(): RiddlePlayStatus {
-        if (isGated || hasRolledOver || requiresAccount(projectionError) || requiresAccount(playStateQuery.error)) {
+        if (hasRolledOver || requiresAccount(projectionError) || requiresAccount(playStateQuery.error)) {
             return "authenticationRequired";
         }
 
