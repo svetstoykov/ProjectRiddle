@@ -1,0 +1,25 @@
+/* Authoring runs top to bottom in one column: the labeller, the fields, the preview, and finally the save action. */
+.form {
+    display: grid;
+    gap: var(--space-5);
+    width: min(100%, 56rem);
+    margin-inline: auto;
+}
+
+.form > * {
+    min-width: 0;
+}
+
+.header {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.immutableNotice {
+    color: var(--color-muted-text);
+}
+
+.save {
+    justify-self: start;
+    min-width: 11ch;
+}

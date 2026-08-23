@@ -1,9 +1,17 @@
 .card {
     composes: card from "../../../styles/surfaces.module.css";
     display: grid;
-    gap: var(--space-4);
+    gap: var(--space-3);
     justify-items: stretch;
     background: var(--color-clue-surface);
+}
+
+/*
+ * The home screen reads as one compact column, so the date heading stays close to the label above it rather than
+ * taking the display size that pushes the clue and the week below the fold.
+ */
+.heading {
+    font-size: var(--text-headline);
 }
 
 .lead {

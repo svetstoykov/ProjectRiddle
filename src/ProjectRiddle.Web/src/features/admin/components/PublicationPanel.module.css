@@ -13,10 +13,6 @@
     composes: chip from "../../../styles/surfaces.module.css";
 }
 
-.hint {
-    color: var(--color-muted-text);
-}
-
 .notice {
     composes: noticeSuccess from "../../../styles/surfaces.module.css";
 }

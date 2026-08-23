@@ -18,9 +18,9 @@ public sealed record PublicRiddleDiscoveryItemResponse
     public required DateOnly PublicationDate { get; init; }
 
     /// <summary>
-    /// Gets the bounded clue excerpt.
+    /// Gets the bounded clue excerpt, or <see langword="null" /> when the caller cannot open the riddle.
     /// </summary>
-    public required string ClueExcerpt { get; init; }
+    public required string? ClueExcerpt { get; init; }
 
     /// <summary>
     /// Gets the public answer pattern.

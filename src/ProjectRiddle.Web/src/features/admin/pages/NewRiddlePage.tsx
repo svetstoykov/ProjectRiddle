@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 
-import { RiddleEditor } from "../components/RiddleEditor";
+import { NewRiddleForm } from "../components/NewRiddleForm";
 
 export function NewRiddlePage(): ReactElement {
-    return <RiddleEditor />;
+    return <NewRiddleForm />;
 }

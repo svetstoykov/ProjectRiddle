@@ -1,13 +1,22 @@
+/*
+ * A closed `<dialog>` is hidden by the user-agent rule `dialog:not([open]) { display: none }`. Any author `display`
+ * declaration on the base selector overrides that rule regardless of specificity, because author styles outrank the
+ * user-agent origin — which paints every closed dialog into the page flow as an absolutely positioned panel. The
+ * layout therefore belongs to the open state only.
+ */
 .dialog {
     width: min(100% - 2rem, 28rem);
-    display: grid;
-    gap: var(--space-4);
     padding: var(--space-5);
     border: var(--border-thick) solid var(--color-deep-violet);
     border-radius: var(--radius-lg);
     background: var(--color-surface-lowest);
     box-shadow: var(--shadow-2);
     color: var(--color-text);
+}
+
+.dialog[open] {
+    display: grid;
+    gap: var(--space-4);
 }
 
 .dialog::backdrop {

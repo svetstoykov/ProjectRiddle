@@ -1,0 +1,136 @@
+.carousel {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: center;
+    width: 100%;
+}
+
+.viewport {
+    display: grid;
+    width: 100%;
+    min-height: 7.5rem;
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+.card {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    padding: var(--space-4) var(--space-5);
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-2);
+    text-align: center;
+    animation: cardEnter var(--motion-base) var(--ease-spring) both;
+}
+
+/* A solved riddle carries the same success colour as the tiles, so the deck reads as part of the same moment. */
+.carousel[data-solved] .card {
+    border-color: var(--color-success);
+    box-shadow: var(--shadow-2-success);
+}
+
+.title {
+    font-size: var(--text-headline);
+}
+
+.carousel[data-solved] .title {
+    color: var(--color-success);
+}
+
+.body {
+    color: var(--color-text);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-body);
+    text-wrap: pretty;
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.step {
+    width: var(--control-height-sm);
+    min-width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    min-height: var(--control-height-sm);
+    padding: 0;
+    border-width: var(--border-thin);
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-1);
+    font-size: var(--text-title);
+    line-height: 1;
+}
+
+.dots {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+}
+
+/* The dot is a target the size of a fingertip with a small painted core, so the row stays quiet but stays tappable. */
+.dot {
+    width: var(--control-height-sm);
+    min-width: 0;
+    height: var(--control-height-sm);
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: none;
+    box-shadow: none;
+}
+
+.dot::before {
+    content: "";
+    display: block;
+    width: 0.625rem;
+    height: 0.625rem;
+    margin: 0 auto;
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-lowest);
+}
+
+.dot[aria-current="true"]::before {
+    background: var(--color-deep-violet);
+}
+
+@media (hover: hover) {
+    button.dot:hover:not(:disabled) {
+        background: none;
+        box-shadow: none;
+        transform: none;
+    }
+
+    button.dot:hover::before {
+        background: var(--color-surface-high);
+    }
+
+    button.dot[aria-current="true"]:hover::before {
+        background: var(--color-deep-violet);
+    }
+}
+
+button.dot:active:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+}
+
+@keyframes cardEnter {
+    0% {
+        opacity: 0;
+        transform: translateY(0.75rem);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

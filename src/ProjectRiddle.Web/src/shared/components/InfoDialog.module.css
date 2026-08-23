@@ -1,0 +1,105 @@
+/*
+ * A closed `<dialog>` is hidden by the user-agent rule `dialog:not([open]) { display: none }`. Any author `display`
+ * declaration on the base selector overrides that rule regardless of specificity, so the layout belongs to the open
+ * state only. The panel sits in the middle of the screen and the backdrop blurs everything behind it, which is what
+ * separates this modal from the assists sheet: reading material takes the reader out of the board for a moment.
+ */
+.dialog {
+    width: min(100% - 2rem, 30rem);
+    padding: 0;
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-3);
+    color: var(--color-text);
+    transition:
+        display var(--motion-fast) var(--ease-out) allow-discrete,
+        overlay var(--motion-fast) var(--ease-out) allow-discrete,
+        opacity var(--motion-fast) var(--ease-out),
+        transform var(--motion-fast) var(--ease-out);
+}
+
+.dialog[open] {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.dialog:not([open]) {
+    opacity: 0;
+    transform: scale(0.96);
+}
+
+@starting-style {
+    .dialog[open] {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+}
+
+.dialog::backdrop {
+    background: rgb(45 0 102 / 20%);
+    backdrop-filter: blur(12px);
+    transition:
+        background var(--motion-fast) var(--ease-out) allow-discrete,
+        backdrop-filter var(--motion-fast) var(--ease-out) allow-discrete;
+}
+
+.dialog:not([open])::backdrop {
+    background: rgb(45 0 102 / 0%);
+    backdrop-filter: blur(0);
+}
+
+@starting-style {
+    .dialog[open]::backdrop {
+        background: rgb(45 0 102 / 0%);
+        backdrop-filter: blur(0);
+    }
+}
+
+.panel {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.title {
+    font-size: var(--text-title);
+}
+
+.close {
+    flex: none;
+    width: var(--control-height-sm);
+    min-width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    min-height: var(--control-height-sm);
+    padding: 0;
+    border-width: var(--border-thin);
+    background: var(--color-surface-lowest);
+    box-shadow: none;
+    font-size: var(--text-headline);
+    line-height: 1;
+}
+
+.body {
+    display: grid;
+    gap: var(--space-3);
+    color: var(--color-text);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-body);
+}
+
+@media (pointer: coarse) {
+    .close {
+        width: var(--control-height);
+        min-width: var(--control-height);
+        height: var(--control-height);
+        min-height: var(--control-height);
+    }
+}

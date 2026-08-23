@@ -1,74 +1,85 @@
-import type { ReactElement } from "react";
+import type { PropsWithChildren, ReactElement } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { AuthenticationRequiredNotice } from "../../../shared/components/AuthenticationRequiredNotice";
 import { PlayerPageSkeleton } from "../../../shared/components/ContentSkeletons";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
+import { MembershipDialog } from "../../auth/components/MembershipDialog";
 import { useRiddlePlaySession } from "../api/riddlePlaySession";
 import { RiddlePlayer } from "../components/RiddlePlayer";
+import { SolvingTopBar } from "../components/SolvingTopBar";
+import styles from "./RiddlePlayerPage.module.css";
 
-/**
- * Marks a navigation that came from a past-day tile or an archive card while signed out, so the page can show the
- * access prompt without a request whose outcome is already known.
- */
-export interface ArchiveNavigationState {
-    readonly requiresAccount: true;
+interface SolvingScreenProps {
+    readonly publicationDate: string | undefined;
 }
 
-function readRequiresAccount(state: unknown): boolean {
-    return typeof state === "object" && state !== null && (state as ArchiveNavigationState).requiresAccount === true;
+/** The screen every state of this page shares: a way back at the top and one region beneath it. */
+function SolvingScreen({ publicationDate, children }: PropsWithChildren<SolvingScreenProps>): ReactElement {
+    return (
+        <div className={styles.screen}>
+            <SolvingTopBar publicationDate={publicationDate} />
+            <main className={styles.stage}>{children}</main>
+        </div>
+    );
 }
 
 export function RiddlePlayerPage(): ReactElement {
     const { riddleId } = useParams<{ riddleId: string }>();
     const location = useLocation();
     const navigate = useNavigate();
-    const session = useRiddlePlaySession(riddleId, readRequiresAccount(location.state));
+    const session = useRiddlePlaySession(riddleId);
 
+    // A riddle reached without an account — by link, or after the free day rolled over mid-play — is answered by the
+    // same prompt the rest of the application uses. The board is what an account unlocks, so dismissing it leaves.
     if (session.status === "authenticationRequired") {
         return (
-            <>
+            <SolvingScreen publicationDate={undefined}>
                 <DocumentTitle title="Загадка" />
-                <AuthenticationRequiredNotice
-                    title="Тази загадка е в архива"
-                    message="По-ранните загадки се играят с профил. Влез или се регистрирай, за да продължиш от същото място."
+                <MembershipDialog
                     returnTo={location.pathname}
+                    onClose={() => {
+                        void navigate("/");
+                    }}
                 />
-            </>
+            </SolvingScreen>
         );
     }
 
     if (session.status === "todayUnavailable") {
         return (
-            <>
+            <SolvingScreen publicationDate={undefined}>
                 <DocumentTitle title="Загадка" />
-                <PageStatus
-                    eyebrow="Днешната загадка"
-                    title="Днес няма публикувана загадка"
-                    message="Върни се по-късно или разгледай архива с предишните загадки."
-                    action={{
-                        label: "Към архива",
-                        onClick: () => {
-                            void navigate("/archive");
-                        },
-                    }}
-                />
-            </>
+                <div className={styles.notice}>
+                    <PageStatus
+                        eyebrow="Днешната загадка"
+                        title="Днес няма публикувана загадка"
+                        message="Върни се по-късно или разгледай архива с предишните загадки."
+                        action={{
+                            label: "Към архива",
+                            onClick: () => {
+                                void navigate("/archive");
+                            },
+                        }}
+                    />
+                </div>
+            </SolvingScreen>
         );
     }
 
     if (session.status === "notFound") {
         return (
-            <>
+            <SolvingScreen publicationDate={undefined}>
                 <DocumentTitle title="Загадка" />
-                <PageStatus
-                    tone="error"
-                    eyebrow="Загадка"
-                    title="Загадката не е достъпна"
-                    message="Тази загадка не е налична."
-                />
-            </>
+                <div className={styles.notice}>
+                    <PageStatus
+                        tone="error"
+                        eyebrow="Загадка"
+                        title="Загадката не е достъпна"
+                        message="Тази загадка не е налична."
+                    />
+                </div>
+            </SolvingScreen>
         );
     }
 
@@ -76,33 +87,37 @@ export function RiddlePlayerPage(): ReactElement {
         const trace = session.traceId === undefined ? "" : ` Код за проследяване: ${session.traceId}`;
 
         return (
-            <>
+            <SolvingScreen publicationDate={undefined}>
                 <DocumentTitle title="Загадка" />
-                <PageStatus
-                    tone="error"
-                    eyebrow="Загадка"
-                    title="Загадката временно не е достъпна"
-                    message={`Заявката не можа да бъде изпълнена.${trace}`}
-                    action={{ label: "Опитай отново", onClick: session.retry }}
-                />
-            </>
+                <div className={styles.notice}>
+                    <PageStatus
+                        tone="error"
+                        eyebrow="Загадка"
+                        title="Загадката временно не е достъпна"
+                        message={`Заявката не може да бъде изпълнена.${trace}`}
+                        action={{ label: "Опитай отново", onClick: session.retry }}
+                    />
+                </div>
+            </SolvingScreen>
         );
     }
 
     if (session.play === undefined || session.playState === undefined) {
         return (
-            <>
+            <SolvingScreen publicationDate={undefined}>
                 <DocumentTitle title="Загадка" />
-                <p className="visuallyHidden" role="status">
-                    Зареждаме загадката…
-                </p>
-                <PlayerPageSkeleton />
-            </>
+                <div className={styles.notice}>
+                    <p className="visuallyHidden" role="status">
+                        Зареждаме загадката…
+                    </p>
+                    <PlayerPageSkeleton />
+                </div>
+            </SolvingScreen>
         );
     }
 
     return (
-        <>
+        <SolvingScreen publicationDate={session.play.publicationDate}>
             <DocumentTitle title="Загадка" />
             <RiddlePlayer
                 key={session.play.id}
@@ -115,6 +130,6 @@ export function RiddlePlayerPage(): ReactElement {
                 onUseHint={session.useHint}
                 onRevealLetter={session.revealLetter}
             />
-        </>
+        </SolvingScreen>
     );
 }

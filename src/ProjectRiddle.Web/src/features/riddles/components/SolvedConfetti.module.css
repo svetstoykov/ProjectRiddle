@@ -1,0 +1,46 @@
+/*
+ * The burst covers the viewport above the board but takes no pointer input, so the solved screen stays fully usable
+ * while it falls. Every piece runs its animation once and finishes invisible, which leaves nothing to clean up.
+ */
+.confetti {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.piece {
+    position: absolute;
+    top: -8%;
+    left: var(--piece-left);
+    width: var(--piece-width);
+    height: calc(var(--piece-width) * 1.6);
+    background: var(--piece-color);
+    border-radius: var(--radius-xs);
+    opacity: 0;
+    animation: confettiFall var(--piece-duration) var(--ease-out) var(--piece-delay) 1 both;
+}
+
+@keyframes confettiFall {
+    0% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+
+    85% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate3d(var(--piece-drift), 110vh, 0) rotate(var(--piece-spin));
+    }
+}
+
+/* A falling burst is pure decoration, so readers who ask for less motion get none of it at all. */
+@media (prefers-reduced-motion: reduce) {
+    .confetti {
+        display: none;
+    }
+}

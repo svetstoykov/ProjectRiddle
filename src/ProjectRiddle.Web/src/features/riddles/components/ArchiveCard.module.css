@@ -42,6 +42,37 @@
     line-height: var(--leading-snug);
 }
 
+/* Redaction bars stand in for a clue the server withheld, so the card still reads as a real riddle waiting behind an
+   account. They occupy the three lines a clamped excerpt would, keeping locked and unlocked cards the same height. */
+.veil {
+    display: grid;
+    align-content: center;
+    gap: var(--space-2);
+    height: calc(3 * var(--text-body) * var(--leading-snug));
+}
+
+.veilLine {
+    height: 0.85rem;
+    border: var(--border-thin) solid var(--color-border-subtle);
+    border-radius: var(--radius-xs);
+    background: var(--color-surface-highest);
+}
+
+.veilLineWide {
+    composes: veilLine;
+    width: 100%;
+}
+
+.veilLineMid {
+    composes: veilLine;
+    width: 82%;
+}
+
+.veilLineShort {
+    composes: veilLine;
+    width: 54%;
+}
+
 .meta {
     display: flex;
     flex-wrap: wrap;

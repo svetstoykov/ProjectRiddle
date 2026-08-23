@@ -1,10 +1,11 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import type { ReactElement } from "react";
+import { useRef, useState, type ReactElement } from "react";
 
 import { CardGridSkeleton } from "../../../shared/components/ContentSkeletons";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { sessionQueryOptions } from "../../auth/api/sessionQuery";
+import { MembershipDialog } from "../../auth/components/MembershipDialog";
 import { accountRiddleProgressQueryOptions, riddleArchiveInfiniteQueryOptions } from "../api/riddleQueries";
 import { ArchiveCard } from "../components/ArchiveCard";
 import { addLocalDays, formatMonth, monthKey } from "../models/localDate";
@@ -45,6 +46,8 @@ export function ArchivePage(): ReactElement {
     const sessionQuery = useQuery(sessionQueryOptions);
     const archiveQuery = useInfiniteQuery(riddleArchiveInfiniteQueryOptions());
     const isAuthenticated = (sessionQuery.data ?? null) !== null;
+    const [gatedPath, setGatedPath] = useState<string | null>(null);
+    const gateTriggerRef = useRef<HTMLAnchorElement | null>(null);
 
     const items = archiveQuery.data?.pages.flatMap((page) => page.items) ?? [];
     const newest = items.at(0)?.publicationDate;
@@ -80,7 +83,7 @@ export function ArchivePage(): ReactElement {
                     tone="error"
                     eyebrow="Архив"
                     title="Архивът временно не е достъпен"
-                    message="Заявката не можа да бъде изпълнена."
+                    message="Заявката не може да бъде изпълнена."
                     action={{
                         label: "Опитай отново",
                         onClick: () => {
@@ -110,6 +113,10 @@ export function ArchivePage(): ReactElement {
                                         item={item}
                                         outcome={outcomeByRiddleId.get(item.id)}
                                         isAuthenticated={isAuthenticated}
+                                        onAccountRequired={(trigger) => {
+                                            gateTriggerRef.current = trigger;
+                                            setGatedPath(`/riddles/${item.id}`);
+                                        }}
                                     />
                                 </li>
                             ))}
@@ -130,6 +137,13 @@ export function ArchivePage(): ReactElement {
                     {archiveQuery.isFetchingNextPage ? "Зареждаме…" : "Покажи още"}
                 </button>
             ) : null}
+            <MembershipDialog
+                returnTo={gatedPath}
+                onClose={() => {
+                    setGatedPath(null);
+                }}
+                returnFocusRef={gateTriggerRef}
+            />
         </section>
     );
 }

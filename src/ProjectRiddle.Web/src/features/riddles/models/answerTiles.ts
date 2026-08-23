@@ -1,4 +1,5 @@
 const wordLengthPattern = /^\d+$/;
+const separator = /\s/u;
 
 export interface AnswerWord {
     readonly wordIndex: number;
@@ -30,6 +31,14 @@ export function parseAnswerPattern(answerPattern: string): readonly number[] {
     }
 
     return wordLengths;
+}
+
+/**
+ * Splits a released answer into one character per tile position, dropping the spaces that separate its words. The
+ * server releases the answer once a riddle ends, so a finished board can show the solution instead of empty tiles.
+ */
+export function answerCharacters(answer: string): readonly string[] {
+    return Array.from(answer).filter((character) => !separator.test(character));
 }
 
 export function letterCountOf(wordLengths: readonly number[]): number {

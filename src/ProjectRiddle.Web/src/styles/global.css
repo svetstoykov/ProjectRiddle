@@ -122,7 +122,7 @@
     --text-headline: 1.5rem;
     --text-title: 1.25rem;
     --text-subtitle: 1.125rem;
-    --text-clue: clamp(1.125rem, 1.02rem + 0.5vw, 1.25rem);
+    --text-clue: clamp(1.2rem, 1rem + 0.9vw, 1.65rem);
     --text-body: 1rem;
     --text-body-sm: 0.9375rem;
     --text-label: 0.875rem;
@@ -135,6 +135,7 @@
     /* ---- Controls ---- */
     --control-height: 2.75rem;
     --control-height-sm: 2.5rem;
+    --control-height-lg: 3.25rem;
 
     /* ---- Motion ---- */
     --motion-press: 90ms;
@@ -239,6 +240,8 @@ button,
     cursor: pointer;
     text-decoration: none;
     font-family: var(--font-label);
+    /* A button never inherits the document size on its own, so the size is set here rather than left to the browser. */
+    font-size: var(--text-body);
     font-weight: 700;
     transition:
         transform var(--motion-press) var(--ease-out),

@@ -2,9 +2,9 @@ import type { ReactElement } from "react";
 import { useParams } from "react-router-dom";
 
 import { PageStatus } from "../../../shared/components/PageStatus";
-import { RiddleEditor } from "../components/RiddleEditor";
+import { RiddleDetail } from "../components/RiddleDetail";
 
-export function EditRiddlePage(): ReactElement {
+export function RiddleDetailPage(): ReactElement {
     const { riddleId } = useParams();
 
     if (riddleId === undefined || riddleId.length === 0) {
@@ -18,5 +18,5 @@ export function EditRiddlePage(): ReactElement {
         );
     }
 
-    return <RiddleEditor riddleId={riddleId} />;
+    return <RiddleDetail riddleId={riddleId} />;
 }

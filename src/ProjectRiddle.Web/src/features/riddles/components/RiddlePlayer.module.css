@@ -1,40 +1,91 @@
+/*
+ * Solving owns the whole screen. The clue, the board, and the band under it share the space that is left between the
+ * top bar and the keyboard, and the keyboard itself is pinned to the bottom edge at every width. Only the middle
+ * scrolls, so the keys never travel away from the thumb on a long clue.
+ */
 .player {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-5);
-    max-width: 48rem;
+    grid-template-rows: 1fr auto;
+    min-height: 0;
+    height: 100%;
+}
+
+/*
+ * Clue, board, and the two controls stack from the top in that order and stop. Whatever height is left over stays
+ * empty above the keyboard, which is what gives the screen its air: the reading and the acting sit together under
+ * the eye, and the keys stay on the floor of the screen.
+ */
+.stage {
+    display: grid;
+    grid-auto-rows: min-content;
+    align-content: start;
+    gap: var(--space-6);
+    width: min(100%, 44rem);
+    min-height: 0;
     margin: 0 auto;
+    padding: var(--space-4) var(--gutter);
+    overflow-y: auto;
 }
 
 .clueSlot,
-.outcomeSlot,
-.boardSlot,
-.keyboardSlot {
+.controlSlot {
+    width: 100%;
     min-width: 0;
 }
 
 .boardSlot {
     display: grid;
     gap: var(--space-3);
+    width: 100%;
+    min-width: 0;
     container-type: inline-size;
 }
 
-.outcomeSlot:empty {
-    display: none;
+.controlSlot {
+    display: grid;
+    justify-items: center;
+    min-height: 0;
 }
 
-.submitHint {
-    min-height: 1.35rem;
-    margin: 0;
-    color: var(--color-muted-text);
-    font-family: var(--font-label);
-    font-size: var(--text-label);
-    text-align: center;
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
 }
 
+/*
+ * The two controls are weighed against each other: the assists wear the screen's accent, and checking an answer is
+ * the quiet outline next to them. Both keep the standard control height — this row is a pair of small pills, not a
+ * pair of banners.
+ */
 .hintTrigger {
-    min-height: var(--control-height-sm);
-    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-body);
+}
+
+.submit {
+    border-color: var(--color-border);
+    background: none;
+    box-shadow: none;
+    color: var(--color-muted-text);
+    font-size: var(--text-body);
+}
+
+.submit:not(:disabled):not([aria-busy="true"]) {
+    border-color: var(--color-deep-violet);
+    color: var(--color-deep-violet);
+}
+
+.submit:disabled,
+.submit[aria-busy="true"] {
+    background: none;
+}
+
+@media (hover: hover) {
+    button.submit:hover:not(:disabled):not([aria-busy="true"]) {
+        background: var(--color-surface-lowest);
+        box-shadow: var(--shadow-1);
+    }
 }
 
 .hintCount {
@@ -43,51 +94,27 @@
     font-variant-numeric: tabular-nums;
 }
 
+/*
+ * The keys sit on the page itself rather than on a band of their own: they already carry borders and shadows, and a
+ * full-width panel behind them only cut the screen in two. The keyboard keeps the same column and the same gutter as
+ * everything above it, with equal room on the top and the sides.
+ */
+.keyboardSlot {
+    width: min(100%, 44rem);
+    margin: 0 auto;
+    padding: var(--gutter) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
+}
+
 .unavailable {
     composes: noticeDanger from "../../../styles/surfaces.module.css";
+    align-self: center;
+    width: min(100% - 2 * var(--gutter), 44rem);
+    margin: 0 auto;
     color: var(--color-danger);
 }
 
-@media (pointer: coarse) {
-    .hintTrigger {
-        min-height: var(--control-height);
-    }
-}
-
-@media (min-width: 600px) {
-    .player {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        grid-template-areas:
-            "clue    board"
-            "outcome keyboard";
-        align-items: start;
-    }
-
-    .clueSlot {
-        grid-area: clue;
-    }
-
-    .outcomeSlot {
-        grid-area: outcome;
-    }
-
-    .boardSlot {
-        grid-area: board;
-    }
-
-    .keyboardSlot {
-        grid-area: keyboard;
-    }
-
-    .outcomeSlot:empty {
-        display: block;
-        visibility: hidden;
-        min-height: 0;
-    }
-}
-
-@media (min-width: 1025px) {
-    .player {
-        max-width: 60rem;
+@media (max-width: 599px) {
+    .stage {
+        gap: var(--space-5);
     }
 }

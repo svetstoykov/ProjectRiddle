@@ -13,7 +13,7 @@ export function AccessDeniedPage(): ReactElement {
             <PageStatus
                 eyebrow="Достъп"
                 title="Няма достъп"
-                message="Този профил няма право да отваря администрацията."
+                message="Няма достъп."
                 action={{
                     label: "Към началото",
                     onClick: () => {

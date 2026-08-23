@@ -1,6 +1,6 @@
 .strip {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-2);
 }
 
 .title {
@@ -10,7 +10,7 @@
 .days {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: var(--space-2);
+    gap: var(--space-1);
     padding: 0;
     list-style: none;
 }
@@ -19,20 +19,23 @@
     display: flex;
 }
 
+/*
+ * The strip is a calendar, not a preview: it carries the date and the state of each day and never the clue or the
+ * answer pattern, which belong to the riddle itself.
+ */
 .day {
-    position: relative;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
+    align-items: center;
     gap: var(--space-1);
-    min-height: 5.5rem;
-    padding: var(--space-2);
+    min-height: 4.25rem;
+    padding: var(--space-2) var(--space-1);
     border: var(--border-thin) solid var(--color-deep-violet);
     border-radius: var(--radius-md);
     background: var(--color-surface-low);
     color: var(--color-deep-violet);
     text-decoration: none;
-    overflow: hidden;
     transition:
         transform var(--motion-fast) var(--ease-out),
         box-shadow var(--motion-fast) var(--ease-out);
@@ -63,6 +66,11 @@
     background: var(--color-electric-yellow);
 }
 
+.locked {
+    background: var(--color-surface);
+    color: var(--color-muted-text);
+}
+
 .future,
 .gap {
     border-style: dashed;
@@ -76,65 +84,40 @@
     font-size: var(--text-label-sm);
     font-weight: 700;
     text-transform: uppercase;
+    line-height: var(--leading-tight);
 }
 
 .dayNumber {
     font-family: var(--font-display);
     font-size: var(--text-subtitle);
     font-weight: 800;
+    line-height: var(--leading-tight);
 }
 
-.excerpt,
-.note,
-.pattern,
-.outcome {
-    font-size: var(--text-label-sm);
-    line-height: var(--leading-snug);
-}
-
-.excerpt {
-    display: none;
-}
-
-.outcome {
+.mark {
+    width: 1.125rem;
+    height: 1.125rem;
     margin-top: auto;
-    font-family: var(--font-label);
-    font-weight: 700;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
-@media (min-width: 600px) {
-    .excerpt {
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+.solvedMark {
+    color: var(--color-success);
 }
 
-@media (max-width: 599px) {
-    .note,
-    .outcome {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-    }
+.dot {
+    width: var(--space-2);
+    height: var(--space-2);
+    margin-top: auto;
+    border-radius: var(--radius-pill);
+    background: var(--color-deep-violet);
+}
 
-    .day::after {
-        content: "";
-        margin-top: auto;
-        width: var(--space-2);
-        height: var(--space-2);
-        border-radius: var(--radius-pill);
-        background: var(--color-deep-violet);
-    }
-
-    .day:not(.available)::after {
-        background: var(--color-border);
-    }
-
-    .solvedDay::after {
-        background: var(--color-correct-green);
-    }
+.footnote {
+    color: var(--color-muted-text);
+    font-size: var(--text-label);
 }

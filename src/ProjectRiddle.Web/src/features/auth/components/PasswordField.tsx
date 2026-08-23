@@ -25,6 +25,7 @@ export function PasswordField({
     const [visible, setVisible] = useState(false);
     const errorId = useId();
     const hasErrors = errors.length > 0;
+    const toggleLabel = visible ? "Скрий паролата" : "Покажи паролата";
 
     return (
         <div className={styles.field}>
@@ -33,6 +34,7 @@ export function PasswordField({
                 <input
                     id={id}
                     type={visible ? "text" : "password"}
+                    className={styles.passwordInput}
                     autoComplete={autoComplete}
                     value={value}
                     disabled={disabled}
@@ -45,14 +47,20 @@ export function PasswordField({
                 <button
                     type="button"
                     className={styles.visibility}
+                    aria-label={toggleLabel}
                     aria-pressed={visible}
                     aria-controls={id}
+                    title={toggleLabel}
                     disabled={disabled}
                     onClick={() => {
                         setVisible((current) => !current);
                     }}
                 >
-                    {visible ? "Скрий паролата" : "Покажи паролата"}
+                    <svg className={styles.icon} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M1.8 12S5.9 5.4 12 5.4 22.2 12 22.2 12 18.1 18.6 12 18.6 1.8 12 1.8 12Z" />
+                        <circle cx="12" cy="12" r="3.2" />
+                        {visible ? <path d="M4 4 20 20" /> : null}
+                    </svg>
                 </button>
             </div>
             <FieldError id={errorId} messages={errors} />
