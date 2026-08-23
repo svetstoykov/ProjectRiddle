@@ -1,0 +1,16 @@
+.card {
+    composes: card from "../../../styles/surfaces.module.css";
+    display: grid;
+    gap: var(--space-4);
+    justify-items: stretch;
+    background: var(--color-clue-surface);
+}
+
+.lead {
+    color: var(--color-muted-text);
+    line-height: var(--leading-body);
+}
+
+.play {
+    justify-self: start;
+}

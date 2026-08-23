@@ -1,0 +1,93 @@
+.player {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    max-width: 48rem;
+    margin: 0 auto;
+}
+
+.clueSlot,
+.outcomeSlot,
+.boardSlot,
+.keyboardSlot {
+    min-width: 0;
+}
+
+.boardSlot {
+    display: grid;
+    gap: var(--space-3);
+    container-type: inline-size;
+}
+
+.outcomeSlot:empty {
+    display: none;
+}
+
+.submitHint {
+    min-height: 1.35rem;
+    margin: 0;
+    color: var(--color-muted-text);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    text-align: center;
+}
+
+.hintTrigger {
+    min-height: var(--control-height-sm);
+    padding: var(--space-2) var(--space-4);
+}
+
+.hintCount {
+    display: inline-block;
+    min-width: 2.5ch;
+    font-variant-numeric: tabular-nums;
+}
+
+.unavailable {
+    composes: noticeDanger from "../../../styles/surfaces.module.css";
+    color: var(--color-danger);
+}
+
+@media (pointer: coarse) {
+    .hintTrigger {
+        min-height: var(--control-height);
+    }
+}
+
+@media (min-width: 600px) {
+    .player {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-areas:
+            "clue    board"
+            "outcome keyboard";
+        align-items: start;
+    }
+
+    .clueSlot {
+        grid-area: clue;
+    }
+
+    .outcomeSlot {
+        grid-area: outcome;
+    }
+
+    .boardSlot {
+        grid-area: board;
+    }
+
+    .keyboardSlot {
+        grid-area: keyboard;
+    }
+
+    .outcomeSlot:empty {
+        display: block;
+        visibility: hidden;
+        min-height: 0;
+    }
+}
+
+@media (min-width: 1025px) {
+    .player {
+        max-width: 60rem;
+    }
+}

@@ -1,0 +1,89 @@
+.pulse {
+    background: var(--color-surface-high);
+    border-radius: var(--radius-md);
+}
+
+.clue {
+    composes: card from "../../styles/surfaces.module.css";
+    display: grid;
+    gap: var(--space-3);
+}
+
+.line {
+    composes: pulse;
+    height: 1.15rem;
+}
+
+.lineWide {
+    composes: line;
+    width: 92%;
+}
+
+.lineMid {
+    composes: line;
+    width: 70%;
+}
+
+.lineShort {
+    composes: line;
+    width: 40%;
+}
+
+.tiles {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--tile-gap);
+}
+
+.tile {
+    composes: pulse;
+    width: var(--tile-size-max);
+    height: var(--tile-size-max);
+    border-radius: var(--radius-sm);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-4);
+    width: 100%;
+}
+
+.card {
+    composes: tileSurface from "../../styles/surfaces.module.css";
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    min-height: 8rem;
+}
+
+.week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--space-2);
+}
+
+.day {
+    composes: pulse;
+    min-height: 5.5rem;
+    border-radius: var(--radius-md);
+}
+
+.home {
+    display: grid;
+    gap: var(--space-7);
+}
+
+.player {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 48rem;
+    margin: 0 auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pulse {
+        animation: none;
+    }
+}

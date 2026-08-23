@@ -60,7 +60,10 @@ public sealed class RiddleProgressConfiguration : IEntityTypeConfiguration<Riddl
             {
                 positions.ToTable("RiddleProgressPositions");
                 positions.WithOwner().HasForeignKey("RiddleProgressId");
-                positions.Property(position => position.LetterPosition).IsRequired();
+
+                // The letter position is authored by the reveal command, not by the store. Without this the integer
+                // key convention marks it store-generated and every inserted position is written as null.
+                positions.Property(position => position.LetterPosition).ValueGeneratedNever().IsRequired();
                 positions.HasKey("RiddleProgressId", nameof(RiddleProgressPosition.LetterPosition));
             });
         builder.Navigation(progress => progress.Positions)

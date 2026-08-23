@@ -3,48 +3,38 @@
     flex-wrap: wrap;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
 }
 
-.pageHeader h1 {
-    margin: 0;
+.titles {
+    display: grid;
+    gap: var(--space-2);
 }
 
 .groups {
     display: grid;
-    gap: 2rem;
+    gap: var(--space-6);
 }
 
 .group {
-    padding: 1.25rem;
-    border: 3px solid var(--color-deep-violet);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-low);
-    box-shadow: var(--shadow-hard);
+    composes: card from "../../../styles/surfaces.module.css";
 }
 
 .groupHeader {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.groupHeader h2 {
-    margin: 0;
-    font-size: 1.5rem;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
 }
 
 .count {
-    margin: 0;
-    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-label);
     font-weight: 700;
 }
 
 .empty {
-    margin: 0;
     color: var(--color-muted-text);
 }
 
@@ -55,28 +45,27 @@
 
 .table th,
 .table td {
-    padding: 0.75rem 0.5rem;
+    padding: var(--space-3) var(--space-2);
     text-align: left;
     vertical-align: top;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: var(--border-thin) solid var(--color-border-subtle);
 }
 
 .table a {
     color: var(--color-primary);
     font-weight: 700;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+@media (hover: hover) {
+    .table a:hover {
+        color: var(--color-primary-strong);
+    }
 }
 
 .chip {
-    display: inline-flex;
-    align-items: center;
-    min-height: 1.75rem;
-    padding: 0.15rem 0.7rem;
-    border: 2px solid var(--color-deep-violet);
-    border-radius: var(--radius-pill);
-    background: var(--color-electric-yellow);
-    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.875rem;
-    font-weight: 700;
+    composes: chip from "../../../styles/surfaces.module.css";
 }
 
 @media (max-width: 599px) {
@@ -102,24 +91,24 @@
 
     .table tr {
         display: grid;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid var(--color-border);
+        gap: var(--space-2);
+        margin-bottom: var(--space-4);
+        padding-bottom: var(--space-4);
+        border-bottom: var(--border-thin) solid var(--color-border);
     }
 
     .table td {
         border: 0;
         padding: 0;
+        font-family: var(--font-body);
     }
 
     .table td::before {
         content: attr(data-label);
         display: block;
-        margin-bottom: 0.15rem;
+        margin-bottom: var(--space-1);
         color: var(--color-muted-text);
-        font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-        font-size: 0.8125rem;
+        font-size: var(--text-label);
         font-weight: 700;
     }
 }

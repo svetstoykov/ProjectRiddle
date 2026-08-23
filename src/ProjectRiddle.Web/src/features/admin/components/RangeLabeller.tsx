@@ -23,6 +23,12 @@ interface TextSelection {
 
 const kindOrder: readonly RiddleRangeKind[] = ["definition", "indicator", "fodder"];
 
+const kindSwatchClassNames: Record<RiddleRangeKind, string> = {
+    definition: styles.definition ?? "definition",
+    indicator: styles.indicator ?? "indicator",
+    fodder: styles.fodder ?? "fodder",
+};
+
 export function RangeLabeller({ clue, ranges, errors, disabled, onChange }: RangeLabellerProps): ReactElement {
     const clueId = useId();
     const errorId = useId();
@@ -116,11 +122,13 @@ export function RangeLabeller({ clue, ranges, errors, disabled, onChange }: Rang
                     <button
                         key={kind}
                         type="button"
+                        className={styles.kind}
                         disabled={disabled}
                         onClick={() => {
                             applyKind(kind);
                         }}
                     >
+                        <span className={`${styles.swatch} ${kindSwatchClassNames[kind]}`} aria-hidden="true" />
                         {rangeKindLabels[kind]}
                     </button>
                 ))}

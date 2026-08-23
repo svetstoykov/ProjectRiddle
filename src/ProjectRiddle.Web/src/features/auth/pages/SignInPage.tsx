@@ -2,6 +2,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
+import { DocumentTitle } from "../../../shared/components/DocumentTitle";
+import { ErrorSummary } from "../../../shared/components/ErrorSummary";
 import { FieldError } from "../../../shared/components/FieldError";
 import { clearAntiforgeryToken } from "../../../shared/api/client";
 import { authApi } from "../api/authApi";
@@ -105,6 +107,7 @@ export function SignInPage(): ReactElement {
     return (
         <section className={styles.page}>
             <div className={styles.card}>
+                <DocumentTitle title="Вход" />
                 <p className="eyebrow">Профил</p>
                 <h1>Вход</h1>
                 {registration.succeeded ? (
@@ -113,21 +116,12 @@ export function SignInPage(): ReactElement {
                     </p>
                 ) : null}
                 <AccountErrorSummary error={serverError} fieldNames={["email", "password"]} summaryRef={summaryRef} />
-                {serverError === null && localSummary.length > 0 ? (
-                    <div
-                        ref={summaryRef}
-                        className={formStyles.summary}
-                        tabIndex={-1}
-                        role="alert"
-                        aria-labelledby="sign-in-local-error-heading"
-                    >
-                        <h2 id="sign-in-local-error-heading">Има проблем със заявката</h2>
-                        <ul>
-                            {localSummary.map((message) => (
-                                <li key={message}>{message}</li>
-                            ))}
-                        </ul>
-                    </div>
+                {serverError === null ? (
+                    <ErrorSummary
+                        messages={localSummary}
+                        headingId="sign-in-local-error-heading"
+                        summaryRef={summaryRef}
+                    />
                 ) : null}
                 <form className={styles.form} onSubmit={handleSubmit} noValidate>
                     <div className={formStyles.field}>
@@ -154,7 +148,7 @@ export function SignInPage(): ReactElement {
                         errors={passwordErrors}
                         onChange={setPassword}
                     />
-                    <button type="submit" aria-busy={busy} disabled={busy}>
+                    <button type="submit" className={styles.submit} aria-busy={busy} disabled={busy}>
                         {busy ? "Влизане…" : "Вход"}
                     </button>
                 </form>

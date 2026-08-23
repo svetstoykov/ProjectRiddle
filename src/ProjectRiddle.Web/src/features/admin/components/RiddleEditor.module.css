@@ -1,15 +1,16 @@
 .editor {
     display: grid;
-    gap: 1.25rem;
+    gap: var(--space-5);
 }
 
-.header h1 {
-    margin: 0;
+.header {
+    display: grid;
+    gap: var(--space-2);
 }
 
 .layout {
     display: grid;
-    gap: 1.5rem;
+    gap: var(--space-5);
 }
 
 .layout > * {
@@ -18,34 +19,22 @@
 
 .authoring {
     display: grid;
-    gap: 1rem;
+    gap: var(--space-4);
     align-content: start;
 }
 
-.summary {
-    padding: 1rem;
-    border: 3px solid var(--color-danger);
-    border-radius: var(--radius-md);
-    background: var(--color-danger-surface);
-}
-
-.summary h2 {
-    margin: 0 0 0.5rem;
-    font-size: 1.125rem;
-}
-
-.summary ul {
-    margin: 0;
-    padding-left: 1.25rem;
+.save {
+    justify-self: start;
+    min-width: 11ch;
 }
 
 .immutableNotice {
-    margin: 0;
     color: var(--color-muted-text);
 }
 
-@media (min-width: 600px) {
+@media (min-width: 900px) {
     .layout {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         align-items: start;
     }
 }

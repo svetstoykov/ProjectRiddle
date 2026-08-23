@@ -1,0 +1,18 @@
+.toast {
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    color: var(--color-text);
+    background: var(--color-surface-lowest);
+    font-family: var(--font-body);
+    font-size: var(--text-body-sm);
+}
+
+.toastSuccess {
+    border-color: var(--color-success);
+}
+
+.toastError {
+    border-color: var(--color-danger);
+    background: var(--color-danger-surface);
+}

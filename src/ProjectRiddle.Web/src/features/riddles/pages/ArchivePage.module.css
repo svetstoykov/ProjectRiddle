@@ -1,0 +1,28 @@
+.page {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+}
+
+.month {
+    display: grid;
+    gap: var(--space-3);
+    width: 100%;
+}
+
+.monthTitle {
+    font-size: var(--text-subtitle);
+    text-transform: capitalize;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-4);
+    padding: 0;
+    list-style: none;
+}
+
+.loadMore {
+    min-width: 12ch;
+}

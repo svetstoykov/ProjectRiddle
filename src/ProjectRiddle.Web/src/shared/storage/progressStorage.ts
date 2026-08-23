@@ -1,13 +1,16 @@
+import type { AnonymousRiddleProgress } from "../../features/riddles/models/riddleProgress";
+
 const progressStorageKey = "project-riddle.progress";
 
 export const currentProgressSchemaVersion = 1 as const;
 
 /**
  * The adapter stores only typed progress data; credentials, session material, answers, and explanations must never
- * be stored in the document.
+ * be stored in the document. Each capability validates the shape of its own segment before using it.
  */
 export interface ProgressDocument {
     readonly schemaVersion: typeof currentProgressSchemaVersion;
+    readonly riddle?: AnonymousRiddleProgress;
 }
 
 function emptyProgressDocument(): ProgressDocument {

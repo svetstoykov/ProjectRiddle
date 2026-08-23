@@ -1,0 +1,66 @@
+.card {
+    composes: tileSurface from "../../../styles/surfaces.module.css";
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-4);
+    color: var(--color-text);
+    text-decoration: none;
+    transition:
+        transform var(--motion-fast) var(--ease-out),
+        box-shadow var(--motion-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+    .card:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: var(--shadow-3);
+    }
+}
+
+.card:active {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-1);
+}
+
+.date {
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: 700;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.excerpt {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    font-size: var(--text-body);
+    line-height: var(--leading-snug);
+}
+
+.meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    align-items: center;
+    margin-top: auto;
+    color: var(--color-muted-text);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+}
+
+.pattern {
+    font-variant-numeric: tabular-nums;
+}
+
+.outcome {
+    composes: chipQuiet from "../../../styles/surfaces.module.css";
+}
+
+.solved {
+    composes: chipSuccess from "../../../styles/surfaces.module.css";
+}

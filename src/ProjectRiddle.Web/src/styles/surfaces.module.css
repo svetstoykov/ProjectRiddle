@@ -1,0 +1,76 @@
+.card {
+    padding: var(--space-5);
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-low);
+    box-shadow: var(--shadow-2);
+}
+
+.cardQuiet {
+    composes: card;
+    background: var(--color-surface-lowest);
+}
+
+.tileSurface {
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-1);
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+    padding: var(--space-1) var(--space-3);
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-pill);
+    background: var(--color-electric-yellow);
+    color: var(--color-deep-violet);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: 700;
+}
+
+.chipQuiet {
+    composes: chip;
+    background: var(--color-surface-lowest);
+}
+
+.chipSuccess {
+    composes: chip;
+    background: var(--color-correct-green);
+}
+
+.notice {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-lowest);
+}
+
+.noticeDanger {
+    composes: notice;
+    border-color: var(--color-danger);
+    background: var(--color-danger-surface);
+}
+
+.noticeSuccess {
+    composes: notice;
+    border-color: var(--color-success);
+}
+
+.buttonDanger {
+    color: var(--color-on-accent);
+    background: var(--color-danger);
+    border-color: var(--color-deep-violet);
+}
+
+@media (hover: hover) {
+    .buttonDanger:hover:not(:disabled):not([aria-busy="true"]) {
+        background: var(--color-danger);
+        color: var(--color-on-accent);
+    }
+}

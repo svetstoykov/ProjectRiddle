@@ -193,4 +193,44 @@ public sealed class AdminRiddlesServiceTests
         Assert.Equal(RiddleErrorCodes.PublicationDateInvalid, scheduledYesterday.Error.Code);
     }
 
+    /// <summary>
+    /// Verifies that an answer containing a separator other than a single interior space is rejected.
+    /// </summary>
+    /// <param name="answer">The authored answer under test.</param>
+    /// <returns>A task that represents the test operation.</returns>
+    [Theory]
+    [InlineData("БЯЛ-ЧЕРЕН")]
+    [InlineData("БЯЛА ВРАНА!")]
+    [InlineData("Д'АРТАНЯН")]
+    [InlineData("БЯЛА2 ВРАНА")]
+    public async Task AnswerWithNonLetterCharactersIsRejected(string answer)
+    {
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
+
+        var result = await workspace.AdminService.CreateAsync(
+            TestWorkspace.CreateRiddleInput(answer: answer),
+            CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.Validation, result.Error!.Type);
+        Assert.Equal(RiddleErrorCodes.AnswerFormatInvalid, result.Error.Code);
+    }
+
+    /// <summary>
+    /// Verifies that an answer of letters separated by single spaces is accepted.
+    /// </summary>
+    /// <returns>A task that represents the test operation.</returns>
+    [Fact]
+    public async Task AnswerOfLettersSeparatedBySingleSpacesIsAccepted()
+    {
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth);
+
+        var result = await workspace.AdminService.CreateAsync(
+            TestWorkspace.CreateRiddleInput(answer: "бяла врана"),
+            CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal("4,5", result.Value!.AnswerPattern);
+    }
+
 }

@@ -3,6 +3,7 @@ import type { ReactElement } from "react";
 import { Outlet } from "react-router-dom";
 
 import { sessionQueryOptions } from "../../features/auth/api/sessionQuery";
+import { ClueBlockSkeleton } from "../../shared/components/ContentSkeletons";
 import { PageStatus } from "../../shared/components/PageStatus";
 
 export function SessionBoundary(): ReactElement {
@@ -10,7 +11,12 @@ export function SessionBoundary(): ReactElement {
 
     if (sessionQuery.isPending) {
         return (
-            <PageStatus eyebrow="Сесия" title="Проверяваме сесията…" message="Изчакваме отговора за текущия профил." />
+            <>
+                <p className="visuallyHidden" role="status">
+                    Проверяваме сесията…
+                </p>
+                <ClueBlockSkeleton />
+            </>
         );
     }
 

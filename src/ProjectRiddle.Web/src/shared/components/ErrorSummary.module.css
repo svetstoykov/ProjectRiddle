@@ -1,0 +1,18 @@
+.summary {
+    composes: noticeDanger from "../../styles/surfaces.module.css";
+}
+
+.summary:focus {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.summary h2 {
+    font-size: var(--text-subtitle);
+}
+
+.summary ul {
+    padding-left: var(--space-5);
+    display: grid;
+    gap: var(--space-1);
+}

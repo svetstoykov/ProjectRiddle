@@ -85,7 +85,7 @@ export function ConfirmationDialog({
             <h2 id={titleId}>{title}</h2>
             <p id={descriptionId}>{description}</p>
             <div className={styles.actions}>
-                <button type="button" className="buttonSecondary" autoFocus onClick={onCancel}>
+                <button type="button" className="buttonSecondary" onClick={onCancel}>
                     {cancelLabel}
                 </button>
                 <button

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { reconcileSessionAfterAuthorizationFailure } from "../../auth/api/sessionQuery";
 import { isApplicationError } from "../../../shared/api/errors";
 import { ConfirmationDialog } from "../../../shared/components/ConfirmationDialog";
+import { ErrorSummary } from "../../../shared/components/ErrorSummary";
 import { FieldError } from "../../../shared/components/FieldError";
 import { adminRiddleKeys } from "../api/adminRiddleQueries";
 import { adminRiddlesApi } from "../api/adminRiddlesApi";
@@ -190,11 +191,7 @@ export function PublicationPanel({
                     Първо запазете промените по съдържанието.
                 </p>
             ) : null}
-            {summary.length > 0 ? (
-                <div className={styles.summary} role="alert">
-                    {summary.join(" ")}
-                </div>
-            ) : null}
+            <ErrorSummary messages={summary} heading="Има проблем с публикуването" />
             {notice !== null ? (
                 <p className={styles.notice} role="status">
                     {notice}
@@ -204,6 +201,7 @@ export function PublicationPanel({
                 {hasCommand("schedule") ? (
                     <button
                         type="button"
+                        className={hasCommand("publish") ? "buttonSecondary" : undefined}
                         disabled={disabled}
                         onClick={() => {
                             if (requireDate()) {
@@ -233,6 +231,7 @@ export function PublicationPanel({
                     <button
                         ref={unpublishRef}
                         type="button"
+                        className="buttonSecondary"
                         disabled={disabled}
                         onClick={() => {
                             setConfirm("unpublish");

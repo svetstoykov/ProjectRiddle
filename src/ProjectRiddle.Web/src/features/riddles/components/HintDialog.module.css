@@ -1,0 +1,175 @@
+/*
+ * The assists open as a sheet pinned to the bottom edge rather than a centred modal, so the clue and the answer tiles
+ * stay readable behind it. The backdrop is a light tint only — no blur — so the board remains legible.
+ */
+.dialog {
+    inset: auto 0 0;
+    width: min(100%, 32rem);
+    max-height: 80svh;
+    margin: 0 auto;
+    padding: 0;
+    overflow-y: auto;
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-sheet);
+    color: var(--color-text);
+    transition:
+        display var(--motion-base) var(--ease-out) allow-discrete,
+        overlay var(--motion-base) var(--ease-out) allow-discrete,
+        transform var(--motion-base) var(--ease-out);
+}
+
+.dialog[open] {
+    transform: translateY(0);
+}
+
+.dialog:not([open]) {
+    transform: translateY(100%);
+}
+
+@starting-style {
+    .dialog[open] {
+        transform: translateY(100%);
+    }
+}
+
+.dialog::backdrop {
+    background: rgb(45 0 102 / 8%);
+    transition: background var(--motion-base) var(--ease-out) allow-discrete;
+}
+
+.dialog:not([open])::backdrop {
+    background: rgb(45 0 102 / 0%);
+}
+
+@starting-style {
+    .dialog[open]::backdrop {
+        background: rgb(45 0 102 / 0%);
+    }
+}
+
+.sheet {
+    padding: var(--space-4) var(--space-5) var(--space-5);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+.title {
+    font-size: var(--text-title);
+}
+
+.close {
+    flex: none;
+    width: var(--control-height-sm);
+    min-width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    min-height: var(--control-height-sm);
+    padding: 0;
+    border-width: var(--border-thin);
+    background: var(--color-surface-lowest);
+    box-shadow: none;
+    font-size: var(--text-headline);
+    line-height: 1;
+}
+
+.hints {
+    display: grid;
+    gap: var(--space-2);
+    padding: 0;
+    list-style: none;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    min-height: 3rem;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-md);
+    font-size: var(--text-body-sm);
+    text-align: left;
+}
+
+.unlock {
+    background: var(--color-electric-yellow);
+    box-shadow: var(--shadow-1);
+}
+
+.used {
+    background: var(--color-surface-lowest);
+    box-shadow: none;
+}
+
+.used[aria-pressed="true"] {
+    background: var(--color-surface-low);
+}
+
+.rowLabel {
+    flex: 1;
+}
+
+.rowState {
+    color: var(--color-muted-text);
+    font-size: var(--text-label);
+    font-weight: 400;
+}
+
+.row:disabled .rowState {
+    color: inherit;
+}
+
+.swatch {
+    flex: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-xs);
+}
+
+.definition {
+    background-color: var(--color-hint-definition);
+    box-shadow: inset 0 -0.2em 0 var(--color-hint-definition-edge);
+}
+
+.indicator {
+    background-color: var(--color-hint-indicator);
+    box-shadow: inset 0 -0.2em 0 var(--color-hint-indicator-edge);
+}
+
+.fodder {
+    background-color: var(--color-hint-fodder);
+    box-shadow: inset 0 -0.2em 0 var(--color-hint-fodder-edge);
+}
+
+.divider {
+    height: 0;
+    margin: var(--space-4) 0;
+    border: 0;
+    border-top: var(--border-thin) solid var(--color-border);
+}
+
+@media (pointer: coarse) {
+    .close {
+        width: var(--control-height);
+        min-width: var(--control-height);
+        height: var(--control-height);
+        min-height: var(--control-height);
+    }
+}
+
+@media (hover: hover) {
+    button.used:hover:not(:disabled):not([aria-busy="true"]) {
+        background: var(--color-surface-low);
+        transform: translate(-1px, -1px);
+        box-shadow: var(--shadow-1);
+    }
+}
