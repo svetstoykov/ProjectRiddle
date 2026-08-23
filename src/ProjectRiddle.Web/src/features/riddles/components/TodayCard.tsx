@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { Link } from "react-router-dom";
 
+import { formatFullDate } from "../models/localDate";
 import type { PublicRiddlePlay } from "../models/publicRiddle";
 import type { RiddleRangeKind } from "../models/riddleRange";
 import { CluePresentation } from "./CluePresentation";
@@ -20,7 +21,7 @@ export function TodayCard({ today, isUnavailable }: TodayCardProps): ReactElemen
                 <p className="eyebrow">Днешната загадка</p>
                 <h1 id="today-title">Днес няма публикувана загадка</h1>
                 <p className={styles.lead}>Разгледай архива, докато чакаш следващата.</p>
-                <Link className="button" to="/archive">
+                <Link className={`button ${styles.play}`} to="/archive">
                     Към архива
                 </Link>
             </section>
@@ -30,14 +31,14 @@ export function TodayCard({ today, isUnavailable }: TodayCardProps): ReactElemen
     return (
         <section className={styles.card} aria-labelledby="today-title">
             <p className="eyebrow">Днешната загадка</p>
-            <h1 id="today-title">Загадката за днес</h1>
+            <h1 id="today-title">{formatFullDate(today.publicationDate)}</h1>
             <CluePresentation
                 clue={today.clue}
                 answerPattern={today.answerPattern}
                 ranges={today.ranges}
                 activeKinds={noHints}
             />
-            <Link className="button" to="/riddles/today">
+            <Link className={`button ${styles.play}`} to="/riddles/today">
                 Играй
             </Link>
         </section>

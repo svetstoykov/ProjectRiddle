@@ -1,18 +1,26 @@
 .presentation {
     display: grid;
-    gap: 0.75rem;
+    gap: var(--space-3);
 }
 
 .clue {
-    margin: 0;
-    padding: 1rem;
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4);
     overflow-wrap: anywhere;
-    border: 3px solid var(--color-deep-violet);
+    border: var(--border-thick) solid var(--color-deep-violet);
     border-radius: var(--radius-lg);
-    background: var(--color-clue-surface);
-    font-size: 1.25rem;
+    background: var(--color-surface-lowest);
+}
+
+.action {
+    justify-self: end;
+}
+
+.clueText {
+    font-size: var(--text-clue);
     font-weight: 500;
-    line-height: 1.6;
+    line-height: var(--leading-body);
 }
 
 /*
@@ -23,7 +31,7 @@
     white-space: pre-wrap;
     color: inherit;
     background: none;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-xs);
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 }
@@ -70,9 +78,8 @@
 }
 
 .pattern {
-    margin: 0;
     color: var(--color-muted-text);
-    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-label);
 }
 
 .patternLabel {
@@ -83,8 +90,7 @@
 .legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin: 0;
+    gap: var(--space-3);
     padding: 0;
     list-style: none;
 }
@@ -92,9 +98,9 @@
 .legendItem {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.875rem;
+    gap: var(--space-2);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
     font-weight: 700;
 }
 
@@ -106,8 +112,8 @@
 .swatch {
     width: 1rem;
     height: 1rem;
-    border: 2px solid var(--color-deep-violet);
-    border-radius: var(--radius-sm);
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-xs);
 }
 
 .legendIdle .swatch {

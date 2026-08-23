@@ -1,15 +1,26 @@
 import type { ReactElement } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+import { DocumentTitle } from "../../../shared/components/DocumentTitle";
+import { PageStatus } from "../../../shared/components/PageStatus";
 
 export function AccessDeniedPage(): ReactElement {
+    const navigate = useNavigate();
+
     return (
-        <section aria-labelledby="access-denied-title">
-            <p className="eyebrow">Достъп</p>
-            <h1 id="access-denied-title">Няма достъп</h1>
-            <p>Този профил няма право да отваря администрацията.</p>
-            <Link className="button" to="/">
-                Към началото
-            </Link>
-        </section>
+        <>
+            <DocumentTitle title="Няма достъп" />
+            <PageStatus
+                eyebrow="Достъп"
+                title="Няма достъп"
+                message="Този профил няма право да отваря администрацията."
+                action={{
+                    label: "Към началото",
+                    onClick: () => {
+                        void navigate("/");
+                    },
+                }}
+            />
+        </>
     );
 }

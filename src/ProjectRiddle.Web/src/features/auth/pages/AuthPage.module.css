@@ -4,36 +4,38 @@
 }
 
 .card {
+    composes: card from "../../../styles/surfaces.module.css";
     width: min(100%, 28rem);
     display: grid;
-    gap: 1rem;
-    padding: 1.5rem;
-    border: 3px solid var(--color-deep-violet);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-low);
-    box-shadow: var(--shadow-hard);
+    gap: var(--space-4);
 }
 
 .form {
     display: grid;
-    gap: 1rem;
+    gap: var(--space-4);
 }
 
 .success {
-    margin: 0;
-    padding: 0.75rem 1rem;
-    border: 2px solid var(--color-success);
-    border-radius: var(--radius-md);
-    color: var(--color-success);
-    background: #ffffff;
+    composes: noticeSuccess from "../../../styles/surfaces.module.css";
+}
+
+.submit {
+    min-width: 12ch;
 }
 
 .switch {
-    margin: 0;
     color: var(--color-muted-text);
 }
 
 .switch a {
     color: var(--color-primary);
     font-weight: 700;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+@media (hover: hover) {
+    .switch a:hover {
+        color: var(--color-primary-strong);
+    }
 }

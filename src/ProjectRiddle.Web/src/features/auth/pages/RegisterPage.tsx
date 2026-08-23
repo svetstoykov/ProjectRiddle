@@ -2,6 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
+import { DocumentTitle } from "../../../shared/components/DocumentTitle";
+import { ErrorSummary } from "../../../shared/components/ErrorSummary";
 import { FieldError } from "../../../shared/components/FieldError";
 import { clearAntiforgeryToken } from "../../../shared/api/client";
 import { authApi } from "../api/authApi";
@@ -113,24 +115,16 @@ export function RegisterPage(): ReactElement {
     return (
         <section className={styles.page}>
             <div className={styles.card}>
+                <DocumentTitle title="Регистрация" />
                 <p className="eyebrow">Профил</p>
                 <h1>Регистрация</h1>
                 <AccountErrorSummary error={serverError} fieldNames={["email", "password"]} summaryRef={summaryRef} />
-                {serverError === null && localSummary.length > 0 ? (
-                    <div
-                        ref={summaryRef}
-                        className={formStyles.summary}
-                        tabIndex={-1}
-                        role="alert"
-                        aria-labelledby="register-local-error-heading"
-                    >
-                        <h2 id="register-local-error-heading">Има проблем със заявката</h2>
-                        <ul>
-                            {localSummary.map((message) => (
-                                <li key={message}>{message}</li>
-                            ))}
-                        </ul>
-                    </div>
+                {serverError === null ? (
+                    <ErrorSummary
+                        messages={localSummary}
+                        headingId="register-local-error-heading"
+                        summaryRef={summaryRef}
+                    />
                 ) : null}
                 <form className={styles.form} onSubmit={handleSubmit} noValidate>
                     <div className={formStyles.field}>
@@ -167,7 +161,7 @@ export function RegisterPage(): ReactElement {
                         autoComplete="new-password"
                         onChange={setConfirmation}
                     />
-                    <button type="submit" aria-busy={busy} disabled={busy}>
+                    <button type="submit" className={styles.submit} aria-busy={busy} disabled={busy}>
                         {busy ? "Създаваме профила…" : "Създай профил"}
                     </button>
                 </form>

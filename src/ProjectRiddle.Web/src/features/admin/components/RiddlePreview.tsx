@@ -28,7 +28,7 @@ export function RiddlePreview({ clue, answer, ranges }: RiddlePreviewProps): Rea
                         <button
                             key={kind}
                             type="button"
-                            className={pressed ? styles.toggleActive : styles.toggle}
+                            className={styles.toggle}
                             aria-pressed={pressed}
                             onClick={() => {
                                 setActiveKinds((current) => {

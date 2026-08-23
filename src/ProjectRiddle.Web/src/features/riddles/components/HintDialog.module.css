@@ -1,6 +1,6 @@
 /*
  * The assists open as a sheet pinned to the bottom edge rather than a centred modal, so the clue and the answer tiles
- * stay readable behind it. The backdrop is deliberately clear: no tint and no blur.
+ * stay readable behind it. The backdrop is a light tint only — no blur — so the board remains legible.
  */
 .dialog {
     inset: auto 0 0;
@@ -9,66 +9,79 @@
     margin: 0 auto;
     padding: 0;
     overflow-y: auto;
-    border: 3px solid var(--color-deep-violet);
+    border: var(--border-thick) solid var(--color-deep-violet);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    background: var(--color-surface);
-    box-shadow: 0 -6px 0 var(--color-deep-violet);
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-sheet);
     color: var(--color-text);
+    transition:
+        display var(--motion-base) var(--ease-out) allow-discrete,
+        overlay var(--motion-base) var(--ease-out) allow-discrete,
+        transform var(--motion-base) var(--ease-out);
 }
 
 .dialog[open] {
-    animation: riseFromBottom 220ms ease-out;
+    transform: translateY(0);
+}
+
+.dialog:not([open]) {
+    transform: translateY(100%);
+}
+
+@starting-style {
+    .dialog[open] {
+        transform: translateY(100%);
+    }
 }
 
 .dialog::backdrop {
-    background: none;
+    background: rgb(45 0 102 / 8%);
+    transition: background var(--motion-base) var(--ease-out) allow-discrete;
 }
 
-@keyframes riseFromBottom {
-    from {
-        transform: translateY(100%);
-    }
+.dialog:not([open])::backdrop {
+    background: rgb(45 0 102 / 0%);
+}
 
-    to {
-        transform: translateY(0);
+@starting-style {
+    .dialog[open]::backdrop {
+        background: rgb(45 0 102 / 0%);
     }
 }
 
 .sheet {
-    padding: 1rem 1.25rem 1.5rem;
+    padding: var(--space-4) var(--space-5) var(--space-5);
 }
 
 .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
 }
 
 .title {
-    margin: 0;
-    font-size: 1.25rem;
+    font-size: var(--text-title);
 }
 
 .close {
     flex: none;
-    width: 2.5rem;
-    min-width: 2.5rem;
-    height: 2.5rem;
-    min-height: 2.5rem;
+    width: var(--control-height-sm);
+    min-width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    min-height: var(--control-height-sm);
     padding: 0;
-    border-width: 2px;
-    background: var(--color-surface-low);
+    border-width: var(--border-thin);
+    background: var(--color-surface-lowest);
     box-shadow: none;
-    font-size: 1.5rem;
+    font-size: var(--text-headline);
     line-height: 1;
 }
 
 .hints {
     display: grid;
-    gap: 0.5rem;
-    margin: 0;
+    gap: var(--space-2);
     padding: 0;
     list-style: none;
 }
@@ -76,20 +89,28 @@
 .row {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: var(--space-2);
     width: 100%;
     min-height: 3rem;
-    padding: 0.5rem 0.9rem;
-    border: 2px solid var(--color-deep-violet);
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-thin) solid var(--color-deep-violet);
     border-radius: var(--radius-md);
-    background: var(--color-surface-low);
-    box-shadow: none;
-    font-size: 0.9375rem;
+    font-size: var(--text-body-sm);
     text-align: left;
 }
 
-.row[aria-pressed="true"] {
+.unlock {
     background: var(--color-electric-yellow);
+    box-shadow: var(--shadow-1);
+}
+
+.used {
+    background: var(--color-surface-lowest);
+    box-shadow: none;
+}
+
+.used[aria-pressed="true"] {
+    background: var(--color-surface-low);
 }
 
 .rowLabel {
@@ -98,7 +119,7 @@
 
 .rowState {
     color: var(--color-muted-text);
-    font-size: 0.8125rem;
+    font-size: var(--text-label);
     font-weight: 400;
 }
 
@@ -110,8 +131,8 @@
     flex: none;
     width: 1.125rem;
     height: 1.125rem;
-    border: 2px solid var(--color-deep-violet);
-    border-radius: var(--radius-sm);
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-xs);
 }
 
 .definition {
@@ -131,7 +152,24 @@
 
 .divider {
     height: 0;
-    margin: 1rem 0;
+    margin: var(--space-4) 0;
     border: 0;
-    border-top: 2px solid var(--color-border);
+    border-top: var(--border-thin) solid var(--color-border);
+}
+
+@media (pointer: coarse) {
+    .close {
+        width: var(--control-height);
+        min-width: var(--control-height);
+        height: var(--control-height);
+        min-height: var(--control-height);
+    }
+}
+
+@media (hover: hover) {
+    button.used:hover:not(:disabled):not([aria-busy="true"]) {
+        background: var(--color-surface-low);
+        transform: translate(-1px, -1px);
+        box-shadow: var(--shadow-1);
+    }
 }

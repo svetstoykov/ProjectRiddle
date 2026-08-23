@@ -1,33 +1,26 @@
 .preview {
+    composes: card from "../../../styles/surfaces.module.css";
     display: grid;
-    gap: 1rem;
-    padding: 1.25rem;
-    border: 3px solid var(--color-deep-violet);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-low);
-    box-shadow: var(--shadow-hard);
-}
-
-.preview h2 {
-    margin: 0;
-    font-size: 1.5rem;
+    gap: var(--space-4);
 }
 
 .toggles {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.toggle,
-.toggleActive {
-    min-height: 2.5rem;
+    gap: var(--space-2);
 }
 
 .toggle {
-    background: var(--color-surface);
+    min-height: var(--control-height-sm);
+    background: var(--color-surface-lowest);
 }
 
-.toggleActive {
+.toggle[aria-pressed="true"] {
     background: var(--color-electric-yellow);
+}
+
+@media (pointer: coarse) {
+    .toggle {
+        min-height: var(--control-height);
+    }
 }

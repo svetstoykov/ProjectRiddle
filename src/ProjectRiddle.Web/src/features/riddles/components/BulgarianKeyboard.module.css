@@ -1,53 +1,80 @@
 .keyboard {
     display: grid;
-    gap: 0.4rem;
+    gap: var(--space-2);
     width: 100%;
 }
 
 .row {
     display: flex;
     justify-content: center;
-    gap: 0.25rem;
+    gap: var(--space-1);
 }
 
 .key {
     flex: 1 1 0;
     min-width: 0;
-    min-height: 2.75rem;
-    padding: 0.5rem 0;
-    border: 2px solid var(--color-deep-violet);
-    border-radius: var(--radius-md);
+    min-height: var(--control-height);
+    padding: var(--space-2) 0;
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-sm);
     background: var(--color-surface-low);
-    box-shadow: 2px 2px 0 var(--color-deep-violet);
+    box-shadow: var(--shadow-1);
     color: var(--color-deep-violet);
-    font-family: "Anybody", ui-sans-serif, system-ui, sans-serif;
-    font-size: 1.0625rem;
+    font-family: var(--font-display);
+    font-size: var(--text-body);
     font-weight: 700;
+}
+
+.key:focus-visible {
+    position: relative;
+    z-index: 1;
+    outline-offset: 1px;
+}
+
+@media (hover: hover) {
+    button.key:hover:not(:disabled):not([aria-busy="true"]) {
+        background: var(--color-surface-lowest);
+        box-shadow: var(--shadow-3);
+        transform: translate(-1px, -1px);
+    }
+}
+
+button.key:active:not(:disabled):not([aria-busy="true"]) {
+    transform: translate(var(--press-offset), var(--press-offset));
+    box-shadow: var(--shadow-none);
 }
 
 .actions {
     display: flex;
-    gap: 0.5rem;
+    gap: var(--space-2);
     justify-content: center;
 }
 
 .backspace {
     flex: 0 0 auto;
     background: var(--color-surface-high);
-    box-shadow: 2px 2px 0 var(--color-deep-violet);
-    border-width: 2px;
-    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-1);
+    border-width: var(--border-thin);
+    border-radius: var(--radius-sm);
 }
 
 .check {
     flex: 1 1 auto;
+    min-width: 14ch;
+    text-transform: uppercase;
 }
 
 @media (max-width: 599px) {
     .keyboard {
         position: sticky;
         bottom: 0;
-        padding: 0.5rem 0 max(0.5rem, env(safe-area-inset-bottom));
-        background: var(--color-surface);
+        z-index: 2;
+        width: 100vw;
+        margin-inline: calc(50% - 50vw);
+        padding: var(--space-3) var(--gutter) max(var(--space-3), env(safe-area-inset-bottom));
+        border-top: var(--border-thin) solid var(--color-deep-violet);
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        background: var(--color-surface-lowest);
+        box-shadow: var(--shadow-sheet);
     }
 }

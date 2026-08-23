@@ -10,6 +10,10 @@ export interface RiddleOutcomeProps {
     readonly explanation: string | undefined;
 }
 
+function attemptPhrase(count: number): string {
+    return count === 1 ? "след 1 опит" : `след ${count} опита`;
+}
+
 export function RiddleOutcome({
     status,
     lastAnswerIncorrect,
@@ -18,9 +22,9 @@ export function RiddleOutcome({
 }: RiddleOutcomeProps): ReactElement | null {
     if (status === "solved") {
         return (
-            <section className={[styles.outcome, styles.solved].join(" ")} role="status">
+            <section className={styles.solved} role="status">
                 <h2 className={styles.title}>Позна!</h2>
-                <p className={styles.message}>Отговорът е верен след {answerAttemptCount} опита.</p>
+                <p className={styles.message}>Отговорът е верен {attemptPhrase(answerAttemptCount)}.</p>
                 {explanation !== undefined ? <p className={styles.explanation}>{explanation}</p> : null}
             </section>
         );

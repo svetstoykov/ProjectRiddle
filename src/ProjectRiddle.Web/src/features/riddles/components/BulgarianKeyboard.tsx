@@ -61,7 +61,7 @@ export function BulgarianKeyboard({
                     disabled={disabled || !canSubmit || isSubmitting}
                     onClick={onSubmit}
                 >
-                    {isSubmitting ? "Проверяваме…" : "ПРОВЕРИ"}
+                    {isSubmitting ? "Проверяваме…" : "Провери"}
                 </button>
             </div>
         </div>

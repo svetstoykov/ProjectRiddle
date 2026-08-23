@@ -30,8 +30,12 @@ export function ArchiveCard({ item, outcome, isAuthenticated }: ArchiveCardProps
                 {item.clueExcerpt}
             </span>
             <span className={styles.meta}>
-                <span className={styles.pattern}>Брой букви {item.answerPattern}</span>
-                {outcome === undefined ? null : <span className={styles.outcome}>{outcomeLabels[outcome]}</span>}
+                <span className={styles.pattern}>Брой букви: ({item.answerPattern})</span>
+                {outcome === undefined ? null : (
+                    <span className={outcome === "solved" ? styles.solved : styles.outcome}>
+                        {outcomeLabels[outcome]}
+                    </span>
+                )}
             </span>
         </Link>
     );

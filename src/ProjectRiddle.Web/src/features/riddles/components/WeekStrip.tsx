@@ -43,7 +43,7 @@ export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactEleme
 
         if (isFuture) {
             return (
-                <div className={[styles.day, styles.future].join(" ")} aria-disabled="true">
+                <div className={[styles.day, styles.future].join(" ")}>
                     {head}
                     <span className={styles.note}>предстои</span>
                 </div>
@@ -65,7 +65,12 @@ export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactEleme
 
         return (
             <Link
-                className={[styles.day, styles.available, isToday ? styles.today : undefined].join(" ")}
+                className={[
+                    styles.day,
+                    styles.available,
+                    isToday ? styles.today : undefined,
+                    outcome === "solved" ? styles.solvedDay : undefined,
+                ].join(" ")}
                 to={isToday ? "/riddles/today" : `/riddles/${item.id}`}
                 state={!isToday && !isAuthenticated ? { requiresAccount: true } : undefined}
                 aria-label={label}

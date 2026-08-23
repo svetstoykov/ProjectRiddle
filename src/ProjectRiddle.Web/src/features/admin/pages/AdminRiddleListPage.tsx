@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { reconcileSessionAfterAuthorizationFailure } from "../../auth/api/sessionQuery";
 import { isApplicationError } from "../../../shared/api/errors";
+import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { AdminRiddleList } from "../components/AdminRiddleList";
 import { adminRiddleListQueryOptions } from "../api/adminRiddleQueries";
@@ -24,22 +25,28 @@ export function AdminRiddleListPage(): ReactElement {
 
     if (listQuery.isPending) {
         return (
-            <PageStatus
-                eyebrow="Администрация"
-                title="Зареждаме загадките…"
-                message="Изчакваме списъка с административни загадки."
-            />
+            <>
+                <DocumentTitle title="Администрация" />
+                <PageStatus
+                    eyebrow="Администрация"
+                    title="Зареждаме загадките…"
+                    message="Изчакваме списъка с административни загадки."
+                />
+            </>
         );
     }
 
     if (authorizationFailure) {
         return (
-            <PageStatus
-                tone="error"
-                eyebrow="Администрация"
-                title="Няма достъп до списъка"
-                message="Сесията или правата трябва да бъдат проверени отново."
-            />
+            <>
+                <DocumentTitle title="Администрация" />
+                <PageStatus
+                    tone="error"
+                    eyebrow="Администрация"
+                    title="Няма достъп до списъка"
+                    message="Сесията или правата трябва да бъдат проверени отново."
+                />
+            </>
         );
     }
 
@@ -49,25 +56,29 @@ export function AdminRiddleListPage(): ReactElement {
             : unknownRiddleFailure(undefined);
 
         return (
-            <PageStatus
-                tone="error"
-                eyebrow="Администрация"
-                title="Списъкът временно не е достъпен"
-                message={message}
-                action={{
-                    label: "Опитай отново",
-                    onClick: () => {
-                        void listQuery.refetch();
-                    },
-                }}
-            />
+            <>
+                <DocumentTitle title="Администрация" />
+                <PageStatus
+                    tone="error"
+                    eyebrow="Администрация"
+                    title="Списъкът временно не е достъпен"
+                    message={message}
+                    action={{
+                        label: "Опитай отново",
+                        onClick: () => {
+                            void listQuery.refetch();
+                        },
+                    }}
+                />
+            </>
         );
     }
 
     return (
         <section aria-labelledby="admin-riddle-list-title">
+            <DocumentTitle title="Администрация" />
             <div className={styles.pageHeader}>
-                <div>
+                <div className={styles.titles}>
                     <p className="eyebrow">Администрация</p>
                     <h1 id="admin-riddle-list-title">Загадки</h1>
                 </div>

@@ -1,97 +1,226 @@
 @font-face {
+    font-family: "Anybody Fallback";
+    src: local("Arial");
+    size-adjust: 98%;
+    ascent-override: 80%;
+    descent-override: 24%;
+    line-gap-override: 0%;
+}
+
+@font-face {
+    font-family: "Plus Jakarta Sans Fallback";
+    src: local("Arial");
+    size-adjust: 102%;
+    ascent-override: 104%;
+    descent-override: 22%;
+    line-gap-override: 0%;
+}
+
+@font-face {
+    font-family: "Space Grotesk Fallback";
+    src: local("Arial");
+    size-adjust: 100%;
+    ascent-override: 98%;
+    descent-override: 29%;
+    line-gap-override: 0%;
+}
+
+@font-face {
     font-family: "Anybody";
-    src: url("../assets/fonts/Anybody-Variable.ttf") format("truetype");
+    src: url("../assets/fonts/Anybody-Variable.woff2") format("woff2");
     font-weight: 400 800;
     font-display: swap;
 }
 
 @font-face {
     font-family: "Plus Jakarta Sans";
-    src: url("../assets/fonts/PlusJakartaSans-Variable.ttf") format("truetype");
+    src: url("../assets/fonts/PlusJakartaSans-Variable.woff2") format("woff2");
     font-weight: 400 700;
     font-display: swap;
 }
 
 @font-face {
     font-family: "Space Grotesk";
-    src: url("../assets/fonts/SpaceGrotesk-Variable.ttf") format("truetype");
+    src: url("../assets/fonts/SpaceGrotesk-Variable.woff2") format("woff2");
     font-weight: 400 700;
     font-display: swap;
 }
 
 :root {
-    font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-    color: #1d1a25;
-    background: #fdf7ff;
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
+    /* ---- Brand ---- */
+    --color-deep-violet: #2d0066;
     --color-primary: #4800b2;
-    --color-primary-container: #6200ee;
-    --color-electric-yellow: #efff00;
+    --color-primary-strong: #6200ee;
     --color-tertiary: #970097;
-    --color-success: #007a55;
+    --color-electric-yellow: #efff00;
+    --color-electric-yellow-deep: #dcea00;
     --color-correct-green: #00ffab;
+    --color-success: #007a55;
     --color-danger: #ba1a1a;
     --color-danger-surface: #ffdad6;
+
+    /* ---- Surfaces ---- */
+    --color-surface-lowest: #ffffff;
     --color-surface: #fdf7ff;
     --color-surface-low: #f8f1ff;
     --color-surface-high: #ede5f5;
+    --color-surface-highest: #e7e0f0;
     --color-clue-surface: #f8f9ff;
+
+    /* ---- Ink and lines ---- */
     --color-text: #1d1a25;
     --color-muted-text: #494456;
+    --color-on-accent: #ffffff;
     --color-border: #7a7488;
-    --color-deep-violet: #2d0066;
+    --color-border-subtle: #cbc3d9;
+
+    /* ---- Hint highlights ---- */
     --color-hint-definition: rgb(72 0 178 / 18%);
     --color-hint-definition-edge: #4800b2;
     --color-hint-indicator: rgb(151 0 151 / 18%);
     --color-hint-indicator-edge: #970097;
     --color-hint-fodder: rgb(239 255 0 / 60%);
     --color-hint-fodder-edge: #5c6300;
-    --radius-sm: 0.25rem;
+
+    /* ---- Borders: two weights, no more ---- */
+    --border-thin: 2px;
+    --border-thick: 3px;
+
+    /* ---- Elevation: one ladder ---- */
+    --shadow-1: 2px 2px 0 var(--color-deep-violet);
+    --shadow-2: 4px 4px 0 var(--color-deep-violet);
+    --shadow-3: 6px 6px 0 var(--color-deep-violet);
+    --shadow-1-success: 2px 2px 0 var(--color-success);
+    --shadow-2-success: 4px 4px 0 var(--color-success);
+    --shadow-sheet: 0 -4px 0 var(--color-deep-violet);
+    --shadow-none: 0 0 0 var(--color-deep-violet);
+
+    /* ---- Radius ---- */
+    --radius-xs: 0.25rem;
+    --radius-sm: 0.5rem;
     --radius-md: 0.75rem;
     --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
     --radius-pill: 9999px;
-    --shadow-hard: 4px 4px 0 #2d0066;
+
+    /* ---- Space: 4px scale ---- */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 2.5rem;
+    --space-8: 3rem;
+
+    /* ---- Type ---- */
+    --font-display: "Anybody", "Anybody Fallback", ui-sans-serif, system-ui, sans-serif;
+    --font-body: "Plus Jakarta Sans", "Plus Jakarta Sans Fallback", ui-sans-serif, system-ui, sans-serif;
+    --font-label: "Space Grotesk", "Space Grotesk Fallback", ui-sans-serif, system-ui, sans-serif;
+
+    --text-display: clamp(2.25rem, 1.55rem + 2.8vw, 3rem);
+    --text-headline: 1.5rem;
+    --text-title: 1.25rem;
+    --text-subtitle: 1.125rem;
+    --text-clue: clamp(1.125rem, 1.02rem + 0.5vw, 1.25rem);
+    --text-body: 1rem;
+    --text-body-sm: 0.9375rem;
+    --text-label: 0.875rem;
+    --text-label-sm: 0.75rem;
+
+    --leading-tight: 1.15;
+    --leading-snug: 1.35;
+    --leading-body: 1.6;
+
+    /* ---- Controls ---- */
+    --control-height: 2.75rem;
+    --control-height-sm: 2.5rem;
+
+    /* ---- Motion ---- */
+    --motion-press: 90ms;
+    --motion-fast: 150ms;
+    --motion-base: 220ms;
+    --ease-out: cubic-bezier(0.2, 0.8, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+    --press-offset: 4px;
+    --press-offset-sm: 2px;
+
+    /* ---- Board and layout ---- */
+    --tile-gap: var(--space-1);
+    --tile-size-max: 3.5rem;
+    --word-gap: var(--space-4);
     --content-width: 75rem;
-    --tile-size: 42px;
-    --tile-gap: 4px;
+    --reading-width: 40rem;
+    --gutter: var(--space-4);
 }
 
-@media (min-width: 600px) {
-    :root {
-        --tile-size: 56px;
-    }
-}
-
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
+}
+
+:root {
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background: var(--color-surface);
+    color-scheme: light;
+    font-synthesis: none;
 }
 
 body {
     margin: 0;
     min-width: 320px;
-    min-height: 100vh;
+    min-height: 100dvh;
     background: var(--color-surface);
     color: var(--color-text);
+    line-height: var(--leading-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+figure,
+blockquote,
+hr {
+    margin: 0;
 }
 
 h1,
 h2,
 h3 {
-    font-family: "Anybody", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-display);
     font-weight: 800;
     letter-spacing: -0.02em;
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+}
+
+h1 {
+    font-size: var(--text-display);
+}
+
+h2 {
+    font-size: var(--text-headline);
+    font-weight: 700;
+}
+
+h3 {
+    font-size: var(--text-title);
+    font-weight: 700;
 }
 
 label,
-.eyebrow,
-[data-label] {
-    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+.eyebrow {
+    font-family: var(--font-label);
 }
 
-button,
-a {
-    font: inherit;
+[data-label]::before {
+    font-family: var(--font-label);
 }
 
 button,
@@ -99,23 +228,51 @@ button,
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 2.75rem;
-    padding: 0.625rem 1.25rem;
-    border: 3px solid var(--color-deep-violet);
+    gap: var(--space-2);
+    min-height: var(--control-height);
+    padding: var(--space-2) var(--space-5);
+    border: var(--border-thick) solid var(--color-deep-violet);
     border-radius: var(--radius-pill);
     color: var(--color-deep-violet);
     background: var(--color-electric-yellow);
-    box-shadow: var(--shadow-hard);
+    box-shadow: var(--shadow-2);
     cursor: pointer;
     text-decoration: none;
-    font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-label);
     font-weight: 700;
+    transition:
+        transform var(--motion-press) var(--ease-out),
+        box-shadow var(--motion-press) var(--ease-out),
+        background-color var(--motion-fast) var(--ease-out),
+        border-color var(--motion-fast) var(--ease-out),
+        color var(--motion-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+    button:hover:not(:disabled):not([aria-busy="true"]),
+    .button:hover {
+        background: var(--color-electric-yellow-deep);
+        box-shadow: var(--shadow-3);
+        transform: translate(-1px, -1px);
+    }
+}
+
+button:active:not(:disabled):not([aria-busy="true"]),
+.button:active {
+    transform: translate(var(--press-offset), var(--press-offset));
+    box-shadow: var(--shadow-none);
+    transition-duration: var(--motion-press);
 }
 
 .buttonSecondary {
-    margin-top: 1rem;
-    color: var(--color-primary);
-    background: var(--color-surface);
+    color: var(--color-deep-violet);
+    background: var(--color-surface-lowest);
+}
+
+@media (hover: hover) {
+    .buttonSecondary:hover:not(:disabled) {
+        background: var(--color-surface-low);
+    }
 }
 
 button:disabled,
@@ -126,20 +283,23 @@ button[aria-busy="true"],
     color: var(--color-muted-text);
     background: var(--color-surface-high);
     border-color: var(--color-border);
-    box-shadow: none;
+    box-shadow: var(--shadow-none);
+    transform: none;
 }
 
 input,
-textarea,
-select {
+textarea {
     font: inherit;
     color: inherit;
     width: 100%;
-    min-height: 2.75rem;
-    padding: 0.625rem 0.75rem;
-    border: 2px solid var(--color-deep-violet);
+    min-height: var(--control-height);
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-thin) solid var(--color-deep-violet);
     border-radius: var(--radius-md);
-    background: #ffffff;
+    background: var(--color-surface-lowest);
+    transition:
+        box-shadow var(--motion-fast) var(--ease-out),
+        border-color var(--motion-fast) var(--ease-out);
 }
 
 textarea {
@@ -147,37 +307,56 @@ textarea {
     resize: vertical;
 }
 
+@media (hover: hover) {
+    input:hover:not(:disabled),
+    textarea:hover:not(:disabled) {
+        box-shadow: var(--shadow-1);
+    }
+}
+
+input:focus-visible,
+textarea:focus-visible {
+    box-shadow: var(--shadow-1);
+}
+
 input:disabled,
-textarea:disabled,
-select:disabled {
+textarea:disabled {
     cursor: not-allowed;
     color: var(--color-muted-text);
     background: var(--color-surface-high);
     border-color: var(--color-border);
 }
 
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
+:where(button, a, input, textarea, [tabindex]):focus-visible {
     outline: 3px solid var(--color-primary);
-    outline-offset: 3px;
+    outline-offset: 2px;
 }
 
 .eyebrow {
-    margin: 0 0 0.75rem;
+    margin: 0;
     color: var(--color-primary);
-    font-size: 0.8125rem;
+    font-size: var(--text-label);
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
 .fieldError {
-    margin: 0.35rem 0 0;
+    margin: 0;
     color: var(--color-danger);
-    font-size: 0.9375rem;
+    font-size: var(--text-body-sm);
+}
+
+.visuallyHidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

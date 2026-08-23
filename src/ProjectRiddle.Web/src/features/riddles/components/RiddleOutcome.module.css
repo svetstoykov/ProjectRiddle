@@ -1,40 +1,29 @@
 .outcome {
-    padding: 1rem;
-    border: 3px solid var(--color-deep-violet);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-low);
+    composes: notice from "../../../styles/surfaces.module.css";
 }
 
-.outcome.solved {
-    border-color: var(--color-success);
-    background: var(--color-clue-surface);
+.solved {
+    composes: noticeSuccess from "../../../styles/surfaces.module.css";
 }
 
-.outcome.revealed {
+.revealed {
     border-style: dashed;
     border-color: var(--color-border);
 }
 
 .title {
-    margin: 0 0 0.5rem;
-    font-size: 1.5rem;
+    font-size: var(--text-headline);
 }
 
 .message {
-    margin: 0 0 0.5rem;
     color: var(--color-muted-text);
 }
 
 .explanation {
-    margin: 0;
-    line-height: 1.6;
+    line-height: var(--leading-body);
 }
 
 .incorrect {
-    margin: 0;
-    padding: 0.6rem 0.9rem;
-    border: 2px solid var(--color-danger);
-    border-radius: var(--radius-md);
-    background: var(--color-danger-surface);
+    composes: noticeDanger from "../../../styles/surfaces.module.css";
     color: var(--color-danger);
 }

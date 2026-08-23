@@ -1,6 +1,8 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 
+import { CardGridSkeleton } from "../../../shared/components/ContentSkeletons";
+import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { sessionQueryOptions } from "../../auth/api/sessionQuery";
 import { accountRiddleProgressQueryOptions, riddleArchiveInfiniteQueryOptions } from "../api/riddleQueries";
@@ -59,28 +61,40 @@ export function ArchivePage(): ReactElement {
     );
 
     if (archiveQuery.isPending) {
-        return <PageStatus eyebrow="Архив" title="Зареждаме архива…" message="Изчакваме предишните загадки." />;
+        return (
+            <>
+                <DocumentTitle title="Архив" />
+                <p className="visuallyHidden" role="status">
+                    Зареждаме архива…
+                </p>
+                <CardGridSkeleton />
+            </>
+        );
     }
 
     if (archiveQuery.isError) {
         return (
-            <PageStatus
-                tone="error"
-                eyebrow="Архив"
-                title="Архивът временно не е достъпен"
-                message="Заявката не можа да бъде изпълнена."
-                action={{
-                    label: "Опитай отново",
-                    onClick: () => {
-                        void archiveQuery.refetch();
-                    },
-                }}
-            />
+            <>
+                <DocumentTitle title="Архив" />
+                <PageStatus
+                    tone="error"
+                    eyebrow="Архив"
+                    title="Архивът временно не е достъпен"
+                    message="Заявката не можа да бъде изпълнена."
+                    action={{
+                        label: "Опитай отново",
+                        onClick: () => {
+                            void archiveQuery.refetch();
+                        },
+                    }}
+                />
+            </>
         );
     }
 
     return (
         <section className={styles.page} aria-labelledby="archive-title">
+            <DocumentTitle title="Архив" />
             <p className="eyebrow">Архив</p>
             <h1 id="archive-title">Предишни загадки</h1>
             {items.length === 0 ? (
@@ -106,6 +120,7 @@ export function ArchivePage(): ReactElement {
             {archiveQuery.hasNextPage ? (
                 <button
                     type="button"
+                    className={styles.loadMore}
                     aria-busy={archiveQuery.isFetchingNextPage}
                     disabled={archiveQuery.isFetchingNextPage}
                     onClick={() => {

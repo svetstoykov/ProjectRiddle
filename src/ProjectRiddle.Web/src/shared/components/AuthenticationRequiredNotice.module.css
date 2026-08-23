@@ -1,24 +1,19 @@
 .notice {
-    max-width: 40rem;
-    padding: 1.5rem;
-    border: 3px solid var(--color-deep-violet);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-low);
-    box-shadow: var(--shadow-hard);
+    composes: card from "../../styles/surfaces.module.css";
+    display: grid;
+    justify-items: start;
+    gap: var(--space-4);
+    max-width: var(--reading-width);
 }
 
 .message {
     color: var(--color-muted-text);
-    line-height: 1.6;
+    line-height: var(--leading-body);
 }
 
 .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: var(--space-3);
     align-items: center;
-}
-
-.actions .buttonSecondary {
-    margin-top: 0;
 }

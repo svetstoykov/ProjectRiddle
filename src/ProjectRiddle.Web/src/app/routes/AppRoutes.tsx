@@ -16,8 +16,8 @@ import { SessionBoundary } from "./SessionBoundary";
 
 export const appRouter = createBrowserRouter(
     createRoutesFromElements(
-        <Route element={<SessionBoundary />}>
-            <Route element={<ApplicationLayout />}>
+        <Route element={<ApplicationLayout />}>
+            <Route element={<SessionBoundary />}>
                 <Route index element={<HomePage />} />
                 <Route path="riddles/today" element={<RiddlePlayerPage />} />
                 <Route path="riddles/:riddleId" element={<RiddlePlayerPage />} />

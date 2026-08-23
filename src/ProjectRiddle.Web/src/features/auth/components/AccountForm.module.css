@@ -1,38 +1,23 @@
 .field {
     display: grid;
-    gap: 0.35rem;
+    gap: var(--space-1);
 }
 
 .passwordRow {
     display: grid;
-    gap: 0.5rem;
+    gap: var(--space-2);
 }
 
 .visibility {
-    min-height: 2.5rem;
-    background: var(--color-surface);
+    min-height: var(--control-height-sm);
+    min-width: 14ch;
+    background: var(--color-surface-lowest);
 }
 
-.summary {
-    padding: 1rem;
-    border: 3px solid var(--color-danger);
-    border-radius: var(--radius-md);
-    background: var(--color-danger-surface);
-}
-
-.summary:focus {
-    outline: 3px solid var(--color-primary);
-    outline-offset: 3px;
-}
-
-.summary h2 {
-    margin: 0 0 0.5rem;
-    font-size: 1.125rem;
-}
-
-.summary ul {
-    margin: 0;
-    padding-left: 1.25rem;
+@media (pointer: coarse) {
+    .visibility {
+        min-height: var(--control-height);
+    }
 }
 
 @media (min-width: 600px) {

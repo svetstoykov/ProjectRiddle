@@ -2,10 +2,11 @@ import type { ReactElement } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { AuthenticationRequiredNotice } from "../../../shared/components/AuthenticationRequiredNotice";
+import { PlayerPageSkeleton } from "../../../shared/components/ContentSkeletons";
+import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { useRiddlePlaySession } from "../api/riddlePlaySession";
 import { RiddlePlayer } from "../components/RiddlePlayer";
-import styles from "./RiddlePlayerPage.module.css";
 
 /**
  * Marks a navigation that came from a past-day tile or an archive card while signed out, so the page can show the
@@ -27,38 +28,47 @@ export function RiddlePlayerPage(): ReactElement {
 
     if (session.status === "authenticationRequired") {
         return (
-            <AuthenticationRequiredNotice
-                title="Тази загадка е в архива"
-                message="По-ранните загадки се играят с профил. Влез или се регистрирай, за да продължиш от същото място."
-                returnTo={location.pathname}
-            />
+            <>
+                <DocumentTitle title="Загадка" />
+                <AuthenticationRequiredNotice
+                    title="Тази загадка е в архива"
+                    message="По-ранните загадки се играят с профил. Влез или се регистрирай, за да продължиш от същото място."
+                    returnTo={location.pathname}
+                />
+            </>
         );
     }
 
     if (session.status === "todayUnavailable") {
         return (
-            <PageStatus
-                eyebrow="Днешната загадка"
-                title="Днес няма публикувана загадка"
-                message="Върни се по-късно или разгледай архива с предишните загадки."
-                action={{
-                    label: "Към архива",
-                    onClick: () => {
-                        void navigate("/archive");
-                    },
-                }}
-            />
+            <>
+                <DocumentTitle title="Загадка" />
+                <PageStatus
+                    eyebrow="Днешната загадка"
+                    title="Днес няма публикувана загадка"
+                    message="Върни се по-късно или разгледай архива с предишните загадки."
+                    action={{
+                        label: "Към архива",
+                        onClick: () => {
+                            void navigate("/archive");
+                        },
+                    }}
+                />
+            </>
         );
     }
 
     if (session.status === "notFound") {
         return (
-            <PageStatus
-                tone="error"
-                eyebrow="Загадка"
-                title="Загадката не е достъпна"
-                message="Тази загадка не е налична."
-            />
+            <>
+                <DocumentTitle title="Загадка" />
+                <PageStatus
+                    tone="error"
+                    eyebrow="Загадка"
+                    title="Загадката не е достъпна"
+                    message="Тази загадка не е налична."
+                />
+            </>
         );
     }
 
@@ -66,22 +76,34 @@ export function RiddlePlayerPage(): ReactElement {
         const trace = session.traceId === undefined ? "" : ` Код за проследяване: ${session.traceId}`;
 
         return (
-            <PageStatus
-                tone="error"
-                eyebrow="Загадка"
-                title="Загадката временно не е достъпна"
-                message={`Заявката не можа да бъде изпълнена.${trace}`}
-                action={{ label: "Опитай отново", onClick: session.retry }}
-            />
+            <>
+                <DocumentTitle title="Загадка" />
+                <PageStatus
+                    tone="error"
+                    eyebrow="Загадка"
+                    title="Загадката временно не е достъпна"
+                    message={`Заявката не можа да бъде изпълнена.${trace}`}
+                    action={{ label: "Опитай отново", onClick: session.retry }}
+                />
+            </>
         );
     }
 
     if (session.play === undefined || session.playState === undefined) {
-        return <PageStatus eyebrow="Загадка" title="Зареждаме загадката…" message="Изчакваме дъската за игра." />;
+        return (
+            <>
+                <DocumentTitle title="Загадка" />
+                <p className="visuallyHidden" role="status">
+                    Зареждаме загадката…
+                </p>
+                <PlayerPageSkeleton />
+            </>
+        );
     }
 
     return (
-        <div className={styles.page}>
+        <>
+            <DocumentTitle title="Загадка" />
             <RiddlePlayer
                 key={session.play.id}
                 play={session.play}
@@ -93,6 +115,6 @@ export function RiddlePlayerPage(): ReactElement {
                 onUseHint={session.useHint}
                 onRevealLetter={session.revealLetter}
             />
-        </div>
+        </>
     );
 }

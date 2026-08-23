@@ -23,6 +23,7 @@ export interface RiddlePlayerProps {
 }
 
 const cyrillicLetter = /^\p{Script=Cyrillic}$/u;
+const hintKindCount = 3;
 
 function isActivatableTarget(target: EventTarget | null): boolean {
     return target instanceof HTMLButtonElement || target instanceof HTMLAnchorElement;
@@ -53,6 +54,7 @@ export function RiddlePlayer({
     const [selectedPosition, setSelectedPosition] = useState<number | undefined>(undefined);
     const [hiddenHints, setHiddenHints] = useState<ReadonlySet<RiddleRangeKind>>(() => new Set());
     const [isHintDialogOpen, setIsHintDialogOpen] = useState(false);
+    const [hasEditedSinceSubmission, setHasEditedSinceSubmission] = useState(false);
     const hintTriggerRef = useRef<HTMLButtonElement>(null);
 
     const revealedByPosition = new Map(playState.revealedLetters.map((letter) => [letter.position, letter.character]));
@@ -90,6 +92,7 @@ export function RiddlePlayer({
     ).length;
     const editableCount = letterCount - revealedByPosition.size;
     const canSubmit = !isTerminal && editableCount > 0 && filledEditableCount === editableCount;
+    const showIncorrect = playState.isCorrect === false && !hasEditedSinceSubmission;
 
     function writeLetter(letter: string): void {
         if (isTerminal || activePosition === undefined) {
@@ -97,6 +100,7 @@ export function RiddlePlayer({
         }
 
         const target = activePosition;
+        setHasEditedSinceSubmission(true);
         setEntries((current) => current.map((value, position) => (position === target ? letter : value)));
         setSelectedPosition(nextEditablePosition(target + 1) ?? target);
     }
@@ -113,6 +117,7 @@ export function RiddlePlayer({
             return;
         }
 
+        setHasEditedSinceSubmission(true);
         setEntries((current) => current.map((value, position) => (position === target ? "" : value)));
         setSelectedPosition(target);
     }
@@ -123,6 +128,7 @@ export function RiddlePlayer({
         }
 
         const characters = Array.from({ length: letterCount }, (_unused, position) => characterAt(position));
+        setHasEditedSinceSubmission(false);
         onSubmitAnswer(buildSubmission(wordLengths, characters));
     }
 
@@ -195,46 +201,59 @@ export function RiddlePlayer({
     }));
 
     const visibleHints = new Set(playState.progress.usedHints.filter((kind) => !hiddenHints.has(kind)));
+    const usedHintCount = playState.progress.usedHints.length;
 
     return (
         <section className={styles.player} aria-label="Загадка">
-            <CluePresentation
-                clue={play.clue}
-                answerPattern={play.answerPattern}
-                ranges={play.ranges}
-                activeKinds={visibleHints}
-            />
-            <RiddleOutcome
-                status={playState.progress.status}
-                lastAnswerIncorrect={playState.isCorrect === false}
-                answerAttemptCount={playState.progress.answerAttemptCount}
-                explanation={playState.explanation}
-            />
-            <AnswerTiles
-                words={words}
-                activePosition={activePosition}
-                tone={
-                    playState.progress.status === "solved"
-                        ? "solved"
-                        : playState.progress.status === "fullyRevealed"
-                          ? "revealed"
-                          : "playing"
-                }
-                onSelectPosition={setSelectedPosition}
-            />
-            <div className={styles.assists}>
-                <button
-                    ref={hintTriggerRef}
-                    type="button"
-                    className={styles.hintTrigger}
-                    aria-haspopup="dialog"
-                    aria-expanded={isHintDialogOpen}
-                    onClick={() => {
-                        setIsHintDialogOpen(true);
-                    }}
-                >
-                    Подсказки
-                </button>
+            <div className={styles.clueSlot}>
+                <CluePresentation
+                    clue={play.clue}
+                    answerPattern={play.answerPattern}
+                    ranges={play.ranges}
+                    activeKinds={visibleHints}
+                    action={
+                        <button
+                            ref={hintTriggerRef}
+                            type="button"
+                            className={`buttonSecondary ${styles.hintTrigger}`}
+                            aria-haspopup="dialog"
+                            aria-expanded={isHintDialogOpen}
+                            onClick={() => {
+                                setIsHintDialogOpen(true);
+                            }}
+                        >
+                            Подсказки ·{" "}
+                            <span className={styles.hintCount}>
+                                {usedHintCount}/{hintKindCount}
+                            </span>
+                        </button>
+                    }
+                />
+            </div>
+            <div className={styles.outcomeSlot}>
+                <RiddleOutcome
+                    status={playState.progress.status}
+                    lastAnswerIncorrect={showIncorrect}
+                    answerAttemptCount={playState.progress.answerAttemptCount}
+                    explanation={playState.explanation}
+                />
+            </div>
+            <div className={styles.boardSlot}>
+                <AnswerTiles
+                    words={words}
+                    activePosition={activePosition}
+                    tone={
+                        playState.progress.status === "solved"
+                            ? "solved"
+                            : playState.progress.status === "fullyRevealed"
+                              ? "revealed"
+                              : "playing"
+                    }
+                    rejected={showIncorrect}
+                    rejectToken={playState.progress.answerAttemptCount}
+                    onSelectPosition={setSelectedPosition}
+                />
+                <p className={styles.submitHint}>{!isTerminal && !canSubmit ? "Попълни всички букви" : "\u00a0"}</p>
             </div>
             <HintDialog
                 open={isHintDialogOpen}
@@ -253,14 +272,16 @@ export function RiddlePlayer({
                 }}
                 returnFocusRef={hintTriggerRef}
             />
-            <BulgarianKeyboard
-                onLetter={writeLetter}
-                onBackspace={eraseLetter}
-                onSubmit={submitAnswer}
-                canSubmit={canSubmit}
-                isSubmitting={isSubmitting}
-                disabled={isTerminal}
-            />
+            <div className={styles.keyboardSlot}>
+                <BulgarianKeyboard
+                    onLetter={writeLetter}
+                    onBackspace={eraseLetter}
+                    onSubmit={submitAnswer}
+                    canSubmit={canSubmit}
+                    isSubmitting={isSubmitting}
+                    disabled={isTerminal}
+                />
+            </div>
         </section>
     );
 }

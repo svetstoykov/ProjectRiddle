@@ -5,6 +5,8 @@ import { useBeforeUnload, useBlocker, useNavigate, type BlockerFunction } from "
 import { reconcileSessionAfterAuthorizationFailure } from "../../auth/api/sessionQuery";
 import { isApplicationError } from "../../../shared/api/errors";
 import { ConfirmationDialog } from "../../../shared/components/ConfirmationDialog";
+import { DocumentTitle } from "../../../shared/components/DocumentTitle";
+import { ErrorSummary } from "../../../shared/components/ErrorSummary";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { adminRiddleDetailQueryOptions, adminRiddleKeys } from "../api/adminRiddleQueries";
 import { adminRiddlesApi } from "../api/adminRiddlesApi";
@@ -36,7 +38,7 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
     const initialRiddleRef = useRef<Riddle | undefined>(
         riddleId === undefined ? undefined : queryClient.getQueryData<Riddle>(adminRiddleKeys.detail(riddleId)),
     );
-    const stayRef = useRef<HTMLButtonElement>(null);
+    const titleRef = useRef<HTMLHeadingElement>(null);
     const summaryRef = useRef<HTMLDivElement>(null);
     const createdRiddlePathRef = useRef<string | null>(null);
     const [draft, setDraft] = useState<RiddleDraft>(() =>
@@ -159,29 +161,42 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
 
     if (!isNew && detailQuery.isPending && initializedId !== riddleId) {
         return (
-            <PageStatus eyebrow="Администрация" title="Зареждаме загадката…" message="Изчакваме текущото съдържание." />
+            <>
+                <DocumentTitle title="Загадка" />
+                <PageStatus
+                    eyebrow="Администрация"
+                    title="Зареждаме загадката…"
+                    message="Изчакваме текущото съдържание."
+                />
+            </>
         );
     }
 
     if (!isNew && authorizationFailure && initializedId !== riddleId) {
         return (
-            <PageStatus
-                tone="error"
-                eyebrow="Администрация"
-                title="Няма достъп до загадката"
-                message="Сесията или правата трябва да бъдат проверени отново."
-            />
+            <>
+                <DocumentTitle title="Загадка" />
+                <PageStatus
+                    tone="error"
+                    eyebrow="Администрация"
+                    title="Няма достъп до загадката"
+                    message="Сесията или правата трябва да бъдат проверени отново."
+                />
+            </>
         );
     }
 
     if (!isNew && notFound) {
         return (
-            <PageStatus
-                tone="error"
-                eyebrow="Администрация"
-                title="Загадката не е намерена"
-                message={riddleMessageForCode("riddles.notFound") ?? "Загадката не е намерена."}
-            />
+            <>
+                <DocumentTitle title="Загадка" />
+                <PageStatus
+                    tone="error"
+                    eyebrow="Администрация"
+                    title="Загадката не е намерена"
+                    message={riddleMessageForCode("riddles.notFound") ?? "Загадката не е намерена."}
+                />
+            </>
         );
     }
 
@@ -191,43 +206,39 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
             : unknownRiddleFailure(undefined);
 
         return (
-            <PageStatus
-                tone="error"
-                eyebrow="Администрация"
-                title="Загадката временно не е достъпна"
-                message={message}
-                action={{
-                    label: "Опитай отново",
-                    onClick: () => {
-                        void detailQuery.refetch();
-                    },
-                }}
-            />
+            <>
+                <DocumentTitle title="Загадка" />
+                <PageStatus
+                    tone="error"
+                    eyebrow="Администрация"
+                    title="Загадката временно не е достъпна"
+                    message={message}
+                    action={{
+                        label: "Опитай отново",
+                        onClick: () => {
+                            void detailQuery.refetch();
+                        },
+                    }}
+                />
+            </>
         );
     }
 
     return (
         <section className={styles.editor} aria-labelledby="riddle-editor-title">
+            <DocumentTitle title={isNew ? "Нова загадка" : "Загадка"} />
             <div className={styles.header}>
                 <p className="eyebrow">Администрация</p>
-                <h1 id="riddle-editor-title">{isNew ? "Нова загадка" : "Загадка"}</h1>
+                <h1 ref={titleRef} id="riddle-editor-title" tabIndex={-1}>
+                    {isNew ? "Нова загадка" : "Загадка"}
+                </h1>
             </div>
-            {errors.summary.length > 0 ? (
-                <div
-                    ref={summaryRef}
-                    className={styles.summary}
-                    tabIndex={-1}
-                    role="alert"
-                    aria-labelledby="riddle-content-error-heading"
-                >
-                    <h2 id="riddle-content-error-heading">Има проблем със съдържанието</h2>
-                    <ul>
-                        {errors.summary.map((message) => (
-                            <li key={message}>{message}</li>
-                        ))}
-                    </ul>
-                </div>
-            ) : null}
+            <ErrorSummary
+                messages={errors.summary}
+                heading="Има проблем със съдържанието"
+                headingId="riddle-content-error-heading"
+                summaryRef={summaryRef}
+            />
             {!isNew ? (
                 <p className={styles.immutableNotice} role="note">
                     Съдържанието е окончателно след създаване. За корекция оттеглете загадката и създайте нова.
@@ -237,12 +248,16 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
                 <div className={styles.authoring}>
                     <RiddleContentForm draft={draft} errors={errors} disabled={saving || !isNew} onChange={setDraft} />
                     {isNew ? (
-                        <button ref={stayRef} type="button" aria-busy={saving} disabled={saving} onClick={handleSave}>
+                        <button
+                            type="button"
+                            className={styles.save}
+                            aria-busy={saving}
+                            disabled={saving}
+                            onClick={handleSave}
+                        >
                             {saving ? "Запазване…" : "Запази"}
                         </button>
-                    ) : (
-                        <button ref={stayRef} type="button" hidden tabIndex={-1} aria-hidden="true" />
-                    )}
+                    ) : null}
                 </div>
                 <RiddlePreview clue={draft.clue} answer={draft.answer} ranges={draft.ranges} />
             </div>
@@ -273,7 +288,7 @@ export function RiddleEditor({ riddleId }: RiddleEditorProps): ReactElement {
                 cancelLabel="Остани"
                 busy={false}
                 danger
-                returnFocusRef={stayRef}
+                returnFocusRef={titleRef}
                 onCancel={() => {
                     if (blocker.state === "blocked") {
                         blocker.reset();

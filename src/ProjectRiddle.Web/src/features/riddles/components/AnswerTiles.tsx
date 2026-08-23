@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import type { CSSProperties, ReactElement } from "react";
 
 import styles from "./AnswerTiles.module.css";
 
@@ -17,11 +17,12 @@ export interface AnswerTilesProps {
     readonly words: readonly AnswerWordView[];
     readonly activePosition: number | undefined;
     readonly tone: "playing" | "solved" | "revealed";
+    readonly rejected: boolean;
+    readonly rejectToken: number;
     readonly onSelectPosition: (position: number) => void;
 }
 
-const toneClassNames: Record<AnswerTilesProps["tone"], string> = {
-    playing: styles.playing ?? "playing",
+const toneClassNames: Record<Exclude<AnswerTilesProps["tone"], "playing">, string> = {
     solved: styles.solved ?? "solved",
     revealed: styles.revealed ?? "revealed",
 };
@@ -31,28 +32,60 @@ function tileLabel(wordIndex: number, indexInWord: number, character: string): s
     return character === "" ? place : `${place}: ${character}`;
 }
 
-export function AnswerTiles({ words, activePosition, tone, onSelectPosition }: AnswerTilesProps): ReactElement {
+export function AnswerTiles({
+    words,
+    activePosition,
+    tone,
+    rejected,
+    rejectToken,
+    onSelectPosition,
+}: AnswerTilesProps): ReactElement {
+    const longestWord = Math.max(...words.map((word) => word.tiles.length));
+    const toneClass = tone === "playing" ? undefined : toneClassNames[tone];
+    const activeWord = words.find((word) => word.tiles.some((tile) => tile.position === activePosition));
+    const activeIndexInWord =
+        activeWord === undefined ? undefined : activeWord.tiles.findIndex((tile) => tile.position === activePosition);
+    const activeCharacter =
+        activeWord === undefined || activeIndexInWord === undefined
+            ? ""
+            : (activeWord.tiles[activeIndexInWord]?.character ?? "");
+
     return (
-        <div className={[styles.board, toneClassNames[tone]].join(" ")} role="group" aria-label="Отговор">
-            {words.map((word) => (
-                <div key={word.wordIndex} className={styles.word}>
-                    {word.tiles.map((tile, indexInWord) => (
-                        <button
-                            key={tile.position}
-                            type="button"
-                            className={[styles.tile, tile.isLocked ? styles.locked : undefined].join(" ")}
-                            aria-current={tile.position === activePosition ? "true" : undefined}
-                            aria-label={tileLabel(word.wordIndex, indexInWord, tile.character)}
-                            disabled={tile.isLocked || tone !== "playing"}
-                            onClick={() => {
-                                onSelectPosition(tile.position);
-                            }}
-                        >
-                            {tile.character}
-                        </button>
-                    ))}
-                </div>
-            ))}
-        </div>
+        <>
+            <div
+                className={[styles.board, toneClass].filter(Boolean).join(" ")}
+                style={{ "--longest-word": longestWord } as CSSProperties}
+                data-rejected={rejected ? rejectToken : undefined}
+                role="group"
+                aria-label="Отговор"
+            >
+                {words.map((word) => (
+                    <div key={word.wordIndex} className={styles.word}>
+                        {word.tiles.map((tile, indexInWord) => (
+                            <button
+                                key={tile.position}
+                                type="button"
+                                className={[styles.tile, tile.isLocked ? styles.locked : undefined].join(" ")}
+                                style={{ "--tile-index": tile.position } as CSSProperties}
+                                aria-current={tile.position === activePosition ? "true" : undefined}
+                                aria-label={tileLabel(word.wordIndex, indexInWord, tile.character)}
+                                tabIndex={tone === "playing" && tile.position === activePosition ? 0 : -1}
+                                disabled={tile.isLocked || tone !== "playing"}
+                                onClick={() => {
+                                    onSelectPosition(tile.position);
+                                }}
+                            >
+                                {tile.character}
+                            </button>
+                        ))}
+                    </div>
+                ))}
+            </div>
+            {activeWord !== undefined && activeIndexInWord !== undefined ? (
+                <p className="visuallyHidden" aria-live="polite">
+                    {tileLabel(activeWord.wordIndex, activeIndexInWord, activeCharacter)}
+                </p>
+            ) : null}
+        </>
     );
 }

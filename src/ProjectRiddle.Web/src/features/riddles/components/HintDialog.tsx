@@ -105,7 +105,10 @@ export function HintDialog({
             ref={dialogRef}
             className={styles.dialog}
             aria-labelledby={titleId}
-            onCancel={onClose}
+            onCancel={(event) => {
+                event.preventDefault();
+                onClose();
+            }}
             onClick={(event) => {
                 // The sheet fills the dialog box itself, so a click that lands on the dialog came from the backdrop.
                 if (event.target === dialogRef.current) {
@@ -133,7 +136,7 @@ export function HintDialog({
                                 {isUsed ? (
                                     <button
                                         type="button"
-                                        className={styles.row}
+                                        className={`${styles.row} ${styles.used}`}
                                         aria-pressed={isVisible}
                                         onClick={() => {
                                             onToggle(kind);
@@ -149,7 +152,7 @@ export function HintDialog({
                                 ) : (
                                     <button
                                         type="button"
-                                        className={styles.row}
+                                        className={`${styles.row} ${styles.unlock}`}
                                         aria-busy={isPending}
                                         disabled={disabled || isPending}
                                         onClick={() => {
@@ -173,7 +176,7 @@ export function HintDialog({
                 <hr className={styles.divider} />
                 <button
                     type="button"
-                    className={styles.row}
+                    className={`${styles.row} ${styles.unlock}`}
                     aria-busy={isRevealing}
                     disabled={disabled || isRevealing || revealExhausted}
                     onClick={() => {
