@@ -1,4 +1,6 @@
 .page {
     display: grid;
-    gap: var(--space-7);
+    gap: var(--space-5);
+    width: min(100%, var(--reading-width));
+    margin-inline: auto;
 }

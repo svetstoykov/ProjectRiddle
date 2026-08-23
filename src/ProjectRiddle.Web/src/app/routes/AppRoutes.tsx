@@ -1,8 +1,8 @@
 import { createBrowserRouter, createRoutesFromElements, Navigate, Route } from "react-router-dom";
 
 import { AdminRiddleListPage } from "../../features/admin/pages/AdminRiddleListPage";
-import { EditRiddlePage } from "../../features/admin/pages/EditRiddlePage";
 import { NewRiddlePage } from "../../features/admin/pages/NewRiddlePage";
+import { RiddleDetailPage } from "../../features/admin/pages/RiddleDetailPage";
 import { AnonymousOnlyRoute, AdminRoute, AuthenticatedRoute } from "../../features/auth/components/ProtectedRoute";
 import { AccessDeniedPage } from "../../features/auth/pages/AccessDeniedPage";
 import { RegisterPage } from "../../features/auth/pages/RegisterPage";
@@ -33,7 +33,7 @@ export const appRouter = createBrowserRouter(
                     <Route path="admin" element={<Navigate replace to="/admin/riddles" />} />
                     <Route path="admin/riddles" element={<AdminRiddleListPage />} />
                     <Route path="admin/riddles/new" element={<NewRiddlePage />} />
-                    <Route path="admin/riddles/:riddleId" element={<EditRiddlePage />} />
+                    <Route path="admin/riddles/:riddleId" element={<RiddleDetailPage />} />
                 </Route>
                 <Route path="*" element={<NotFoundPage />} />
             </Route>

@@ -31,8 +31,8 @@ export function RiddlePlayerPage(): ReactElement {
             <>
                 <DocumentTitle title="Загадка" />
                 <AuthenticationRequiredNotice
-                    title="Тази загадка е в архива"
-                    message="По-ранните загадки се играят с профил. Влез или се регистрирай, за да продължиш от същото място."
+                    title="Тази загадка изисква профил"
+                    message="Свободна е само днешната загадка. По-ранните дни се играят с профил — влез или се регистрирай, за да продължиш от същото място."
                     returnTo={location.pathname}
                 />
             </>

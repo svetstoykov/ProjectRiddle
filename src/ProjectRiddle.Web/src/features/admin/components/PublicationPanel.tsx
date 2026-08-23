@@ -15,9 +15,6 @@ import styles from "./PublicationPanel.module.css";
 
 export interface PublicationPanelProps {
     readonly riddle: Riddle;
-    readonly contentDirty: boolean;
-    readonly onChanged: (riddle: Riddle) => void;
-    readonly onDeleted: () => void;
     readonly onMissing: () => void;
 }
 
@@ -34,13 +31,7 @@ function isMissingRiddle(error: unknown): boolean {
     return isApplicationError(error) && (error.status === 404 || error.code === "riddles.notFound");
 }
 
-export function PublicationPanel({
-    riddle,
-    contentDirty,
-    onChanged,
-    onDeleted,
-    onMissing,
-}: PublicationPanelProps): ReactElement {
+export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): ReactElement {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
     const dateId = useId();
@@ -95,7 +86,6 @@ export function PublicationPanel({
         await queryClient.invalidateQueries({ queryKey: adminRiddleKeys.lists() });
         clearMessages();
         setNotice(message);
-        onChanged(updated);
     }
 
     const scheduleMutation = useMutation({
@@ -137,7 +127,6 @@ export function PublicationPanel({
             setConfirm(null);
             queryClient.removeQueries({ queryKey: adminRiddleKeys.detail(riddle.id) });
             await queryClient.invalidateQueries({ queryKey: adminRiddleKeys.lists() });
-            onDeleted();
             void navigate("/admin/riddles", { replace: true });
         },
         onError: handleFailure,
@@ -148,7 +137,6 @@ export function PublicationPanel({
         publishMutation.isPending ||
         unpublishMutation.isPending ||
         deleteMutation.isPending;
-    const disabled = contentDirty || busy;
     const needsDate = riddle.publicationState === "draft" || riddle.publicationState === "unpublished";
 
     function hasCommand(command: PublicationCommand): boolean {
@@ -177,7 +165,7 @@ export function PublicationPanel({
                     id={dateId}
                     type="date"
                     value={publicationDate}
-                    disabled={disabled}
+                    disabled={busy}
                     aria-invalid={dateErrors.length > 0}
                     aria-describedby={dateErrors.length > 0 ? dateErrorId : undefined}
                     onChange={(event) => {
@@ -186,11 +174,6 @@ export function PublicationPanel({
                 />
                 <FieldError id={dateErrorId} messages={dateErrors} />
             </div>
-            {contentDirty ? (
-                <p className={styles.hint} role="status">
-                    Първо запазете промените по съдържанието.
-                </p>
-            ) : null}
             <ErrorSummary messages={summary} heading="Има проблем с публикуването" />
             {notice !== null ? (
                 <p className={styles.notice} role="status">
@@ -202,7 +185,7 @@ export function PublicationPanel({
                     <button
                         type="button"
                         className={hasCommand("publish") ? "buttonSecondary" : undefined}
-                        disabled={disabled}
+                        disabled={busy}
                         onClick={() => {
                             if (requireDate()) {
                                 scheduleMutation.mutate();
@@ -215,7 +198,7 @@ export function PublicationPanel({
                 {hasCommand("publish") ? (
                     <button
                         type="button"
-                        disabled={disabled}
+                        disabled={busy}
                         onClick={() => {
                             if (needsDate && !requireDate()) {
                                 return;
@@ -232,7 +215,7 @@ export function PublicationPanel({
                         ref={unpublishRef}
                         type="button"
                         className="buttonSecondary"
-                        disabled={disabled}
+                        disabled={busy}
                         onClick={() => {
                             setConfirm("unpublish");
                         }}
@@ -245,7 +228,7 @@ export function PublicationPanel({
                         ref={deleteRef}
                         type="button"
                         className={styles.danger}
-                        disabled={disabled}
+                        disabled={busy}
                         onClick={() => {
                             setConfirm("delete");
                         }}

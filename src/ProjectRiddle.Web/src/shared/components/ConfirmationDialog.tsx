@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactElement, type RefObject } from "react";
+import { useEffect, useId, useRef, type ReactElement, type RefObject } from "react";
 
 import styles from "./ConfirmationDialog.module.css";
 
@@ -28,8 +28,8 @@ export function ConfirmationDialog({
     returnFocusRef,
 }: ConfirmationDialogProps): ReactElement {
     const dialogRef = useRef<HTMLDialogElement>(null);
-    const titleId = "confirmation-dialog-title";
-    const descriptionId = "confirmation-dialog-description";
+    const titleId = useId();
+    const descriptionId = useId();
 
     useEffect(() => {
         const dialog = dialogRef.current;

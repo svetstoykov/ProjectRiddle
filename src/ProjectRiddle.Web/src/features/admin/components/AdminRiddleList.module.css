@@ -68,6 +68,51 @@
     composes: chip from "../../../styles/surfaces.module.css";
 }
 
+.rowActions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+}
+
+/* A row action is a link-weight control, not a primary call to action, so it drops the global button chrome. */
+.delete {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--color-danger);
+    font-family: var(--font-body);
+    font-size: inherit;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+.delete:disabled {
+    background: none;
+    border: 0;
+    color: var(--color-muted-text);
+}
+
+@media (hover: hover) {
+    .delete:hover:not(:disabled) {
+        background: none;
+        box-shadow: none;
+        transform: none;
+        color: var(--color-danger);
+        text-decoration-thickness: 3px;
+    }
+}
+
+.delete:active:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+}
+
 @media (max-width: 599px) {
     .table thead {
         position: absolute;
