@@ -1,4 +1,4 @@
-import type { ReactElement } from "react";
+import type { ReactElement, RefObject } from "react";
 import { Link } from "react-router-dom";
 
 import { formatFullDate } from "../models/localDate";
@@ -7,9 +7,11 @@ import styles from "./SolvingTopBar.module.css";
 export interface SolvingTopBarProps {
     /** The riddle's publication date, once it is known. The bar keeps its height while the riddle is still loading. */
     readonly publicationDate: string | undefined;
+    readonly onOpenPrimer: () => void;
+    readonly primerTriggerRef: RefObject<HTMLButtonElement | null>;
 }
 
-export function SolvingTopBar({ publicationDate }: SolvingTopBarProps): ReactElement {
+export function SolvingTopBar({ publicationDate, onOpenPrimer, primerTriggerRef }: SolvingTopBarProps): ReactElement {
     return (
         <header className={styles.bar}>
             <Link className={styles.back} to="/" aria-label="Назад към началото">
@@ -20,6 +22,15 @@ export function SolvingTopBar({ publicationDate }: SolvingTopBarProps): ReactEle
                 </svg>
             </Link>
             <p className={styles.date}>{publicationDate === undefined ? "" : formatFullDate(publicationDate)}</p>
+            <button
+                ref={primerTriggerRef}
+                type="button"
+                className={styles.info}
+                aria-label="Увод в уликите"
+                onClick={onOpenPrimer}
+            >
+                i
+            </button>
         </header>
     );
 }

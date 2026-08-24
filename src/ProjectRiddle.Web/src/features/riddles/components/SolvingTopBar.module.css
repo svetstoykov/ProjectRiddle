@@ -31,6 +31,15 @@
         background-color var(--motion-fast) var(--ease-out);
 }
 
+.info {
+    composes: back;
+    padding: 0;
+    border-width: var(--border-thin);
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 800;
+}
+
 @media (hover: hover) {
     .back:hover {
         background: var(--color-surface-low);

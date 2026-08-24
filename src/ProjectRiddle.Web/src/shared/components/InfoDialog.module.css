@@ -103,3 +103,15 @@
         min-height: var(--control-height);
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .dialog,
+    .dialog::backdrop {
+        transition: none;
+    }
+
+    .dialog[open],
+    .dialog:not([open]) {
+        transform: none;
+    }
+}

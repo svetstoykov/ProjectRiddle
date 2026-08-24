@@ -1,0 +1,32 @@
+.figure {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-md);
+    background: var(--color-clue-surface);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: 700;
+}
+
+.figure span {
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-sm);
+}
+
+.indicator {
+    background: var(--color-hint-indicator);
+    border-color: var(--color-hint-indicator-edge) !important;
+}
+
+.fodder {
+    background: var(--color-hint-fodder);
+    border-color: var(--color-hint-fodder-edge) !important;
+}
+
+.definition {
+    background: var(--color-hint-definition);
+    border-color: var(--color-hint-definition-edge) !important;
+}

@@ -1,10 +1,11 @@
-import type { PropsWithChildren, ReactElement } from "react";
+import { useRef, useState, type PropsWithChildren, type ReactElement, type RefObject } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { PlayerPageSkeleton } from "../../../shared/components/ContentSkeletons";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { MembershipDialog } from "../../auth/components/MembershipDialog";
+import { CoursePrimerDialog } from "../../courses/components/CoursePrimerDialog";
 import { useRiddlePlaySession } from "../api/riddlePlaySession";
 import { RiddlePlayer } from "../components/RiddlePlayer";
 import { SolvingTopBar } from "../components/SolvingTopBar";
@@ -12,14 +13,30 @@ import styles from "./RiddlePlayerPage.module.css";
 
 interface SolvingScreenProps {
     readonly publicationDate: string | undefined;
+    readonly onOpenPrimer: () => void;
+    readonly primerOpen: boolean;
+    readonly onDismissPrimer: () => void;
+    readonly primerTriggerRef: RefObject<HTMLButtonElement | null>;
 }
 
 /** The screen every state of this page shares: a way back at the top and one region beneath it. */
-function SolvingScreen({ publicationDate, children }: PropsWithChildren<SolvingScreenProps>): ReactElement {
+function SolvingScreen({
+    publicationDate,
+    onOpenPrimer,
+    primerOpen,
+    onDismissPrimer,
+    primerTriggerRef,
+    children,
+}: PropsWithChildren<SolvingScreenProps>): ReactElement {
     return (
         <div className={styles.screen}>
-            <SolvingTopBar publicationDate={publicationDate} />
+            <SolvingTopBar
+                publicationDate={publicationDate}
+                onOpenPrimer={onOpenPrimer}
+                primerTriggerRef={primerTriggerRef}
+            />
             <main className={styles.stage}>{children}</main>
+            <CoursePrimerDialog open={primerOpen} onDismiss={onDismissPrimer} returnFocusRef={primerTriggerRef} />
         </div>
     );
 }
@@ -29,12 +46,26 @@ export function RiddlePlayerPage(): ReactElement {
     const location = useLocation();
     const navigate = useNavigate();
     const session = useRiddlePlaySession(riddleId);
+    const primerTriggerRef = useRef<HTMLButtonElement | null>(null);
+    const [isPrimerOpen, setIsPrimerOpen] = useState(false);
+    const openPrimer = (): void => {
+        setIsPrimerOpen(true);
+    };
+    const dismissPrimer = (): void => {
+        setIsPrimerOpen(false);
+    };
 
     // A riddle reached without an account — by link, or after the free day rolled over mid-play — is answered by the
     // same prompt the rest of the application uses. The board is what an account unlocks, so dismissing it leaves.
     if (session.status === "authenticationRequired") {
         return (
-            <SolvingScreen publicationDate={undefined}>
+            <SolvingScreen
+                publicationDate={undefined}
+                onOpenPrimer={openPrimer}
+                primerOpen={isPrimerOpen}
+                onDismissPrimer={dismissPrimer}
+                primerTriggerRef={primerTriggerRef}
+            >
                 <DocumentTitle title="Загадка" />
                 <MembershipDialog
                     returnTo={location.pathname}
@@ -48,7 +79,13 @@ export function RiddlePlayerPage(): ReactElement {
 
     if (session.status === "todayUnavailable") {
         return (
-            <SolvingScreen publicationDate={undefined}>
+            <SolvingScreen
+                publicationDate={undefined}
+                onOpenPrimer={openPrimer}
+                primerOpen={isPrimerOpen}
+                onDismissPrimer={dismissPrimer}
+                primerTriggerRef={primerTriggerRef}
+            >
                 <DocumentTitle title="Загадка" />
                 <div className={styles.notice}>
                     <PageStatus
@@ -69,7 +106,13 @@ export function RiddlePlayerPage(): ReactElement {
 
     if (session.status === "notFound") {
         return (
-            <SolvingScreen publicationDate={undefined}>
+            <SolvingScreen
+                publicationDate={undefined}
+                onOpenPrimer={openPrimer}
+                primerOpen={isPrimerOpen}
+                onDismissPrimer={dismissPrimer}
+                primerTriggerRef={primerTriggerRef}
+            >
                 <DocumentTitle title="Загадка" />
                 <div className={styles.notice}>
                     <PageStatus
@@ -87,7 +130,13 @@ export function RiddlePlayerPage(): ReactElement {
         const trace = session.traceId === undefined ? "" : ` Код за проследяване: ${session.traceId}`;
 
         return (
-            <SolvingScreen publicationDate={undefined}>
+            <SolvingScreen
+                publicationDate={undefined}
+                onOpenPrimer={openPrimer}
+                primerOpen={isPrimerOpen}
+                onDismissPrimer={dismissPrimer}
+                primerTriggerRef={primerTriggerRef}
+            >
                 <DocumentTitle title="Загадка" />
                 <div className={styles.notice}>
                     <PageStatus
@@ -104,7 +153,13 @@ export function RiddlePlayerPage(): ReactElement {
 
     if (session.play === undefined || session.playState === undefined) {
         return (
-            <SolvingScreen publicationDate={undefined}>
+            <SolvingScreen
+                publicationDate={undefined}
+                onOpenPrimer={openPrimer}
+                primerOpen={isPrimerOpen}
+                onDismissPrimer={dismissPrimer}
+                primerTriggerRef={primerTriggerRef}
+            >
                 <DocumentTitle title="Загадка" />
                 <div className={styles.notice}>
                     <p className="visuallyHidden" role="status">
@@ -117,7 +172,13 @@ export function RiddlePlayerPage(): ReactElement {
     }
 
     return (
-        <SolvingScreen publicationDate={session.play.publicationDate}>
+        <SolvingScreen
+            publicationDate={session.play.publicationDate}
+            onOpenPrimer={openPrimer}
+            primerOpen={isPrimerOpen}
+            onDismissPrimer={dismissPrimer}
+            primerTriggerRef={primerTriggerRef}
+        >
             <DocumentTitle title="Загадка" />
             <RiddlePlayer
                 key={session.play.id}

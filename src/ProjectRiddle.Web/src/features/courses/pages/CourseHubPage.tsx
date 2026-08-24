@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ReactElement } from "react";
+import { useRef, useState, type ReactElement } from "react";
 import { useParams } from "react-router-dom";
 
 import { NotFoundPage } from "../../../app/routes/NotFoundPage";
@@ -12,9 +12,11 @@ import { useResolvedCourseProgress } from "../api/courseProgress";
 import { CourseCarousel } from "../components/CourseCarousel";
 import { CourseHubSkeleton } from "../components/CourseHubSkeleton";
 import { LessonCard } from "../components/LessonCard";
+import { CoursePrimerDialog } from "../components/CoursePrimerDialog";
 import { courseMessages, lockedReason } from "../messages/courseMessages";
 import { carouselLabelByCourseKey, recommendedStartByCourseKey } from "../messages/coursePresentation";
 import type { CourseLessonSummary } from "../models/courseCatalog";
+import { readAnonymousCourseProgress } from "../storage/anonymousCourseProgress";
 import styles from "./CourseHubPage.module.css";
 
 function failureMessage(error: unknown): string {
@@ -56,6 +58,8 @@ export function CourseHubPage(): ReactElement {
     const catalogQuery = useQuery(courseCatalogQueryOptions());
     const isAuthenticated = (sessionQuery.data ?? null) !== null;
     const course = catalogQuery.data?.courses.find((item) => item.key === courseKey);
+    const headingRef = useRef<HTMLHeadingElement | null>(null);
+    const [isPrimerOpen, setIsPrimerOpen] = useState(() => !readAnonymousCourseProgress().primerDismissed);
     const resolvedProgress = useResolvedCourseProgress(catalogQuery.data, course, isAuthenticated);
 
     if (catalogQuery.isPending || resolvedProgress.isPending) {
@@ -130,7 +134,9 @@ export function CourseHubPage(): ReactElement {
             <DocumentTitle title={course.title} />
             <header className={styles.intro}>
                 <p className="eyebrow">Курс {course.ordinal}</p>
-                <h1>{course.title}</h1>
+                <h1 ref={headingRef} tabIndex={-1}>
+                    {course.title}
+                </h1>
                 <p>{course.intro}</p>
             </header>
             {course.key === "finale" ? null : (
@@ -178,6 +184,13 @@ export function CourseHubPage(): ReactElement {
             <CourseCarousel
                 courses={catalogQuery.data.courses.filter((item) => item.id !== course.id)}
                 heading={carouselLabelByCourseKey[course.key] ?? "Други курсове"}
+            />
+            <CoursePrimerDialog
+                open={isPrimerOpen}
+                onDismiss={() => {
+                    setIsPrimerOpen(false);
+                }}
+                returnFocusRef={headingRef}
             />
         </div>
     );
