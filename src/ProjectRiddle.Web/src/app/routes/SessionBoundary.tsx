@@ -25,10 +25,10 @@ export function SessionBoundary(): ReactElement {
             <PageStatus
                 tone="error"
                 eyebrow="Сесия"
-                title="Сесията временно не е достъпна"
-                message="Неуспешна проверка на текущия профил. Опитайте отново."
+                title="Сесията не се проверява."
+                message="Нещо се обърка от наша страна."
                 action={{
-                    label: "Опитай отново",
+                    label: "Пробвай пак",
                     onClick: () => {
                         void sessionQuery.refetch();
                     },
