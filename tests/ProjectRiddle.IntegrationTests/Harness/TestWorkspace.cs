@@ -32,6 +32,7 @@ public sealed class TestWorkspace
         Clock = new FixedDateTimeProvider(utcNow, TimeZoneId);
         Account = new MutableCurrentAccount(accountId);
         var riddles = new InMemoryRiddleRepository();
+        Riddles = riddles;
         var progress = new InMemoryRiddleProgressRepository(riddles);
         AdminService = new AdminRiddlesService(riddles, Clock, NullLogger<AdminRiddlesService>.Instance);
         PlayEngine = new CluePlayEngine(
@@ -57,6 +58,11 @@ public sealed class TestWorkspace
     /// Gets the controllable current-account identity.
     /// </summary>
     public MutableCurrentAccount Account { get; }
+
+    /// <summary>
+    /// Gets the in-memory riddle store backing the services under test.
+    /// </summary>
+    public InMemoryRiddleRepository Riddles { get; }
 
     /// <summary>
     /// Gets the shared clue play engine used by the service under test.

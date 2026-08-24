@@ -22,7 +22,7 @@ public sealed class InMemoryRiddleRepository : IRiddleRepository
     public Task<IReadOnlyList<Riddle>> ListAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult<IReadOnlyList<Riddle>>(_riddles.ToArray());
+        return Task.FromResult<IReadOnlyList<Riddle>>(_riddles.Where(riddle => !riddle.IsLesson).ToArray());
     }
 
     /// <inheritdoc />

@@ -24,10 +24,14 @@ public interface IRiddleRepository
     Task<IReadOnlyList<Riddle>> GetByIdsAsync(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Lists every stored riddle.
+    /// Lists every stored daily riddle.
     /// </summary>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
-    /// <returns>The stored riddles.</returns>
+    /// <returns>The stored riddles, excluding course lesson content.</returns>
+    /// <remarks>
+    /// The exclusion lives here rather than at each caller so an authoring surface cannot surface lesson content
+    /// by forgetting to filter.
+    /// </remarks>
     Task<IReadOnlyList<Riddle>> ListAsync(CancellationToken cancellationToken);
 
     /// <summary>

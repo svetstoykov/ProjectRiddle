@@ -1,5 +1,6 @@
 using ProjectRiddle.Core.Constants.Riddles;
 using ProjectRiddle.Core.Enums.Riddles;
+using ProjectRiddle.Core.Models.Riddles;
 using ProjectRiddle.Core.Models.Riddles.Authoring;
 using ProjectRiddle.Core.Models.Riddles.Discovery;
 using ProjectRiddle.Core.Models.Riddles.Play;
@@ -496,6 +497,61 @@ public sealed class RiddlesServiceTests
         Assert.True(listed.IsSuccess);
         Assert.Equal(published.Id, listed.Value!.Items[0].RiddleId);
         Assert.Equal(RiddleProgressStatus.Solved, listed.Value.Items[0].Status);
+    }
+
+    /// <summary>
+    /// Verifies that a lesson riddle is absent from today, the week strip, the archive, the administrator listing,
+    /// and public play, even though it is stored in the same table as the daily riddles.
+    /// </summary>
+    /// <returns>A task that represents the test operation.</returns>
+    [Fact]
+    public async Task LessonRiddlesStayOutOfEveryDailySurface()
+    {
+        var workspace = new TestWorkspace(NoonUtcOnTwentieth, AccountId);
+        var daily = await PublishAsync(workspace, Today);
+
+        var lesson = new Riddle(
+            Guid.NewGuid(),
+            "урок с бяла врана",
+            "бяла врана",
+            "4,5",
+            "Обяснение на урока.",
+            isLesson: true,
+            RiddlePublicationState.Draft,
+            sofiaPublicationDate: null,
+            workspace.Clock.UtcDateTime,
+            workspace.Clock.UtcDateTime);
+        await workspace.Riddles.AddAsync(lesson, CancellationToken.None);
+
+        var today = await workspace.Service.GetTodayAsync(CancellationToken.None);
+        Assert.True(today.IsSuccess);
+        Assert.Equal(daily.Id, today.Value!.Id);
+
+        var week = await workspace.Service.ListWeekAsync(CancellationToken.None);
+        Assert.True(week.IsSuccess);
+        Assert.DoesNotContain(week.Value!.Items, item => item.Id == lesson.Id);
+
+        var archive = await workspace.Service.ListArchiveAsync(
+            new ListPublicRiddlesInput(1, 31),
+            CancellationToken.None);
+        Assert.True(archive.IsSuccess);
+        Assert.DoesNotContain(archive.Value!.Items, item => item.Id == lesson.Id);
+
+        var administrative = await workspace.AdminService.ListAsync(CancellationToken.None);
+        Assert.True(administrative.IsSuccess);
+        Assert.DoesNotContain(administrative.Value!.Riddles, item => item.Id == lesson.Id);
+
+        var administrativeDetail = await workspace.AdminService.GetByIdAsync(lesson.Id, CancellationToken.None);
+        Assert.True(administrativeDetail.IsFailure);
+        Assert.Equal(RiddleErrorCodes.NotFound, administrativeDetail.Error!.Code);
+
+        var deleted = await workspace.AdminService.DeleteAsync(lesson.Id, CancellationToken.None);
+        Assert.True(deleted.IsFailure);
+        Assert.Equal(RiddleErrorCodes.NotFound, deleted.Error!.Code);
+
+        var play = await workspace.Service.GetPlayAsync(lesson.Id, CancellationToken.None);
+        Assert.True(play.IsFailure);
+        Assert.Equal(RiddleErrorCodes.NotFound, play.Error!.Code);
     }
 
     private static async Task<RiddleOutput> PublishAsync(
