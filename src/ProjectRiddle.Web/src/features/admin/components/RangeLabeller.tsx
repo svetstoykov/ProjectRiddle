@@ -1,5 +1,6 @@
 import { useId, useRef, useState, type ReactElement } from "react";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { ConfirmationDialog } from "../../../shared/components/ConfirmationDialog";
 import { FieldError } from "../../../shared/components/FieldError";
 import { rangeKindLabels } from "../messages/adminMessages";
@@ -141,7 +142,10 @@ export function RangeLabeller({ clue, ranges, errors, disabled, onChange }: Rang
                         return (
                             <li key={range.key} className={styles.range}>
                                 <p>
-                                    <strong>{kindLabel}</strong> „{selectedText}“ [{range.start}, {range.end})
+                                    <strong>
+                                        <ClueTermText text={kindLabel} />
+                                    </strong>{" "}
+                                    „{selectedText}“ [{range.start}, {range.end})
                                 </p>
                                 <button
                                     type="button"

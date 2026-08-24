@@ -1,5 +1,5 @@
 export const recommendedStartByCourseKey: Readonly<Record<string, string>> = {
-    letterplay: "„Как е устроена уликата“ е добро начало.",
+    letterplay: "„Основи“ е добро начало.",
     wordplay: "Започни със синонимите.",
     weirdplay: "Започни с преводите.",
 };

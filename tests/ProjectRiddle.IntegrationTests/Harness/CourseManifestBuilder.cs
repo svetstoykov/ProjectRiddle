@@ -25,7 +25,7 @@ public static class CourseManifestBuilder
             1,
             [
                 new PrimerPageManifestEntry(1, "Двете части", "Определение и словесна игра.", null),
-                new PrimerPageManifestEntry(2, "Съставките", "Материал и указатели.", "clue-anatomy"),
+                new PrimerPageManifestEntry(2, "Съставките", "Материал и индикатори.", "clue-anatomy"),
                 new PrimerPageManifestEntry(3, "Повърхността", "Как уликата заблуждава.", null)
             ],
             [
@@ -237,8 +237,8 @@ public static class CourseManifestBuilder
             Id(idLabel),
             Id(riddleLabel),
             ordinal,
-            "Потърси указателя.",
-            "Указателят беше в началото.",
+            "Потърси индикатора.",
+            "Индикаторът беше в началото.",
             "бяла врана лети високо",
             "бяла врана",
             "Обяснение на уликата.",

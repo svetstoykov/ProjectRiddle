@@ -1,0 +1,22 @@
+.definition,
+.indicator,
+.fodder {
+    border-radius: var(--radius-xs);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.definition {
+    background-color: var(--color-hint-definition);
+    box-shadow: inset 0 -0.14em 0 var(--color-hint-definition-edge);
+}
+
+.indicator {
+    background-color: var(--color-hint-indicator);
+    box-shadow: inset 0 -0.14em 0 var(--color-hint-indicator-edge);
+}
+
+.fodder {
+    background-color: var(--color-hint-fodder);
+    box-shadow: inset 0 -0.14em 0 var(--color-hint-fodder-edge);
+}

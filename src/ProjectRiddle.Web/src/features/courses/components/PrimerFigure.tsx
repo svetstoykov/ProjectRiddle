@@ -12,8 +12,8 @@ export function PrimerFigure({ figureKey }: PrimerFigureProps): ReactElement | n
     }
 
     return (
-        <figure className={styles.figure} aria-label="Дефиниция, материал и указател в примерна улика">
-            <span className={styles.indicator}>Указател</span>
+        <figure className={styles.figure} aria-label="Дефиниция, материал и индикатор в примерна улика">
+            <span className={styles.indicator}>Индикатор</span>
             <span className={styles.fodder}>Материал</span>
             <span className={styles.definition}>Дефиниция</span>
         </figure>

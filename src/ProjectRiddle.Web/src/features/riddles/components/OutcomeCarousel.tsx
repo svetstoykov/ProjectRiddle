@@ -1,5 +1,6 @@
 import { useState, type ReactElement, type ReactNode } from "react";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import type { RiddleProgressStatus } from "../models/riddleProgress";
 import styles from "./OutcomeCarousel.module.css";
 
@@ -77,8 +78,14 @@ export function OutcomeCarousel(props: OutcomeCarouselProps): ReactElement | nul
                     aria-roledescription="карта"
                     aria-label={`${position + 1} от ${cards.length}`}
                 >
-                    <h2 className={styles.title}>{card.title}</h2>
-                    {card.body === undefined ? null : <p className={styles.body}>{card.body}</p>}
+                    <h2 className={styles.title}>
+                        <ClueTermText text={card.title} />
+                    </h2>
+                    {card.body === undefined ? null : (
+                        <p className={styles.body}>
+                            <ClueTermText text={card.body} />
+                        </p>
+                    )}
                 </article>
             </div>
             {cards.length > 1 ? (

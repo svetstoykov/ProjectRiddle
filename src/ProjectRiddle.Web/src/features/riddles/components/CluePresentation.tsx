@@ -1,5 +1,6 @@
 import { useRef, useState, type ReactElement } from "react";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { InfoDialog } from "../../../shared/components/InfoDialog";
 import type { RiddleRangeKind } from "../models/riddleRange";
 import styles from "./CluePresentation.module.css";
@@ -184,7 +185,7 @@ export function CluePresentation({ clue, answerPattern, ranges, activeKinds }: C
                 }}
                 returnFocusRef={triggerRef}
             >
-                <p>{explainedKind === undefined ? null : kindExplanations[explainedKind]}</p>
+                <p>{explainedKind === undefined ? null : <ClueTermText text={kindExplanations[explainedKind]} />}</p>
             </InfoDialog>
         </div>
     );

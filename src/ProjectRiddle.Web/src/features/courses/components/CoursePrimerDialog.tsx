@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, type ReactElement, type RefObject } from "react";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { InfoDialog } from "../../../shared/components/InfoDialog";
 import { coursePrimerQueryOptions } from "../api/courseQueries";
 import { dismissCoursePrimer } from "../storage/anonymousCourseProgress";
@@ -43,7 +44,9 @@ export function CoursePrimerDialog({ open, onDismiss, returnFocusRef }: CoursePr
             ) : null}
             {page === undefined ? null : (
                 <>
-                    <p>{page.body}</p>
+                    <p>
+                        <ClueTermText text={page.body} />
+                    </p>
                     <PrimerFigure figureKey={page.figure} />
                     <footer className={styles.footer}>
                         <button

@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { NotFoundPage } from "../../../app/routes/NotFoundPage";
 import { isApplicationError } from "../../../shared/api/errors";
 import { PlayerPageSkeleton } from "../../../shared/components/ContentSkeletons";
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { sessionQueryOptions } from "../../auth/api/sessionQuery";
@@ -361,8 +362,10 @@ export function CourseLessonPage(): ReactElement {
             {...frameProps}
         >
             <DocumentTitle title={`${lessonSummary.title} · ${ordinal} от ${detail.exercises.length}`} />
-            {isInProgress && exercise.setup === undefined ? null : isInProgress ? (
-                <p className={styles.setup}>{exercise.setup}</p>
+            {isInProgress && exercise.setup !== undefined ? (
+                <p className={styles.setup}>
+                    <ClueTermText text={exercise.setup} />
+                </p>
             ) : null}
             <RiddlePlayer
                 play={courseSession.playerView}

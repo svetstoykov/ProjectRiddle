@@ -1,5 +1,6 @@
 import { useId, type ReactElement } from "react";
 
+import { ClueTermText } from "./ClueTermText";
 import styles from "./PageStatus.module.css";
 
 export interface PageStatusAction {
@@ -20,9 +21,17 @@ export function PageStatus({ eyebrow, title, message, tone = "neutral", action }
 
     return (
         <section className={styles.section} aria-labelledby={titleId} role={tone === "error" ? "alert" : undefined}>
-            {eyebrow !== undefined ? <p className="eyebrow">{eyebrow}</p> : null}
-            <h1 id={titleId}>{title}</h1>
-            <p className={styles.message}>{message}</p>
+            {eyebrow !== undefined ? (
+                <p className="eyebrow">
+                    <ClueTermText text={eyebrow} />
+                </p>
+            ) : null}
+            <h1 id={titleId}>
+                <ClueTermText text={title} />
+            </h1>
+            <p className={styles.message}>
+                <ClueTermText text={message} />
+            </p>
             {action !== undefined ? (
                 <button type="button" onClick={action.onClick}>
                     {action.label}

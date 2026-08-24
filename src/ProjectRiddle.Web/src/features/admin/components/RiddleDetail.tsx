@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { reconcileSessionAfterAuthorizationFailure } from "../../auth/api/sessionQuery";
 import { isApplicationError } from "../../../shared/api/errors";
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { adminRiddleDetailQueryOptions } from "../api/adminRiddleQueries";
@@ -126,7 +127,9 @@ export function RiddleDetail({ riddleId }: RiddleDetailProps): ReactElement {
                         <dt>Отговор</dt>
                         <dd lang="bg">{riddle.answer}</dd>
                         <dt>Обяснение</dt>
-                        <dd lang="bg">{riddle.explanation}</dd>
+                        <dd lang="bg">
+                            <ClueTermText text={riddle.explanation} />
+                        </dd>
                     </dl>
                 </section>
             </div>

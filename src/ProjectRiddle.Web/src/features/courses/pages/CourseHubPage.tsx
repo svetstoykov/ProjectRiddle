@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 
 import { NotFoundPage } from "../../../app/routes/NotFoundPage";
 import { isApplicationError } from "../../../shared/api/errors";
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { sessionQueryOptions } from "../../auth/api/sessionQuery";
@@ -128,6 +129,7 @@ export function CourseHubPage(): ReactElement {
               );
     const mixLockedReason = lockedReason(mixLockedTitles);
     const mixGlyphKeys = mixLesson?.prerequisiteLessonKeys.filter((key) => key !== "basics") ?? [];
+    const recommendedStart = recommendedStartByCourseKey[course.key];
 
     return (
         <div className={styles.page}>
@@ -137,13 +139,17 @@ export function CourseHubPage(): ReactElement {
                 <h1 ref={headingRef} tabIndex={-1}>
                     {course.title}
                 </h1>
-                <p>{course.intro}</p>
+                <p>
+                    <ClueTermText text={course.intro} />
+                </p>
             </header>
             {course.key === "finale" ? null : (
                 <section aria-labelledby="technique-lessons-heading" className={styles.section}>
                     <h2 id="technique-lessons-heading">{courseMessages.chooseStart}</h2>
-                    {recommendedStartByCourseKey[course.key] === undefined ? null : (
-                        <p className={styles.lead}>{recommendedStartByCourseKey[course.key]}</p>
+                    {recommendedStart === undefined ? null : (
+                        <p className={styles.lead}>
+                            <ClueTermText text={recommendedStart} />
+                        </p>
                     )}
                     <div className={styles.lessonGrid}>
                         {techniqueLessons.map((lesson) => (
@@ -161,16 +167,20 @@ export function CourseHubPage(): ReactElement {
             {mixLesson === undefined || mixProgress === undefined ? null : (
                 <section aria-labelledby="mix-lesson-heading" className={styles.section}>
                     <h2 id="mix-lesson-heading">
-                        {mixProgress.isComplete
-                            ? courseMessages.completionHeading
-                            : mixProgress.isAvailable
-                              ? mixLesson.title
-                              : courseMessages.lockedHeading}
+                        {mixProgress.isComplete ? (
+                            courseMessages.completionHeading
+                        ) : mixProgress.isAvailable ? (
+                            <ClueTermText text={mixLesson.title} />
+                        ) : (
+                            courseMessages.lockedHeading
+                        )}
                     </h2>
                     {mixProgress.isComplete ? (
                         <p className={styles.lead}>{courseMessages.completionLead}</p>
                     ) : mixProgress.isAvailable ? null : (
-                        <p className={styles.lead}>{mixLockedReason}</p>
+                        <p className={styles.lead}>
+                            <ClueTermText text={mixLockedReason} />
+                        </p>
                     )}
                     <LessonCard
                         courseKey={course.key}

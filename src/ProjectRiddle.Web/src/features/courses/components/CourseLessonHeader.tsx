@@ -1,6 +1,7 @@
 import type { ReactElement, RefObject } from "react";
 import { Link } from "react-router-dom";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import styles from "./CourseLessonHeader.module.css";
 
 export interface CourseLessonHeaderProps {
@@ -30,7 +31,9 @@ export function CourseLessonHeader({
                 </svg>
             </Link>
             <div className={styles.heading}>
-                <h1>{title}</h1>
+                <h1>
+                    <ClueTermText text={title} />
+                </h1>
                 <p>
                     {ordinal} от {total}
                 </p>
