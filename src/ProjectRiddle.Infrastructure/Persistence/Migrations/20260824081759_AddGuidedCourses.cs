@@ -6,13 +6,20 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProjectRiddle.Infrastructure.Persistence.Migrations
 {
     /// <summary>
-    /// Adds the guided-course curriculum, prerequisite, exercise, and primer tables.
+    /// Adds the lesson riddle flag and the guided-course curriculum, prerequisite, exercise, and primer tables.
     /// </summary>
-    public partial class AddGuidedCourses : Migration
+    internal sealed partial class AddGuidedCourses : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<bool>(
+                name: "IsLesson",
+                table: "Riddles",
+                type: "INTEGER",
+                nullable: false,
+                defaultValue: false);
+
             migrationBuilder.CreateTable(
                 name: "Courses",
                 columns: table => new
@@ -116,6 +123,11 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Riddles_IsLesson",
+                table: "Riddles",
+                column: "IsLesson");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Courses_Key",
                 table: "Courses",
                 column: "Key",
@@ -161,6 +173,14 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Courses");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Riddles_IsLesson",
+                table: "Riddles");
+
+            migrationBuilder.DropColumn(
+                name: "IsLesson",
+                table: "Riddles");
         }
     }
 }

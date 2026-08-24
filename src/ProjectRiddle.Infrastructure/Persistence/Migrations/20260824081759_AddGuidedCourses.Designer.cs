@@ -10,9 +10,12 @@ using ProjectRiddle.Infrastructure.Persistence;
 
 namespace ProjectRiddle.Infrastructure.Persistence.Migrations
 {
+    /// <summary>
+    /// Stores the model snapshot associated with the guided-course migration.
+    /// </summary>
     [DbContext(typeof(ProjectRiddleDbContext))]
-    [Migration("20260824064857_AddGuidedCourses")]
-    partial class AddGuidedCourses
+    [Migration("20260824081759_AddGuidedCourses")]
+    internal sealed partial class AddGuidedCourses
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
