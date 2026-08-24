@@ -82,10 +82,10 @@ export function ArchivePage(): ReactElement {
                 <PageStatus
                     tone="error"
                     eyebrow="Архив"
-                    title="Архивът временно не е достъпен"
-                    message="Заявката не може да бъде изпълнена."
+                    title="Архивът не се зарежда."
+                    message="Нещо се обърка от наша страна."
                     action={{
-                        label: "Опитай отново",
+                        label: "Пробвай пак",
                         onClick: () => {
                             void archiveQuery.refetch();
                         },
@@ -99,9 +99,9 @@ export function ArchivePage(): ReactElement {
         <section className={styles.page} aria-labelledby="archive-title">
             <DocumentTitle title="Архив" />
             <p className="eyebrow">Архив</p>
-            <h1 id="archive-title">Предишни загадки</h1>
+            <h1 id="archive-title">Предишни криптики</h1>
             {items.length === 0 ? (
-                <p role="status">Все още няма архивни загадки.</p>
+                <p role="status">Архивът е още празен.</p>
             ) : (
                 groupByMonth(items).map((group) => (
                     <section key={group.key} className={styles.month} aria-label={group.label}>

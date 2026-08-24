@@ -83,11 +83,11 @@ export function SignInPage(): ReactElement {
         const trimmedEmail = email.trim();
 
         if (trimmedEmail.length === 0 || !hasBrowserEmailShape(trimmedEmail)) {
-            nextEmailErrors.push("Въведете валиден имейл адрес.");
+            nextEmailErrors.push("Този имейл не изглежда валиден.");
         }
 
         if (password.length === 0) {
-            nextPasswordErrors.push("Въведете парола.");
+            nextPasswordErrors.push("Въведи парола.");
         }
 
         setServerError(null);
@@ -113,7 +113,7 @@ export function SignInPage(): ReactElement {
                 <h1>Вход</h1>
                 {registration.succeeded ? (
                     <p className={styles.success} role="status">
-                        Профилът е създаден. Влезте с новите си данни.
+                        Профилът е готов. Влез с новите си данни.
                     </p>
                 ) : null}
                 <AccountErrorSummary error={serverError} fieldNames={["email", "password"]} summaryRef={summaryRef} />
@@ -150,11 +150,11 @@ export function SignInPage(): ReactElement {
                         onChange={setPassword}
                     />
                     <button type="submit" className={styles.submit} aria-busy={busy} disabled={busy}>
-                        {busy ? "Влизане…" : "Вход"}
+                        {busy ? "Влизаме…" : "Влез"}
                     </button>
                 </form>
                 <p className={styles.switch}>
-                    Нямате профил? <Link to="/register">Регистрация</Link>
+                    Нямаш профил? <Link to="/register">Регистрация</Link>
                 </p>
             </div>
         </section>

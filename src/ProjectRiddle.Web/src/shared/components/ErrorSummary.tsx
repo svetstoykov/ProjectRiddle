@@ -11,7 +11,7 @@ export interface ErrorSummaryProps {
 
 export function ErrorSummary({
     messages,
-    heading = "Има проблем със заявката",
+    heading = "Провери следното:",
     headingId,
     summaryRef,
 }: ErrorSummaryProps): ReactElement | null {

@@ -47,7 +47,7 @@ export function ApplicationLayout(): ReactElement {
             queryClient.setQueryData(sessionKey, null);
             discardSessionScopedQueries(queryClient);
             clearAntiforgeryToken();
-            notifications.success("Излязохте от профила си.");
+            notifications.success("Излезе от профила си.");
             void navigate("/", { replace: true });
         },
         onError: (error: unknown) => {
@@ -56,7 +56,7 @@ export function ApplicationLayout(): ReactElement {
                 return;
             }
 
-            setSignOutError("Не успяхте да излезете от профила си. Опитайте отново.");
+            setSignOutError("Не успяхме да те изведем. Пробвай пак.");
         },
     });
 
@@ -114,13 +114,13 @@ export function ApplicationLayout(): ReactElement {
                             <>
                                 <span className={styles.avatar} data-tooltip={session.email}>
                                     <span aria-hidden="true">{session.email.slice(0, 1)}</span>
-                                    <span className="visuallyHidden">Влезли сте като {session.email}</span>
+                                    <span className="visuallyHidden">Профил: {session.email}</span>
                                 </span>
                                 <button
                                     type="button"
                                     className={styles.action}
-                                    aria-label={signOutMutation.isPending ? "Излизане…" : "Изход"}
-                                    data-tooltip={signOutMutation.isPending ? "Излизане…" : "Изход"}
+                                    aria-label={signOutMutation.isPending ? "Излизаме…" : "Изход"}
+                                    data-tooltip={signOutMutation.isPending ? "Излизаме…" : "Изход"}
                                     aria-busy={signOutMutation.isPending}
                                     disabled={signOutMutation.isPending}
                                     onClick={() => {

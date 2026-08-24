@@ -78,15 +78,19 @@ export function RegisterPage(): ReactElement {
         const trimmedEmail = email.trim();
 
         if (trimmedEmail.length === 0 || !hasBrowserEmailShape(trimmedEmail)) {
-            nextEmailErrors.push("Въведете валиден имейл адрес.");
+            nextEmailErrors.push("Този имейл не изглежда валиден.");
         }
 
-        if (password.length < 8 || password.length > 256) {
-            nextPasswordErrors.push("Паролата трябва да е между 8 и 256 знака.");
+        // The server reports both length bounds under one error code, so the message resolved from that code can only
+        // name one of them. The client checks each bound separately and says which one was missed.
+        if (password.length < 8) {
+            nextPasswordErrors.push("Паролата трябва да е поне 8 знака.");
+        } else if (password.length > 256) {
+            nextPasswordErrors.push("Паролата е най-много 256 знака.");
         }
 
         if (confirmation.length === 0) {
-            nextConfirmationErrors.push("Потвърдете паролата.");
+            nextConfirmationErrors.push("Потвърди паролата.");
         } else if (confirmation !== password) {
             nextConfirmationErrors.push("Паролите не съвпадат.");
         }
@@ -154,7 +158,7 @@ export function RegisterPage(): ReactElement {
                     />
                     <PasswordField
                         id={confirmationId}
-                        label="Потвърждение на паролата"
+                        label="Повтори паролата"
                         value={confirmation}
                         disabled={busy}
                         errors={confirmationErrors}
@@ -166,7 +170,7 @@ export function RegisterPage(): ReactElement {
                     </button>
                 </form>
                 <p className={styles.switch}>
-                    Вече имате профил? <Link to="/sign-in">Вход</Link>
+                    Вече имаш профил? <Link to="/sign-in">Вход</Link>
                 </p>
             </div>
         </section>
