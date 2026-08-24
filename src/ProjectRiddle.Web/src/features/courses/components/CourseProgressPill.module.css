@@ -1,0 +1,33 @@
+.progress {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+    width: 100%;
+    color: var(--color-muted-text);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: 700;
+}
+
+.track {
+    height: 1.3125rem;
+    overflow: hidden;
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-high);
+}
+
+.completed {
+    display: block;
+    height: 100%;
+    min-width: 0;
+    border-radius: inherit;
+    background: var(--color-primary);
+}
+
+.count {
+    min-width: 3.5rem;
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+}
