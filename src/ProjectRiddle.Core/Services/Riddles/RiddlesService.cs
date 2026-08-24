@@ -1,12 +1,11 @@
 using Microsoft.Extensions.Logging;
 using ProjectRiddle.Core.Constants.Riddles;
 using ProjectRiddle.Core.Enums.Riddles;
-using ProjectRiddle.Core.Exceptions;
 using ProjectRiddle.Core.Interfaces.Accounts;
-using ProjectRiddle.Core.Interfaces.Randomness;
 using ProjectRiddle.Core.Interfaces.Repositories;
 using ProjectRiddle.Core.Interfaces.Services;
 using ProjectRiddle.Core.Interfaces.Time;
+using ProjectRiddle.Core.Models.Play;
 using ProjectRiddle.Core.Models.Riddles;
 using ProjectRiddle.Core.Models.Riddles.Discovery;
 using ProjectRiddle.Core.Models.Riddles.Play;
@@ -25,7 +24,7 @@ public sealed class RiddlesService : IRiddlesService
     private readonly IRiddleProgressRepository _progressRepository;
     private readonly ICurrentAccount _currentAccount;
     private readonly IDateTimeProvider _dateTimeProvider;
-    private readonly IRandomNumberGenerator _randomNumberGenerator;
+    private readonly ICluePlayEngine _playEngine;
     private readonly ILogger<RiddlesService> _logger;
 
     /// <summary>
@@ -35,28 +34,28 @@ public sealed class RiddlesService : IRiddlesService
     /// <param name="progressRepository">The account progress persistence boundary.</param>
     /// <param name="currentAccount">The current caller identity.</param>
     /// <param name="dateTimeProvider">The clock used for local dates and timestamps.</param>
-    /// <param name="randomNumberGenerator">The source used to select unrevealed letters.</param>
+    /// <param name="playEngine">The shared clue play behavior.</param>
     /// <param name="logger">The logger for safe riddle events.</param>
     public RiddlesService(
         IRiddleRepository riddleRepository,
         IRiddleProgressRepository progressRepository,
         ICurrentAccount currentAccount,
         IDateTimeProvider dateTimeProvider,
-        IRandomNumberGenerator randomNumberGenerator,
+        ICluePlayEngine playEngine,
         ILogger<RiddlesService> logger)
     {
         ArgumentNullException.ThrowIfNull(riddleRepository);
         ArgumentNullException.ThrowIfNull(progressRepository);
         ArgumentNullException.ThrowIfNull(currentAccount);
         ArgumentNullException.ThrowIfNull(dateTimeProvider);
-        ArgumentNullException.ThrowIfNull(randomNumberGenerator);
+        ArgumentNullException.ThrowIfNull(playEngine);
         ArgumentNullException.ThrowIfNull(logger);
 
         this._riddleRepository = riddleRepository;
         this._progressRepository = progressRepository;
         this._currentAccount = currentAccount;
         this._dateTimeProvider = dateTimeProvider;
-        this._randomNumberGenerator = randomNumberGenerator;
+        this._playEngine = playEngine;
         this._logger = logger;
     }
 
@@ -154,15 +153,6 @@ public sealed class RiddlesService : IRiddlesService
         ArgumentNullException.ThrowIfNull(input);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (string.IsNullOrWhiteSpace(input.Answer))
-        {
-            return Result.Failure<RiddlePlayStateOutput>(
-                new OperationError(
-                    "An answer is required.",
-                    ErrorType.Validation,
-                    RiddleErrorCodes.AnswerRequestInvalid));
-        }
-
         var riddle = await _riddleRepository.GetByIdAsync(input.RiddleId, cancellationToken);
         var eligibility = EnsurePlayable(riddle);
         if (eligibility.IsFailure)
@@ -171,37 +161,23 @@ public sealed class RiddlesService : IRiddlesService
         }
 
         var playable = eligibility.Value!;
-        var normalizedSubmitted = AnswerNormalizer.Normalize(input.Answer);
-        var normalizedAnswer = AnswerNormalizer.Normalize(playable.Answer);
-        if (normalizedSubmitted.Length == 0)
+        var anonymous = ToAnonymousState(playable, input.Progress);
+        if (anonymous.IsFailure)
         {
-            return Result.Failure<RiddlePlayStateOutput>(
-                new OperationError(
-                    "An answer is required.",
-                    ErrorType.Validation,
-                    RiddleErrorCodes.AnswerRequestInvalid));
+            return Result.Failure<RiddlePlayStateOutput>(anonymous.Error!);
         }
 
-        var loaded = await LoadWorkingProgressAsync(playable, input.Progress, cancellationToken);
-        if (loaded.IsFailure)
+        var outcome = await _playEngine.SubmitAnswerAsync(playable, input.Answer, anonymous.Value, cancellationToken);
+        if (outcome.IsFailure)
         {
-            return Result.Failure<RiddlePlayStateOutput>(loaded.Error!);
-        }
-
-        var isCorrect = string.Equals(normalizedSubmitted, normalizedAnswer, StringComparison.Ordinal);
-        var working = loaded.Value!;
-        working.Progress.RecordAnswer(isCorrect, _dateTimeProvider.UtcDateTime);
-        var saved = await PersistProgressAsync(working.Progress, working.IsNew, cancellationToken);
-        if (saved.IsFailure)
-        {
-            return Result.Failure<RiddlePlayStateOutput>(saved.Error!);
+            return Result.Failure<RiddlePlayStateOutput>(outcome.Error!);
         }
 
         _logger.LogInformation(
             "Checked a public riddle answer. RiddleId: {RiddleId} Correct: {IsCorrect}",
             playable.Id,
-            isCorrect);
-        return Result.Success(ToPlayState(playable, saved.Value!, isCorrect));
+            outcome.Value!.IsCorrect);
+        return Result.Success(ToPlayState(playable, outcome.Value));
     }
 
     /// <inheritdoc />
@@ -212,11 +188,6 @@ public sealed class RiddlesService : IRiddlesService
         ArgumentNullException.ThrowIfNull(input);
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!Enum.IsDefined(input.Kind))
-        {
-            return InvalidHintKind();
-        }
-
         var riddle = await _riddleRepository.GetByIdAsync(input.RiddleId, cancellationToken);
         var eligibility = EnsurePlayable(riddle);
         if (eligibility.IsFailure)
@@ -225,22 +196,20 @@ public sealed class RiddlesService : IRiddlesService
         }
 
         var playable = eligibility.Value!;
-        var loaded = await LoadWorkingProgressAsync(playable, input.Progress, cancellationToken);
-        if (loaded.IsFailure)
+        var anonymous = ToAnonymousState(playable, input.Progress);
+        if (anonymous.IsFailure)
         {
-            return Result.Failure<RiddlePlayStateOutput>(loaded.Error!);
+            return Result.Failure<RiddlePlayStateOutput>(anonymous.Error!);
         }
 
-        var working = loaded.Value!;
-        working.Progress.RecordHint(input.Kind, _dateTimeProvider.UtcDateTime);
-        var saved = await PersistProgressAsync(working.Progress, working.IsNew, cancellationToken);
-        if (saved.IsFailure)
+        var outcome = await _playEngine.UseHintAsync(playable, input.Kind, anonymous.Value, cancellationToken);
+        if (outcome.IsFailure)
         {
-            return Result.Failure<RiddlePlayStateOutput>(saved.Error!);
+            return Result.Failure<RiddlePlayStateOutput>(outcome.Error!);
         }
 
         _logger.LogInformation("Recorded a public riddle hint. RiddleId: {RiddleId}", playable.Id);
-        return Result.Success(ToPlayState(playable, saved.Value!, isCorrect: null));
+        return Result.Success(ToPlayState(playable, outcome.Value!));
     }
 
     /// <inheritdoc />
@@ -259,56 +228,20 @@ public sealed class RiddlesService : IRiddlesService
         }
 
         var playable = eligibility.Value!;
-        var letters = AnswerLetters.FromNormalizedAnswer(AnswerNormalizer.Normalize(playable.Answer));
-
-        for (var attempt = 0; attempt < PublicRiddleLimits.ProgressWriteRetryLimit; attempt++)
+        var anonymous = ToAnonymousState(playable, input.Progress);
+        if (anonymous.IsFailure)
         {
-            var loaded = await LoadWorkingProgressAsync(playable, input.Progress, cancellationToken);
-            if (loaded.IsFailure)
-            {
-                return Result.Failure<RiddlePlayStateOutput>(loaded.Error!);
-            }
-
-            var progress = loaded.Value!.Progress;
-            if (progress.Status is not RiddleProgressStatus.Solved)
-            {
-                var remaining = Enumerable.Range(0, letters.Count)
-                    .Where(position => !progress.RevealedPositions.Contains(position))
-                    .ToArray();
-                if (remaining.Length > 0)
-                {
-                    var selected = remaining[_randomNumberGenerator.NextExclusive(remaining.Length)];
-                    progress.RecordReveal(selected, letters.Count, _dateTimeProvider.UtcDateTime);
-                }
-                else if (progress.Status is RiddleProgressStatus.InProgress && letters.Count > 0)
-                {
-                    progress.MergeFrom(
-                        progress.AnswerAttemptCount,
-                        RiddleProgressStatus.FullyRevealed,
-                        progress.UsedHints,
-                        progress.RevealedPositions,
-                        _dateTimeProvider.UtcDateTime);
-                }
-            }
-
-            var saved = await PersistProgressAsync(progress, loaded.Value!.IsNew, cancellationToken);
-            if (saved.IsSuccess)
-            {
-                _logger.LogInformation("Revealed a public riddle letter. RiddleId: {RiddleId}", playable.Id);
-                return Result.Success(ToPlayState(playable, saved.Value!, isCorrect: null));
-            }
-
-            if (saved.Error!.Type is not ErrorType.Conflict || attempt == PublicRiddleLimits.ProgressWriteRetryLimit - 1)
-            {
-                return Result.Failure<RiddlePlayStateOutput>(saved.Error);
-            }
+            return Result.Failure<RiddlePlayStateOutput>(anonymous.Error!);
         }
 
-        return Result.Failure<RiddlePlayStateOutput>(
-            new OperationError(
-                "The riddle progress could not be updated.",
-                ErrorType.Conflict,
-                RiddleErrorCodes.ProgressInvalid));
+        var outcome = await _playEngine.RevealLetterAsync(playable, anonymous.Value, cancellationToken);
+        if (outcome.IsFailure)
+        {
+            return Result.Failure<RiddlePlayStateOutput>(outcome.Error!);
+        }
+
+        _logger.LogInformation("Revealed a public riddle letter. RiddleId: {RiddleId}", playable.Id);
+        return Result.Success(ToPlayState(playable, outcome.Value!));
     }
 
     /// <inheritdoc />
@@ -327,14 +260,19 @@ public sealed class RiddlesService : IRiddlesService
         }
 
         var playable = eligibility.Value!;
-        var snapshot = _currentAccount.AccountId is null ? input.Progress : null;
-        var loaded = await LoadWorkingProgressAsync(playable, snapshot, cancellationToken);
-        if (loaded.IsFailure)
+        var anonymous = ToAnonymousState(playable, input.Progress);
+        if (anonymous.IsFailure)
         {
-            return Result.Failure<RiddlePlayStateOutput>(loaded.Error!);
+            return Result.Failure<RiddlePlayStateOutput>(anonymous.Error!);
         }
 
-        return Result.Success(ToPlayState(playable, loaded.Value!.Progress, isCorrect: null));
+        var outcome = await _playEngine.ResumeAsync(playable, anonymous.Value, cancellationToken);
+        if (outcome.IsFailure)
+        {
+            return Result.Failure<RiddlePlayStateOutput>(outcome.Error!);
+        }
+
+        return Result.Success(ToPlayState(playable, outcome.Value!));
     }
 
     /// <inheritdoc />
@@ -414,24 +352,25 @@ public sealed class RiddlesService : IRiddlesService
             return Result.Failure<RiddleProgressSnapshotOutput>(validation.Error!);
         }
 
-        var existing = await _progressRepository.GetAsync(accountId.Value, playable.Id, cancellationToken);
-        var isNew = existing is null;
-        var progress = existing ?? RiddleProgress.Start(accountId.Value, playable.Id, _dateTimeProvider.UtcDateTime);
-        progress.MergeFrom(
-            input.AnswerAttemptCount,
+        var imported = new CluePlayState(
             input.Status,
+            input.AnswerAttemptCount,
             input.UsedHints,
-            input.RevealedPositions,
-            _dateTimeProvider.UtcDateTime);
+            input.RevealedPositions);
 
-        var saved = await PersistProgressAsync(progress, isNew, cancellationToken);
-        if (saved.IsFailure)
+        var merged = await _playEngine.MergeAccountProgressAsync(
+            playable,
+            accountId.Value,
+            imported,
+            cancellationToken);
+        if (merged.IsFailure)
         {
-            return Result.Failure<RiddleProgressSnapshotOutput>(saved.Error!);
+            return Result.Failure<RiddleProgressSnapshotOutput>(merged.Error!);
         }
 
         _logger.LogInformation("Imported anonymous riddle progress. RiddleId: {RiddleId}", playable.Id);
-        return Result.Success(ToSnapshot(saved.Value!, playable.SofiaPublicationDate!.Value));
+        return Result.Success(
+            ToSnapshot(playable.Id, playable.SofiaPublicationDate!.Value, merged.Value!.State));
     }
 
     private Result<Riddle> EnsurePlayable(Riddle? riddle)
@@ -476,113 +415,36 @@ public sealed class RiddlesService : IRiddlesService
             && riddle.SofiaPublicationDate.Value <= _dateTimeProvider.LocalDate;
     }
 
-    private async Task<Result<LoadedRiddleProgress>> LoadWorkingProgressAsync(
-        Riddle riddle,
-        AnonymousRiddleProgressInput? anonymousProgress,
-        CancellationToken cancellationToken)
+    /// <summary>
+    /// Validates an anonymous snapshot and converts it for the play engine.
+    /// </summary>
+    /// <param name="riddle">The playable riddle.</param>
+    /// <param name="progress">The claimed snapshot, or <see langword="null" />.</param>
+    /// <returns>The validated state, <see langword="null" /> when none applies, or a validation failure.</returns>
+    /// <remarks>
+    /// An authenticated caller's snapshot is discarded without validation. Account progress is authoritative for
+    /// that caller, so a malformed body cannot fail a request it would not have influenced.
+    /// </remarks>
+    private Result<CluePlayState?> ToAnonymousState(Riddle riddle, AnonymousRiddleProgressInput? progress)
     {
-        var accountId = _currentAccount.AccountId;
-        if (accountId is not null)
+        if (_currentAccount.AccountId is not null || progress is null)
         {
-            var existing = await _progressRepository.GetAsync(accountId.Value, riddle.Id, cancellationToken);
-            if (existing is not null)
-            {
-                return Result.Success(new LoadedRiddleProgress(existing, IsNew: false));
-            }
-
-            return Result.Success(
-                new LoadedRiddleProgress(
-                    RiddleProgress.Start(accountId.Value, riddle.Id, _dateTimeProvider.UtcDateTime),
-                    true));
-        }
-
-        var started = RiddleProgress.Start(Guid.Empty, riddle.Id, _dateTimeProvider.UtcDateTime);
-        if (anonymousProgress is null)
-        {
-            return Result.Success(new LoadedRiddleProgress(started, true));
+            return Result.Success<CluePlayState?>(null);
         }
 
         var letters = AnswerLetters.FromNormalizedAnswer(AnswerNormalizer.Normalize(riddle.Answer));
-        var validation = AnonymousRiddleProgressValidator.Validate(anonymousProgress, riddle, letters.Count);
+        var validation = AnonymousRiddleProgressValidator.Validate(progress, riddle, letters.Count);
         if (validation.IsFailure)
         {
-            return Result.Failure<LoadedRiddleProgress>(validation.Error!);
+            return Result.Failure<CluePlayState?>(validation.Error!);
         }
 
-        started.MergeFrom(
-            anonymousProgress.AnswerAttemptCount,
-            anonymousProgress.Status,
-            anonymousProgress.UsedHints,
-            anonymousProgress.RevealedPositions,
-            _dateTimeProvider.UtcDateTime);
-        return Result.Success(new LoadedRiddleProgress(started, true));
-    }
-
-    private async Task<Result<RiddleProgress>> PersistProgressAsync(
-        RiddleProgress progress,
-        bool isNew,
-        CancellationToken cancellationToken)
-    {
-        if (progress.AccountId == Guid.Empty)
-        {
-            return Result.Success(progress);
-        }
-
-        try
-        {
-            if (isNew)
-            {
-                await _progressRepository.AddAsync(progress, cancellationToken);
-            }
-            else
-            {
-                await _progressRepository.UpdateAsync(progress, cancellationToken);
-            }
-
-            return Result.Success(progress);
-        }
-        catch (DuplicateRiddleProgressException)
-        {
-            var existing = await _progressRepository.GetAsync(progress.AccountId, progress.RiddleId, cancellationToken);
-            if (existing is null)
-            {
-                return Result.Failure<RiddleProgress>(
-                    new OperationError(
-                        "The riddle progress could not be updated.",
-                        ErrorType.Conflict,
-                        RiddleErrorCodes.ProgressInvalid));
-            }
-
-            existing.MergeFrom(
-                progress.AnswerAttemptCount,
+        return Result.Success<CluePlayState?>(
+            new CluePlayState(
                 progress.Status,
+                progress.AnswerAttemptCount,
                 progress.UsedHints,
-                progress.RevealedPositions,
-                progress.UpdatedAtUtc);
-
-            try
-            {
-                await _progressRepository.UpdateAsync(existing, cancellationToken);
-                return Result.Success(existing);
-            }
-            catch (DuplicateRiddleProgressException)
-            {
-                return Result.Failure<RiddleProgress>(
-                    new OperationError(
-                        "The riddle progress could not be updated.",
-                        ErrorType.Conflict,
-                        RiddleErrorCodes.ProgressInvalid));
-            }
-        }
-    }
-
-    private static Result<RiddlePlayStateOutput> InvalidHintKind()
-    {
-        return Result.Failure<RiddlePlayStateOutput>(
-            new OperationError(
-                "The structural hint kind is invalid.",
-                ErrorType.Validation,
-                RiddleErrorCodes.HintKindInvalid));
+                progress.RevealedPositions));
     }
 
     private static OperationError AuthenticationRequired()
@@ -623,28 +485,26 @@ public sealed class RiddlesService : IRiddlesService
             ranges);
     }
 
-    private static RiddlePlayStateOutput ToPlayState(Riddle riddle, RiddleProgress progress, bool? isCorrect)
+    private static RiddlePlayStateOutput ToPlayState(Riddle riddle, CluePlayOutcome outcome)
     {
-        var letters = AnswerLetters.FromNormalizedAnswer(AnswerNormalizer.Normalize(riddle.Answer));
-        var revealedLetters = progress.RevealedPositions
-            .OrderBy(position => position)
-            .Select(position => new RevealedLetterOutput(position, letters[position]))
-            .ToArray();
-
-        string? answer = null;
-        string? explanation = null;
-        if (progress.Status is RiddleProgressStatus.Solved or RiddleProgressStatus.FullyRevealed)
-        {
-            answer = AnswerNormalizer.Normalize(riddle.Answer);
-            explanation = riddle.Explanation;
-        }
-
         return new RiddlePlayStateOutput(
-            ToSnapshot(progress, riddle.SofiaPublicationDate!.Value),
-            revealedLetters,
-            answer,
-            explanation,
-            isCorrect);
+            ToSnapshot(riddle.Id, riddle.SofiaPublicationDate!.Value, outcome.State),
+            outcome.RevealedLetters,
+            outcome.Answer,
+            outcome.Explanation,
+            outcome.IsCorrect);
+    }
+
+    private static RiddleProgressSnapshotOutput ToSnapshot(Guid riddleId, DateOnly publicationDate, CluePlayState state)
+    {
+        return new RiddleProgressSnapshotOutput(
+            riddleId,
+            publicationDate,
+            state.Status,
+            state.AnswerAttemptCount,
+            state.UsedHints,
+            state.RevealedPositions,
+            state.RevealedPositions.Count);
     }
 
     private static RiddleProgressSnapshotOutput ToSnapshot(RiddleProgress progress, DateOnly publicationDate)

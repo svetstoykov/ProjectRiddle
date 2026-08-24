@@ -3,6 +3,7 @@ using ProjectRiddle.Core.Enums.Riddles;
 using ProjectRiddle.Core.Interfaces.Randomness;
 using ProjectRiddle.Core.Interfaces.Services;
 using ProjectRiddle.Core.Models.Riddles.Authoring;
+using ProjectRiddle.Core.Services.Play;
 using ProjectRiddle.Core.Services.Riddles;
 
 namespace ProjectRiddle.IntegrationTests.Harness;
@@ -31,13 +32,19 @@ public sealed class TestWorkspace
         Clock = new FixedDateTimeProvider(utcNow, TimeZoneId);
         Account = new MutableCurrentAccount(accountId);
         var riddles = new InMemoryRiddleRepository();
+        var progress = new InMemoryRiddleProgressRepository(riddles);
         AdminService = new AdminRiddlesService(riddles, Clock, NullLogger<AdminRiddlesService>.Instance);
-        Service = new RiddlesService(
-            riddles,
-            new InMemoryRiddleProgressRepository(riddles),
+        PlayEngine = new CluePlayEngine(
+            progress,
             Account,
             Clock,
-            randomNumberGenerator ?? new ScriptedRandomNumberGenerator(),
+            randomNumberGenerator ?? new ScriptedRandomNumberGenerator());
+        Service = new RiddlesService(
+            riddles,
+            progress,
+            Account,
+            Clock,
+            PlayEngine,
             NullLogger<RiddlesService>.Instance);
     }
 
@@ -50,6 +57,11 @@ public sealed class TestWorkspace
     /// Gets the controllable current-account identity.
     /// </summary>
     public MutableCurrentAccount Account { get; }
+
+    /// <summary>
+    /// Gets the shared clue play engine used by the service under test.
+    /// </summary>
+    public ICluePlayEngine PlayEngine { get; }
 
     /// <summary>
     /// Gets the Core administrative riddles service under test.

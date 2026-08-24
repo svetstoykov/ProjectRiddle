@@ -1,4 +1,5 @@
 using ProjectRiddle.Core.Interfaces.Services;
+using ProjectRiddle.Core.Services.Play;
 using ProjectRiddle.Core.Services.Riddles;
 using ProjectRiddle.Core.Services.System;
 
@@ -21,6 +22,7 @@ public static class ApplicationServiceCollectionExtensions
 
         services.AddSingleton<IInternalStatusService, InternalStatusService>();
         services.AddScoped<IAdminRiddlesService, AdminRiddlesService>();
+        services.AddScoped<ICluePlayEngine, CluePlayEngine>();
         services.AddScoped<IRiddlesService, RiddlesService>();
 
         return services;
