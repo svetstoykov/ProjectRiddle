@@ -7,6 +7,7 @@ using ProjectRiddle.Core.Interfaces.Services;
 using ProjectRiddle.Core.Models.Courses;
 using ProjectRiddle.Core.Models.Courses.Catalog;
 using ProjectRiddle.Core.Models.Courses.Play;
+using ProjectRiddle.Core.Models.Courses.Progress;
 using ProjectRiddle.Core.Models.Play;
 using ProjectRiddle.Core.Models.Riddles;
 using ProjectRiddle.Core.Models.Riddles.Discovery;
@@ -242,6 +243,140 @@ public sealed class CoursesService : ICoursesService
         }
 
         return Result.Success(ToPlayState(context.Exercise, outcome.Value!));
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<AccountCourseProgressOutput>> GetProgressAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (_currentAccount.AccountId is null)
+        {
+            return Result.Failure<AccountCourseProgressOutput>(AuthenticationRequired());
+        }
+
+        var courses = await _courseRepository.ListActiveCurriculumAsync(cancellationToken);
+        return Result.Success(await ProjectAccountProgressAsync(courses, cancellationToken));
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<AccountCourseProgressOutput>> ImportProgressAsync(
+        AnonymousCourseProgressInput input,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var accountId = _currentAccount.AccountId;
+        if (accountId is null)
+        {
+            return Result.Failure<AccountCourseProgressOutput>(AuthenticationRequired());
+        }
+
+        var validation = AnonymousCourseProgressValidator.ValidateImport(input);
+        if (validation.IsFailure)
+        {
+            return Result.Failure<AccountCourseProgressOutput>(validation.Error!);
+        }
+
+        var exerciseIds = input.Entries.Select(entry => entry.ExerciseId).ToArray();
+        var exercises = await _courseRepository.ListActiveExercisesByIdsAsync(exerciseIds, cancellationToken);
+        if (exercises.Count != exerciseIds.Length)
+        {
+            return Result.Failure<AccountCourseProgressOutput>(ReferenceInvalid());
+        }
+
+        var exercisesById = exercises.ToDictionary(exercise => exercise.Id);
+        var riddles = await _riddleRepository.GetByIdsAsync(
+            exercises.Select(exercise => exercise.RiddleId).Distinct().ToArray(),
+            cancellationToken);
+        var riddlesById = riddles.Where(riddle => riddle.IsLesson).ToDictionary(riddle => riddle.Id);
+        if (exercises.Any(exercise => !riddlesById.ContainsKey(exercise.RiddleId)))
+        {
+            return Result.Failure<AccountCourseProgressOutput>(ReferenceInvalid());
+        }
+
+        foreach (var entry in input.Entries)
+        {
+            var riddle = riddlesById[exercisesById[entry.ExerciseId].RiddleId];
+            var letters = AnswerLetters.FromNormalizedAnswer(AnswerNormalizer.Normalize(riddle.Answer));
+            var imported = new CluePlayState(
+                entry.Status,
+                AnswerAttemptCount: 0,
+                UsedHints: [],
+                RevealedPositions: entry.Status is RiddleProgressStatus.FullyRevealed
+                    ? Enumerable.Range(0, letters.Count).ToArray()
+                    : []);
+
+            var merged = await _playEngine.MergeAccountProgressAsync(
+                riddle,
+                accountId!.Value,
+                imported,
+                cancellationToken);
+            if (merged.IsFailure)
+            {
+                return Result.Failure<AccountCourseProgressOutput>(merged.Error!);
+            }
+        }
+
+        _logger.LogInformation(
+            "Imported anonymous course completion. ExerciseCount: {ExerciseCount}",
+            input.Entries.Count);
+
+        var courses = await _courseRepository.ListActiveCurriculumAsync(cancellationToken);
+        return Result.Success(await ProjectAccountProgressAsync(courses, cancellationToken));
+    }
+
+    /// <summary>
+    /// Projects the current account's completion across the active curriculum.
+    /// </summary>
+    /// <param name="courses">The active curriculum.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The account's completion.</returns>
+    private async Task<AccountCourseProgressOutput> ProjectAccountProgressAsync(
+        IReadOnlyList<Course> courses,
+        CancellationToken cancellationToken)
+    {
+        var exercises = courses
+            .SelectMany(course => course.Lessons)
+            .SelectMany(lesson => lesson.Exercises)
+            .Where(exercise => exercise.IsActive)
+            .ToArray();
+        var completedExerciseIds = await LoadCompletedExerciseIdsAsync(exercises, cancellationToken);
+
+        var lessons = courses
+            .OrderBy(course => course.Ordinal)
+            .SelectMany(course => course.Lessons.Where(lesson => lesson.IsActive).OrderBy(lesson => lesson.Ordinal))
+            .Select(lesson => ToLessonCompletion(lesson, completedExerciseIds))
+            .ToArray();
+
+        return new AccountCourseProgressOutput(completedExerciseIds.OrderBy(id => id).ToArray(), lessons);
+    }
+
+    private static LessonCompletionOutput ToLessonCompletion(Lesson lesson, IReadOnlySet<Guid> completedExerciseIds)
+    {
+        var active = lesson.Exercises.Where(exercise => exercise.IsActive).ToArray();
+        var completed = active.Count(exercise => completedExerciseIds.Contains(exercise.Id));
+
+        return new LessonCompletionOutput(
+            lesson.Id,
+            lesson.Key,
+            completed,
+            active.Length,
+            active.Length > 0 && completed == active.Length);
+    }
+
+    private static OperationError AuthenticationRequired()
+    {
+        return new OperationError("An authenticated account is required.", ErrorType.Unauthorized);
+    }
+
+    private static OperationError ReferenceInvalid()
+    {
+        return new OperationError(
+            "The imported course progress refers to content that is not active lesson content.",
+            ErrorType.Validation,
+            CourseErrorCodes.ProgressReferenceInvalid);
     }
 
     /// <summary>

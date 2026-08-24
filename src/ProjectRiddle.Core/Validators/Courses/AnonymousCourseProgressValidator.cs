@@ -1,6 +1,7 @@
 using ProjectRiddle.Core.Constants.Courses;
 using ProjectRiddle.Core.Enums.Riddles;
 using ProjectRiddle.Core.Models.Courses.Play;
+using ProjectRiddle.Core.Models.Courses.Progress;
 using ProjectRiddle.Core.Results.Models;
 
 namespace ProjectRiddle.Core.Validators.Courses;
@@ -68,11 +69,63 @@ public static class AnonymousCourseProgressValidator
         return Result.Success();
     }
 
+    /// <summary>
+    /// Validates an imported completion payload's version, bounds, and entry shape.
+    /// </summary>
+    /// <param name="input">The payload to validate. Cannot be <see langword="null" />.</param>
+    /// <returns>A successful result when the payload is usable; otherwise an expected failure.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="input" /> is <see langword="null" />.</exception>
+    /// <remarks>
+    /// An entry whose status is not a completion is rejected rather than ignored. The payload claims completion,
+    /// so an in-progress entry is a malformed claim, not a no-op.
+    /// </remarks>
+    public static Result ValidateImport(AnonymousCourseProgressInput input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        if (input.SchemaVersion != CourseLimits.AnonymousProgressSchemaVersion || input.Entries is null)
+        {
+            return InvalidImport();
+        }
+
+        if (input.Entries.Count > CourseLimits.MaxImportedExerciseCount)
+        {
+            return InvalidImport();
+        }
+
+        if (input.Entries.Any(entry => entry.ExerciseId == Guid.Empty))
+        {
+            return InvalidImport();
+        }
+
+        if (input.Entries.Select(entry => entry.ExerciseId).Distinct().Count() != input.Entries.Count)
+        {
+            return InvalidImport();
+        }
+
+        if (input.Entries.Any(entry =>
+            entry.Status is not (RiddleProgressStatus.Solved or RiddleProgressStatus.FullyRevealed)))
+        {
+            return InvalidImport();
+        }
+
+        return Result.Success();
+    }
+
     private static Result Invalid()
     {
         return Result.Failure(
             new OperationError(
                 "The course progress snapshot is missing required fields or has an invalid shape.",
+                ErrorType.Validation,
+                CourseErrorCodes.ProgressInvalid));
+    }
+
+    private static Result InvalidImport()
+    {
+        return Result.Failure(
+            new OperationError(
+                "The imported course progress is missing required fields or exceeds the accepted bounds.",
                 ErrorType.Validation,
                 CourseErrorCodes.ProgressInvalid));
     }

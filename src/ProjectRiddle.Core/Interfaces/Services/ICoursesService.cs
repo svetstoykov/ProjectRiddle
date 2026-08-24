@@ -1,5 +1,6 @@
 using ProjectRiddle.Core.Models.Courses.Catalog;
 using ProjectRiddle.Core.Models.Courses.Play;
+using ProjectRiddle.Core.Models.Courses.Progress;
 using ProjectRiddle.Core.Results.Models;
 
 namespace ProjectRiddle.Core.Interfaces.Services;
@@ -71,5 +72,26 @@ public interface ICoursesService
     /// <returns>The resulting play state, or an expected failure.</returns>
     Task<Result<CoursePlayStateOutput>> ResumeAsync(
         ResumeCourseExerciseInput input,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the current account's course completion.
+    /// </summary>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The account's completion, or an expected failure.</returns>
+    Task<Result<AccountCourseProgressOutput>> GetProgressAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Merges a bounded anonymous completion snapshot into the current account's progress.
+    /// </summary>
+    /// <param name="input">The imported snapshot. Cannot be <see langword="null" />.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The account's completion after the merge, or an expected failure.</returns>
+    /// <remarks>
+    /// The whole payload is validated and resolved before the first write, so an invalid entry rejects the import
+    /// and leaves stored progress untouched.
+    /// </remarks>
+    Task<Result<AccountCourseProgressOutput>> ImportProgressAsync(
+        AnonymousCourseProgressInput input,
         CancellationToken cancellationToken);
 }
