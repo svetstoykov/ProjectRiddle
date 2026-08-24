@@ -60,6 +60,26 @@ public sealed class RiddleProgressRepository : IRiddleProgressRepository
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<RiddleProgress>> ListByAccountAndRiddleIdsAsync(
+        Guid accountId,
+        IReadOnlyCollection<Guid> riddleIds,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(riddleIds);
+        if (riddleIds.Count == 0)
+        {
+            return [];
+        }
+
+        return await _dbContext.Set<RiddleProgress>()
+            .Include(progress => progress.Hints)
+            .Include(progress => progress.Positions)
+            .AsNoTracking()
+            .Where(progress => progress.AccountId == accountId && riddleIds.Contains(progress.RiddleId))
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
     public async Task AddAsync(RiddleProgress progress, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(progress);

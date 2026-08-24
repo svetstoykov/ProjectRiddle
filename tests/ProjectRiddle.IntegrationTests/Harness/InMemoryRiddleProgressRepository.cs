@@ -45,6 +45,20 @@ public sealed class InMemoryRiddleProgressRepository : IRiddleProgressRepository
     }
 
     /// <inheritdoc />
+    public Task<IReadOnlyList<RiddleProgress>> ListByAccountAndRiddleIdsAsync(
+        Guid accountId,
+        IReadOnlyCollection<Guid> riddleIds,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(riddleIds);
+        cancellationToken.ThrowIfCancellationRequested();
+        var matches = _records
+            .Where(record => record.AccountId == accountId && riddleIds.Contains(record.RiddleId))
+            .ToArray();
+        return Task.FromResult<IReadOnlyList<RiddleProgress>>(matches);
+    }
+
+    /// <inheritdoc />
     public Task AddAsync(RiddleProgress progress, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(progress);
