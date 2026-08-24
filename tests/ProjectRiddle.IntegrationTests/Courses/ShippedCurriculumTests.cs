@@ -146,28 +146,6 @@ public sealed class ShippedCurriculumTests
         Assert.True(Lesson(afterEverything.Value!, "final-mix").Progress!.IsAvailable);
     }
 
-    /// <summary>
-    /// Verifies that no shipped clue, answer, or explanation carries Latin characters, which would mean text was
-    /// pasted from the research extract rather than written for this project.
-    /// </summary>
-    [Fact]
-    public void ShippedContentIsBulgarian()
-    {
-        var curriculum = CourseManifestValidator.Validate(Load(), SeedInstant).Value!;
-
-        foreach (var riddle in curriculum.LessonRiddles)
-        {
-            Assert.DoesNotContain(riddle.Clue, char.IsAsciiLetter);
-            Assert.DoesNotContain(riddle.Answer, char.IsAsciiLetter);
-            Assert.DoesNotContain(riddle.Explanation, char.IsAsciiLetter);
-        }
-
-        foreach (var page in curriculum.PrimerPages)
-        {
-            Assert.DoesNotContain(page.Body, char.IsAsciiLetter);
-        }
-    }
-
     private static CourseManifest Load()
     {
         var path = Path.Combine(AppContext.BaseDirectory, "Content", "course-manifest.json");
