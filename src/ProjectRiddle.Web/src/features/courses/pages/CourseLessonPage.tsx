@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ReactElement, ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactElement, type ReactNode, type RefObject } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { NotFoundPage } from "../../../app/routes/NotFoundPage";
@@ -13,9 +13,12 @@ import { courseLessonQueryOptions, courseCatalogQueryOptions } from "../api/cour
 import { useCoursePlaySession } from "../api/coursePlaySession";
 import { useResolvedCourseProgress } from "../api/courseProgress";
 import { CourseLessonHeader } from "../components/CourseLessonHeader";
+import { CoursePrimerDialog } from "../components/CoursePrimerDialog";
+import { LessonIntroDialog } from "../components/LessonIntroDialog";
 import { LessonOutcome } from "../components/LessonOutcome";
 import { courseMessages, lockedReason, successLine } from "../messages/courseMessages";
-import type { CourseLessonSummary } from "../models/courseCatalog";
+import type { CourseLessonDetail, CourseLessonSummary } from "../models/courseCatalog";
+import { readAnonymousCourseProgress } from "../storage/anonymousCourseProgress";
 import styles from "./CourseLessonPage.module.css";
 
 interface LessonFrameProps {
@@ -23,10 +26,28 @@ interface LessonFrameProps {
     readonly lesson: CourseLessonSummary;
     readonly ordinal: number;
     readonly total: number;
+    readonly dialog: "primer" | "intro" | null;
+    readonly introLesson: CourseLessonDetail | undefined;
+    readonly onOpenIntro: (() => void) | undefined;
+    readonly onDismissPrimer: () => void;
+    readonly onDismissIntro: () => void;
+    readonly introTriggerRef: RefObject<HTMLButtonElement | null>;
     readonly children: ReactNode;
 }
 
-function LessonFrame({ courseKey, lesson, ordinal, total, children }: LessonFrameProps): ReactElement {
+function LessonFrame({
+    courseKey,
+    lesson,
+    ordinal,
+    total,
+    dialog,
+    introLesson,
+    onOpenIntro,
+    onDismissPrimer,
+    onDismissIntro,
+    introTriggerRef,
+    children,
+}: LessonFrameProps): ReactElement {
     return (
         <div className={styles.screen}>
             <CourseLessonHeader
@@ -35,8 +56,23 @@ function LessonFrame({ courseKey, lesson, ordinal, total, children }: LessonFram
                 title={lesson.title}
                 ordinal={ordinal}
                 total={total}
+                onOpenIntro={onOpenIntro}
+                introTriggerRef={introTriggerRef}
             />
             <main className={styles.stage}>{children}</main>
+            <CoursePrimerDialog
+                open={dialog === "primer"}
+                onDismiss={onDismissPrimer}
+                returnFocusRef={introTriggerRef}
+            />
+            {introLesson === undefined || introLesson.kind !== "technique" || introLesson.intro === undefined ? null : (
+                <LessonIntroDialog
+                    lesson={introLesson}
+                    open={dialog === "intro"}
+                    onDismiss={onDismissIntro}
+                    returnFocusRef={introTriggerRef}
+                />
+            )}
         </div>
     );
 }
@@ -79,6 +115,12 @@ export function CourseLessonPage(): ReactElement {
         ordinal: string;
     }>();
     const navigate = useNavigate();
+    const initialProgressRef = useRef(readAnonymousCourseProgress());
+    const [dialog, setDialog] = useState<"primer" | "intro" | null>(
+        initialProgressRef.current.primerDismissed ? null : "primer",
+    );
+    const initializedLessonKeyRef = useRef<string | undefined>(undefined);
+    const introTriggerRef = useRef<HTMLButtonElement | null>(null);
     const sessionQuery = useQuery(sessionQueryOptions);
     const catalogQuery = useQuery(courseCatalogQueryOptions());
     const isAuthenticated = (sessionQuery.data ?? null) !== null;
@@ -96,6 +138,37 @@ export function CourseLessonPage(): ReactElement {
     const playableExercise = lessonProgress?.isAvailable === true ? exercise : undefined;
     const courseSession = useCoursePlaySession(playableExercise, isAuthenticated);
     const total = detail?.exercises.length ?? lessonSummary?.exerciseCount ?? 0;
+
+    useEffect(() => {
+        if (detail === undefined || initializedLessonKeyRef.current === detail.key || dialog === "primer") {
+            return;
+        }
+
+        initializedLessonKeyRef.current = detail.key;
+        const stored = readAnonymousCourseProgress();
+        const shouldOpenIntro =
+            detail.kind === "technique" &&
+            detail.intro !== undefined &&
+            !stored.dismissedLessonIntroKeys.includes(detail.key);
+        setDialog(shouldOpenIntro ? "intro" : null);
+    }, [detail, dialog]);
+
+    const openIntro = detail?.kind === "technique" && detail.intro !== undefined ? () => setDialog("intro") : undefined;
+    const dismissPrimer = (): void => {
+        setDialog(null);
+    };
+    const dismissIntro = (): void => {
+        setDialog(null);
+    };
+
+    const frameProps = {
+        dialog,
+        introLesson: detail,
+        onOpenIntro: openIntro,
+        onDismissPrimer: dismissPrimer,
+        onDismissIntro: dismissIntro,
+        introTriggerRef,
+    };
 
     if (catalogQuery.isPending) {
         return (
@@ -137,7 +210,7 @@ export function CourseLessonPage(): ReactElement {
 
     if (lessonQuery.isError) {
         return (
-            <LessonFrame courseKey={course.key} lesson={lessonSummary} ordinal={ordinal} total={total}>
+            <LessonFrame courseKey={course.key} lesson={lessonSummary} ordinal={ordinal} total={total} {...frameProps}>
                 <DocumentTitle title={lessonSummary.title} />
                 <PageStatus
                     tone="error"
@@ -169,7 +242,7 @@ export function CourseLessonPage(): ReactElement {
 
     if (lessonQuery.isPending || resolvedProgress.isPending || detail === undefined) {
         return (
-            <LessonFrame courseKey={course.key} lesson={lessonSummary} ordinal={ordinal} total={total}>
+            <LessonFrame courseKey={course.key} lesson={lessonSummary} ordinal={ordinal} total={total} {...frameProps}>
                 <DocumentTitle title={lessonSummary.title} />
                 <p className="visuallyHidden" role="status">
                     Зареждаме задачата…
@@ -181,7 +254,7 @@ export function CourseLessonPage(): ReactElement {
 
     if (resolvedProgress.error !== undefined) {
         return (
-            <LessonFrame courseKey={course.key} lesson={lessonSummary} ordinal={ordinal} total={total}>
+            <LessonFrame courseKey={course.key} lesson={lessonSummary} ordinal={ordinal} total={total} {...frameProps}>
                 <DocumentTitle title={lessonSummary.title} />
                 <PageStatus
                     tone="error"
@@ -211,6 +284,7 @@ export function CourseLessonPage(): ReactElement {
                 lesson={lessonSummary}
                 ordinal={ordinal}
                 total={detail.exercises.length}
+                {...frameProps}
             >
                 <DocumentTitle title={lessonSummary.title} />
                 <PageStatus
@@ -235,6 +309,7 @@ export function CourseLessonPage(): ReactElement {
                 lesson={lessonSummary}
                 ordinal={ordinal}
                 total={detail.exercises.length}
+                {...frameProps}
             >
                 <DocumentTitle title={`${lessonSummary.title} · ${ordinal} от ${detail.exercises.length}`} />
                 <PageStatus
@@ -255,6 +330,7 @@ export function CourseLessonPage(): ReactElement {
                 lesson={lessonSummary}
                 ordinal={ordinal}
                 total={detail.exercises.length}
+                {...frameProps}
             >
                 <DocumentTitle title={`${lessonSummary.title} · ${ordinal} от ${detail.exercises.length}`} />
                 <p className="visuallyHidden" role="status">
@@ -285,7 +361,13 @@ export function CourseLessonPage(): ReactElement {
             : `/courses/${course.key}`;
 
     return (
-        <LessonFrame courseKey={course.key} lesson={lessonSummary} ordinal={ordinal} total={detail.exercises.length}>
+        <LessonFrame
+            courseKey={course.key}
+            lesson={lessonSummary}
+            ordinal={ordinal}
+            total={detail.exercises.length}
+            {...frameProps}
+        >
             <DocumentTitle title={`${lessonSummary.title} · ${ordinal} от ${detail.exercises.length}`} />
             {isInProgress && exercise.setup === undefined ? null : isInProgress ? (
                 <p className={styles.setup}>{exercise.setup}</p>
