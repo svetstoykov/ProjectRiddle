@@ -21,7 +21,7 @@ export interface CoursePlaySession {
     readonly playerView: RiddlePlayerView | undefined;
     readonly playerState: RiddlePlayerState | undefined;
     readonly teachingNote: string | undefined;
-    readonly error: unknown;
+    readonly error: unknown | undefined;
     readonly isPending: boolean;
     readonly pendingHint: RiddleRangeKind | undefined;
     readonly isSubmitting: boolean;
@@ -157,7 +157,7 @@ export function useCoursePlaySession(
         playerView,
         playerState,
         teachingNote: playState?.teachingNote,
-        error: exercise === undefined ? undefined : playStateQuery.error,
+        error: exercise !== undefined && playStateQuery.error != null ? playStateQuery.error : undefined,
         isPending: exercise !== undefined && playStateQuery.isPending,
         pendingHint: hintMutation.isPending ? hintMutation.variables?.kind : undefined,
         isSubmitting: answerMutation.isPending,

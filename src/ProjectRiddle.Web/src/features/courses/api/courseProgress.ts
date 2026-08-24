@@ -103,7 +103,8 @@ export function useResolvedCourseProgress(
     const lessons = buildResolvedLessons(neededLessons, completedExerciseIds, detailByLessonId, accountLessons);
     const failedQueries = anonymousQueries.filter((query) => query.isError);
     const isPending = isAuthenticated ? accountQuery.isPending : anonymousQueries.some((query) => query.isPending);
-    const error = isAuthenticated ? accountQuery.error : failedQueries.at(0)?.error;
+    // TanStack Query uses `null` for "no error". Callers treat only a defined value as a failure, so collapse `null`.
+    const error = isAuthenticated ? (accountQuery.error ?? undefined) : (failedQueries.at(0)?.error ?? undefined);
     const retry = (): void => {
         if (isAuthenticated) {
             if (accountQuery.isError) {

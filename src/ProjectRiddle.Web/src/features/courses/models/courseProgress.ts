@@ -10,7 +10,7 @@ export interface ResolvedLessonProgress {
 export interface ResolvedCourseProgress {
     readonly lessons: ReadonlyMap<string, ResolvedLessonProgress>;
     readonly isPending: boolean;
-    readonly error: unknown;
+    readonly error: unknown | undefined;
     readonly retry: () => void;
 }
 

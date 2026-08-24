@@ -74,7 +74,7 @@ export function CourseHubPage(): ReactElement {
         );
     }
 
-    if (catalogQuery.isError || resolvedProgress.error !== undefined) {
+    if (catalogQuery.isError || resolvedProgress.error != null) {
         return (
             <>
                 <DocumentTitle title="Курсове" />

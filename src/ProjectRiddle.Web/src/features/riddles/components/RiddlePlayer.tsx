@@ -14,14 +14,20 @@ import { AnswerTiles, type AnswerWordView } from "./AnswerTiles";
 import { BulgarianKeyboard } from "./BulgarianKeyboard";
 import { CluePresentation } from "./CluePresentation";
 import { HintDialog } from "./HintDialog";
-import { OutcomeCarousel } from "./OutcomeCarousel";
+import { OutcomeCarousel, type OutcomeCarouselCard } from "./OutcomeCarousel";
 import styles from "./RiddlePlayer.module.css";
 import { SolvedConfetti } from "./SolvedConfetti";
+
+export interface RiddleOutcomeExtras {
+    readonly summaryBody?: string;
+    readonly extraCards?: readonly OutcomeCarouselCard[];
+    readonly footer?: ReactNode;
+}
 
 export interface RiddlePlayerProps {
     readonly play: RiddlePlayerView;
     readonly playState: RiddlePlayerState;
-    readonly terminalSupplement?: ReactNode;
+    readonly outcomeExtras?: RiddleOutcomeExtras;
     readonly pendingHint: RiddleRangeKind | undefined;
     readonly isSubmitting: boolean;
     readonly isRevealing: boolean;
@@ -64,7 +70,7 @@ function isTextEntryTarget(target: EventTarget | null): boolean {
 export function RiddlePlayer({
     play,
     playState,
-    terminalSupplement,
+    outcomeExtras,
     pendingHint,
     isSubmitting,
     isRevealing,
@@ -290,14 +296,14 @@ export function RiddlePlayer({
                     is over. Nothing else moves when the riddle ends. */}
                 <div className={styles.controlSlot}>
                     {isTerminal ? (
-                        <div className={styles.outcomeStack}>
-                            <OutcomeCarousel
-                                status={playState.progress.status}
-                                answerAttemptCount={playState.progress.answerAttemptCount}
-                                explanation={playState.explanation}
-                            />
-                            {terminalSupplement}
-                        </div>
+                        <OutcomeCarousel
+                            status={playState.progress.status}
+                            answerAttemptCount={playState.progress.answerAttemptCount}
+                            explanation={playState.explanation}
+                            summaryBody={outcomeExtras?.summaryBody}
+                            extraCards={outcomeExtras?.extraCards}
+                            footer={outcomeExtras?.footer}
+                        />
                     ) : (
                         <div className={styles.actions}>
                             <button

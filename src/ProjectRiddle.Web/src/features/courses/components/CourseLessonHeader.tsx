@@ -5,7 +5,6 @@ import styles from "./CourseLessonHeader.module.css";
 
 export interface CourseLessonHeaderProps {
     readonly courseKey: string;
-    readonly lessonKey: string;
     readonly title: string;
     readonly ordinal: number;
     readonly total: number;
@@ -15,15 +14,12 @@ export interface CourseLessonHeaderProps {
 
 export function CourseLessonHeader({
     courseKey,
-    lessonKey,
     title,
     ordinal,
     total,
     onOpenIntro,
     introTriggerRef,
 }: CourseLessonHeaderProps): ReactElement {
-    const previousLabel = `Предишна задача: ${ordinal - 1} от ${total}`;
-    const nextLabel = `Следваща задача: ${ordinal + 1} от ${total}`;
     const hasTechniqueIntro = onOpenIntro !== undefined && introTriggerRef !== undefined;
 
     return (
@@ -51,36 +47,6 @@ export function CourseLessonHeader({
                 </button>
             ) : (
                 <span className={styles.infoPlaceholder} aria-hidden="true" />
-            )}
-            {total === 1 ? null : (
-                <nav className={styles.navigation} aria-label="Навигация между задачите">
-                    {ordinal === 1 ? (
-                        <button type="button" className={styles.step} disabled aria-label={previousLabel}>
-                            ‹
-                        </button>
-                    ) : (
-                        <Link
-                            className={styles.step}
-                            to={`/courses/${courseKey}/${lessonKey}/${ordinal - 1}`}
-                            aria-label={previousLabel}
-                        >
-                            ‹
-                        </Link>
-                    )}
-                    {ordinal === total ? (
-                        <button type="button" className={styles.step} disabled aria-label={nextLabel}>
-                            ›
-                        </button>
-                    ) : (
-                        <Link
-                            className={styles.step}
-                            to={`/courses/${courseKey}/${lessonKey}/${ordinal + 1}`}
-                            aria-label={nextLabel}
-                        >
-                            ›
-                        </Link>
-                    )}
-                </nav>
             )}
         </header>
     );

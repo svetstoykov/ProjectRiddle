@@ -1,30 +1,34 @@
-import { useState, type ReactElement } from "react";
+import { useState, type ReactElement, type ReactNode } from "react";
 
 import type { RiddleProgressStatus } from "../models/riddleProgress";
 import styles from "./OutcomeCarousel.module.css";
+
+export interface OutcomeCarouselCard {
+    readonly id: string;
+    readonly title: string;
+    readonly body?: string;
+}
 
 export interface OutcomeCarouselProps {
     readonly status: RiddleProgressStatus;
     readonly answerAttemptCount: number;
     readonly explanation: string | undefined;
-}
-
-interface OutcomeCard {
-    readonly id: string;
-    readonly title: string;
-    readonly body?: string;
+    readonly summaryBody?: string;
+    readonly extraCards?: readonly OutcomeCarouselCard[];
+    readonly footer?: ReactNode;
 }
 
 function solvedSummaryTitle(attemptCount: number): string {
     return attemptCount <= 1 ? "Правилен отговор!" : `Правилен отговор! ${attemptCount} опита.`;
 }
 
-function buildCards(props: OutcomeCarouselProps): readonly OutcomeCard[] {
-    const summary: OutcomeCard =
+function buildCards(props: OutcomeCarouselProps): readonly OutcomeCarouselCard[] {
+    const summary: OutcomeCarouselCard =
         props.status === "solved"
             ? {
                   id: "summary",
                   title: solvedSummaryTitle(props.answerAttemptCount),
+                  body: props.summaryBody,
               }
             : {
                   id: "summary",
@@ -32,11 +36,17 @@ function buildCards(props: OutcomeCarouselProps): readonly OutcomeCard[] {
                   body: "Всички букви са разкрити, без загадката да бъде решена.",
               };
 
-    if (props.explanation === undefined) {
-        return [summary];
+    const cards: OutcomeCarouselCard[] = [summary];
+
+    if (props.explanation !== undefined) {
+        cards.push({ id: "explanation", title: "Обяснение", body: props.explanation });
     }
 
-    return [summary, { id: "explanation", title: "Обяснение", body: props.explanation }];
+    if (props.extraCards !== undefined) {
+        cards.push(...props.extraCards);
+    }
+
+    return cards;
 }
 
 /**
@@ -112,6 +122,7 @@ export function OutcomeCarousel(props: OutcomeCarouselProps): ReactElement | nul
                     </button>
                 </div>
             ) : null}
+            {props.footer === undefined ? null : <div className={styles.footer}>{props.footer}</div>}
         </section>
     );
 }

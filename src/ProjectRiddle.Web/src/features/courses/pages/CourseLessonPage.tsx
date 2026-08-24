@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState, type ReactElement, type ReactNode, type RefObject } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { NotFoundPage } from "../../../app/routes/NotFoundPage";
 import { isApplicationError } from "../../../shared/api/errors";
@@ -15,7 +15,6 @@ import { useResolvedCourseProgress } from "../api/courseProgress";
 import { CourseLessonHeader } from "../components/CourseLessonHeader";
 import { CoursePrimerDialog } from "../components/CoursePrimerDialog";
 import { LessonIntroDialog } from "../components/LessonIntroDialog";
-import { LessonOutcome } from "../components/LessonOutcome";
 import { courseMessages, lockedReason, successLine } from "../messages/courseMessages";
 import type { CourseLessonDetail, CourseLessonSummary } from "../models/courseCatalog";
 import { readAnonymousCourseProgress } from "../storage/anonymousCourseProgress";
@@ -52,7 +51,6 @@ function LessonFrame({
         <div className={styles.screen}>
             <CourseLessonHeader
                 courseKey={courseKey}
-                lessonKey={lesson.key}
                 title={lesson.title}
                 ordinal={ordinal}
                 total={total}
@@ -252,7 +250,7 @@ export function CourseLessonPage(): ReactElement {
         );
     }
 
-    if (resolvedProgress.error !== undefined) {
+    if (resolvedProgress.error != null) {
         return (
             <LessonFrame courseKey={course.key} lesson={lessonSummary} ordinal={ordinal} total={total} {...frameProps}>
                 <DocumentTitle title={lessonSummary.title} />
@@ -302,7 +300,7 @@ export function CourseLessonPage(): ReactElement {
         );
     }
 
-    if (courseSession.error !== undefined) {
+    if (courseSession.error != null) {
         return (
             <LessonFrame
                 courseKey={course.key}
@@ -341,13 +339,6 @@ export function CourseLessonPage(): ReactElement {
         );
     }
 
-    const completedAfterPlay =
-        courseSession.playState !== undefined &&
-        courseSession.playState.progress.status !== "inProgress" &&
-        lessonProgress !== undefined &&
-        !lessonProgress.completedExerciseIds.has(exercise.id)
-            ? Math.min(lessonProgress.completedExerciseCount + 1, detail.exercises.length)
-            : (lessonProgress?.completedExerciseCount ?? 0);
     const isInProgress = courseSession.playState?.progress.status === "inProgress";
     const actionLabel =
         exercise.ordinal < detail.exercises.length
@@ -359,6 +350,7 @@ export function CourseLessonPage(): ReactElement {
         exercise.ordinal < detail.exercises.length
             ? `/courses/${course.key}/${lessonSummary.key}/${exercise.ordinal + 1}`
             : `/courses/${course.key}`;
+    const teachingNote = courseSession.teachingNote;
 
     return (
         <LessonFrame
@@ -375,21 +367,23 @@ export function CourseLessonPage(): ReactElement {
             <RiddlePlayer
                 play={courseSession.playerView}
                 playState={courseSession.playerState}
-                terminalSupplement={
-                    <LessonOutcome
-                        completed={completedAfterPlay}
-                        total={detail.exercises.length}
-                        message={successLine(
-                            lessonSummary.title,
-                            lessonSummary.kind,
-                            exercise.ordinal,
-                            detail.exercises.length,
-                        )}
-                        teachingNote={courseSession.teachingNote}
-                        actionLabel={actionLabel}
-                        actionTo={actionTo}
-                    />
-                }
+                outcomeExtras={{
+                    summaryBody: successLine(
+                        lessonSummary.title,
+                        lessonSummary.kind,
+                        exercise.ordinal,
+                        detail.exercises.length,
+                    ),
+                    extraCards:
+                        teachingNote === undefined
+                            ? undefined
+                            : [{ id: "teaching-note", title: "Бележка", body: teachingNote }],
+                    footer: (
+                        <Link className="button" to={actionTo}>
+                            {actionLabel}
+                        </Link>
+                    ),
+                }}
                 pendingHint={courseSession.pendingHint}
                 isSubmitting={courseSession.isSubmitting}
                 isRevealing={courseSession.isRevealing}
