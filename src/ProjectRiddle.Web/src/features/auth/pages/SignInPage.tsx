@@ -7,7 +7,7 @@ import { ErrorSummary } from "../../../shared/components/ErrorSummary";
 import { FieldError } from "../../../shared/components/FieldError";
 import { clearAntiforgeryToken } from "../../../shared/api/client";
 import { authApi } from "../api/authApi";
-import { discardSessionScopedRiddleQueries, sessionKey } from "../api/sessionQuery";
+import { discardSessionScopedQueries, sessionKey } from "../api/sessionQuery";
 import { AccountErrorSummary } from "../components/AccountErrorSummary";
 import { mapAccountErrors } from "../components/accountErrors";
 import { PasswordField } from "../components/PasswordField";
@@ -62,7 +62,7 @@ export function SignInPage(): ReactElement {
         mutationFn: authApi.signIn,
         onSuccess: (session) => {
             queryClient.setQueryData(sessionKey, session);
-            discardSessionScopedRiddleQueries(queryClient);
+            discardSessionScopedQueries(queryClient);
             clearAntiforgeryToken();
             void navigate(safeReturnPath(searchParams.get("returnTo")), { replace: true });
         },

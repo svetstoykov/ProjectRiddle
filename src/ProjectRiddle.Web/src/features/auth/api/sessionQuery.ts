@@ -2,6 +2,7 @@ import { queryOptions, type QueryClient } from "@tanstack/react-query";
 
 import { clearAntiforgeryToken } from "../../../shared/api/client";
 import { isApplicationError } from "../../../shared/api/errors";
+import { courseKeys } from "../../courses/api/courseQueries";
 import { riddleKeys } from "../../riddles/api/riddleQueries";
 import { authApi } from "./authApi";
 
@@ -14,12 +15,13 @@ export const sessionQueryOptions = queryOptions({
 });
 
 /**
- * Riddle reads are answered for the caller the server sees: the archive withholds account-only clues from a signed-out
- * visitor, and progress belongs to the account. Signing in or out therefore discards the riddle cache, so a card is
- * never left veiled after an unlock or readable after a sign-out.
+ * Capability reads are answered for the caller the server sees: the archive withholds account-only clues from a
+ * signed-out visitor, and both riddle and course progress belong to the account. Signing in or out therefore
+ * discards both capability roots, so an old caller's data cannot remain visible after the session changes.
  */
-export function discardSessionScopedRiddleQueries(queryClient: QueryClient): void {
+export function discardSessionScopedQueries(queryClient: QueryClient): void {
     queryClient.removeQueries({ queryKey: riddleKeys.all() });
+    queryClient.removeQueries({ queryKey: courseKeys.all() });
 }
 
 export function reconcileSessionAfterAuthorizationFailure(queryClient: QueryClient, error: unknown): boolean {
