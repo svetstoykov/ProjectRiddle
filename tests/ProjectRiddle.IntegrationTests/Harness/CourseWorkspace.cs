@@ -93,6 +93,7 @@ public sealed class CourseWorkspace
             courses,
             riddles,
             progress,
+            playEngine,
             account,
             NullLogger<CoursesService>.Instance);
 

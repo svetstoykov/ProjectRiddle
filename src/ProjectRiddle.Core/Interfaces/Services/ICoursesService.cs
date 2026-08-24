@@ -1,4 +1,5 @@
 using ProjectRiddle.Core.Models.Courses.Catalog;
+using ProjectRiddle.Core.Models.Courses.Play;
 using ProjectRiddle.Core.Results.Models;
 
 namespace ProjectRiddle.Core.Interfaces.Services;
@@ -33,4 +34,42 @@ public interface ICoursesService
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
     /// <returns>The primer, or an expected failure.</returns>
     Task<Result<CoursePrimerOutput>> GetPrimerAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Checks a submitted answer for a lesson exercise and updates progress.
+    /// </summary>
+    /// <param name="input">The answer input. Cannot be <see langword="null" />.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The resulting play state, or an expected failure.</returns>
+    Task<Result<CoursePlayStateOutput>> SubmitAnswerAsync(
+        SubmitCourseAnswerInput input,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Records one structural hint kind on a lesson exercise.
+    /// </summary>
+    /// <param name="input">The hint input. Cannot be <see langword="null" />.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The resulting play state, or an expected failure.</returns>
+    Task<Result<CoursePlayStateOutput>> UseHintAsync(UseCourseHintInput input, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Reveals one previously unrevealed letter of a lesson exercise.
+    /// </summary>
+    /// <param name="input">The reveal input. Cannot be <see langword="null" />.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The resulting play state, or an expected failure.</returns>
+    Task<Result<CoursePlayStateOutput>> RevealLetterAsync(
+        RevealCourseLetterInput input,
+        CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Rehydrates permitted play state for a lesson exercise.
+    /// </summary>
+    /// <param name="input">The resume input. Cannot be <see langword="null" />.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The resulting play state, or an expected failure.</returns>
+    Task<Result<CoursePlayStateOutput>> ResumeAsync(
+        ResumeCourseExerciseInput input,
+        CancellationToken cancellationToken);
 }

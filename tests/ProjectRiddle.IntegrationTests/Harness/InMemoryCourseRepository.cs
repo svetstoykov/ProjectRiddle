@@ -34,6 +34,13 @@ public sealed class InMemoryCourseRepository : ICourseRepository
     }
 
     /// <inheritdoc />
+    public Task<LessonExercise?> GetActiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(ActiveExercises().SingleOrDefault(exercise => exercise.Id == exerciseId));
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<LessonExercise>> ListActiveExercisesByIdsAsync(
         IReadOnlyCollection<Guid> exerciseIds,
         CancellationToken cancellationToken)

@@ -24,6 +24,14 @@ public interface ICourseRepository
     Task<Lesson?> GetActiveLessonAsync(Guid lessonId, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Gets an active exercise by identifier.
+    /// </summary>
+    /// <param name="exerciseId">The exercise identifier.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The exercise when it exists and is active; otherwise <see langword="null" />.</returns>
+    Task<LessonExercise?> GetActiveExerciseAsync(Guid exerciseId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Lists the active exercises with the supplied identifiers.
     /// </summary>
     /// <param name="exerciseIds">The exercise identifiers. Cannot be <see langword="null" />.</param>
