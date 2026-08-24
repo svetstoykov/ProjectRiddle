@@ -132,7 +132,7 @@ export function RiddlePlayer({
     // The refusal itself is shown on the tiles. The line below carries it, and the reason the check button is still
     // out of reach, to readers who cannot see either.
     const spokenStatus =
-        rejectedAttempt !== undefined ? "Грешен отговор." : !isTerminal && !canSubmit ? "Попълни всички букви." : "";
+        rejectedAttempt !== undefined ? "Не е това." : !isTerminal && !canSubmit ? "Попълни всички букви." : "";
 
     const answerAttemptCount = playState.progress.answerAttemptCount;
     const isCorrect = playState.isCorrect;
@@ -245,7 +245,7 @@ export function RiddlePlayer({
     if (wordLengths.length === 0) {
         return (
             <p className={styles.unavailable} role="alert">
-                Тази загадка не може да бъде показана. Опитай отново по-късно.
+                Тази криптика не се отваря. Пробвай пак по-късно.
             </p>
         );
     }
@@ -264,7 +264,7 @@ export function RiddlePlayer({
     const isFreshSolve = playState.progress.status === "solved" && statusOnArrival === "inProgress";
 
     return (
-        <section className={styles.player} aria-label="Загадка">
+        <section className={styles.player} aria-label="Криптика">
             <div className={styles.stage}>
                 <div className={styles.clueSlot}>
                     <CluePresentation
@@ -328,7 +328,7 @@ export function RiddlePlayer({
                                 disabled={!canSubmit || isSubmitting}
                                 onClick={submitAnswer}
                             >
-                                {isSubmitting ? "Проверяваме…" : "Провери"}
+                                {isSubmitting ? "Проверяваме…" : "Реши"}
                             </button>
                         </div>
                     )}

@@ -6,7 +6,7 @@ export interface DocumentTitleProps {
 
 export function DocumentTitle({ title }: DocumentTitleProps): null {
     useEffect(() => {
-        document.title = `${title} · Project Riddle`;
+        document.title = `${title} · Криптики`;
     }, [title]);
 
     return null;

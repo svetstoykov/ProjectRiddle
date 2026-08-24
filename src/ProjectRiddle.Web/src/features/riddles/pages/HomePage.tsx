@@ -30,10 +30,10 @@ export function HomePage(): ReactElement {
                 <PageStatus
                     tone="error"
                     eyebrow="Начало"
-                    title="Седмичните загадки временно не са достъпни"
-                    message="Заявката не може да бъде изпълнена."
+                    title="Седмицата не се зарежда."
+                    message="Нещо се обърка от наша страна."
                     action={{
-                        label: "Опитай отново",
+                        label: "Пробвай пак",
                         onClick: () => {
                             void weekQuery.refetch();
                         },
@@ -50,10 +50,10 @@ export function HomePage(): ReactElement {
                 <PageStatus
                     tone="error"
                     eyebrow="Начало"
-                    title="Днешната загадка временно не е достъпна"
-                    message="Заявката не може да бъде изпълнена."
+                    title="Днешната криптика не се зарежда."
+                    message="Нещо се обърка от наша страна."
                     action={{
-                        label: "Опитай отново",
+                        label: "Пробвай пак",
                         onClick: () => {
                             void todayQuery.refetch();
                         },
@@ -70,7 +70,7 @@ export function HomePage(): ReactElement {
             <>
                 <DocumentTitle title="Начало" />
                 <p className="visuallyHidden" role="status">
-                    Зареждаме седмичните загадки…
+                    Зареждаме седмицата…
                 </p>
                 <HomePageSkeleton />
             </>
@@ -92,8 +92,8 @@ export function HomePage(): ReactElement {
             ) : catalogQuery.isError || catalogQuery.data.courses.length === 0 ? (
                 <PageStatus
                     tone="error"
-                    title="Курсовете временно не са достъпни"
-                    message="Заявката не може да бъде изпълнена."
+                    title="Курсовете не се зареждат."
+                    message="Нещо се обърка от наша страна."
                     action={{
                         label: courseMessages.retry,
                         onClick: () => {

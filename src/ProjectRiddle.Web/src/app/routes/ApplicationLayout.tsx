@@ -74,7 +74,7 @@ export function ApplicationLayout(): ReactElement {
                         <span className={styles.brandMark} aria-hidden="true">
                             ?
                         </span>
-                        <span className={styles.brandText}>Project Riddle</span>
+                        <span className={styles.brandText}>Криптики</span>
                     </NavLink>
                     {/* The bar carries icons alone, so every control names itself for assistive technology and shows
                         that same name as a tooltip on hover and keyboard focus. */}
@@ -145,7 +145,7 @@ export function ApplicationLayout(): ReactElement {
             <main id="main" ref={mainRef} className={styles.main} tabIndex={-1}>
                 <Outlet />
             </main>
-            <footer className={styles.footer}>Project Riddle</footer>
+            <footer className={styles.footer}>Криптики</footer>
         </div>
     );
 }

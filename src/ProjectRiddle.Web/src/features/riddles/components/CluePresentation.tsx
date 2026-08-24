@@ -29,10 +29,10 @@ const kindLabels: Record<RiddleRangeKind, string> = {
 /* What each part of a cryptic clue does, in the words a first-time solver needs rather than the jargon. */
 const kindExplanations: Record<RiddleRangeKind, string> = {
     definition:
-        "Частта, която значи същото като отговора, както в обикновена кръстословица. Стои в началото или в края на загадката — никога по средата.",
+        "Частта, която значи същото като отговора — както в обикновена кръстословица. Стои в началото или в края на уликата, никога по средата.",
     indicator:
         "Думите, които подсказват какво да направиш с материала: да го разбъркаш, обърнеш, скъсиш или да извадиш скрити в него букви.",
-    fodder: "Буквите и думите, върху които действа индикаторът. От тях, след указаната обработка, се получава отговорът.",
+    fodder: "Буквите и думите, върху които действа индикаторът. От тях се сглобява отговорът.",
 };
 
 const kindClassNames: Record<RiddleRangeKind, string> = {

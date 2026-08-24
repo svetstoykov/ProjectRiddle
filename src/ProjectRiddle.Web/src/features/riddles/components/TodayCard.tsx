@@ -18,11 +18,11 @@ export function TodayCard({ today, isUnavailable }: TodayCardProps): ReactElemen
     if (isUnavailable || today === undefined) {
         return (
             <section className={styles.card} aria-labelledby="today-title">
-                <p className="eyebrow">Днешната загадка</p>
+                <p className="eyebrow">Днешната криптика</p>
                 <h1 id="today-title" className={styles.heading}>
-                    Днес няма публикувана загадка
+                    Днес няма криптика.
                 </h1>
-                <p className={styles.lead}>Разгледай архива, докато чакаш следващата.</p>
+                <p className={styles.lead}>Виж архива, докато чакаш.</p>
                 <Link className={`button ${styles.play}`} to="/archive">
                     Към архива
                 </Link>
@@ -32,7 +32,7 @@ export function TodayCard({ today, isUnavailable }: TodayCardProps): ReactElemen
 
     return (
         <section className={styles.card} aria-labelledby="today-title">
-            <p className="eyebrow">Днешната загадка</p>
+            <p className="eyebrow">Днешната криптика</p>
             <h1 id="today-title" className={styles.heading}>
                 {formatFullDate(today.publicationDate)}
             </h1>
