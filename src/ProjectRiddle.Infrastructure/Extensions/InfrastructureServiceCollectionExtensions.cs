@@ -60,6 +60,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IRiddleRepository, RiddleRepository>();
         services.AddScoped<IRiddleProgressRepository, RiddleProgressRepository>();
         services.AddHostedService<AdminBootstrapHostedService>();
+        services.AddHostedService<CourseSeedHostedService>();
         services.AddDbContext<ProjectRiddleDbContext>((serviceProvider, optionsBuilder) =>
         {
             var databaseOptions = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
