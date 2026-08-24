@@ -1,10 +1,6 @@
-/*
- * The whole chrome of the solving screen: a way back and the day being played. The back control sits in its own
- * column so the date stays centred on the screen however wide the date string is.
- */
-.bar {
+.header {
     display: grid;
-    grid-template-columns: var(--control-height) 1fr var(--control-height);
+    grid-template-columns: var(--control-height) minmax(0, 1fr) var(--control-height);
     align-items: center;
     gap: var(--space-3);
     width: min(100%, 44rem);
@@ -12,18 +8,20 @@
     padding: var(--space-3) var(--gutter);
 }
 
-.back {
+.close,
+.info {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: var(--control-height);
     height: var(--control-height);
+    min-height: var(--control-height);
+    padding: 0;
     border: var(--border-thin) solid var(--color-deep-violet);
     border-radius: var(--radius-pill);
     background: var(--color-surface-lowest);
     box-shadow: var(--shadow-1);
     color: var(--color-deep-violet);
-    line-height: 1;
     text-decoration: none;
     transition:
         transform var(--motion-press) var(--ease-out),
@@ -32,25 +30,14 @@
 }
 
 .info {
-    composes: back;
-    padding: 0;
-    border-width: var(--border-thin);
     font-family: var(--font-display);
     font-size: var(--text-title);
     font-weight: 800;
 }
 
-@media (hover: hover) {
-    .back:hover {
-        background: var(--color-surface-low);
-        box-shadow: var(--shadow-2);
-        transform: translate(-1px, -1px);
-    }
-}
-
-.back:active {
-    transform: translate(var(--press-offset-sm), var(--press-offset-sm));
-    box-shadow: var(--shadow-none);
+.infoPlaceholder {
+    width: var(--control-height);
+    height: var(--control-height);
 }
 
 .icon {
@@ -63,11 +50,46 @@
     stroke-linejoin: round;
 }
 
-.date {
-    margin: 0;
+@media (hover: hover) {
+    .close:hover,
+    .info:hover {
+        background: var(--color-surface-low);
+        box-shadow: var(--shadow-2);
+        transform: translate(-1px, -1px);
+    }
+}
+
+.close:active,
+.info:active {
+    transform: translate(var(--press-offset-sm), var(--press-offset-sm));
+    box-shadow: var(--shadow-none);
+}
+
+.heading {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+    text-align: center;
+}
+
+.heading h1 {
+    overflow: hidden;
+    font-size: var(--text-title);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.heading p {
     color: var(--color-muted-text);
     font-family: var(--font-label);
     font-size: var(--text-label);
     font-weight: 700;
-    text-align: center;
+}
+
+@media (pointer: coarse) {
+    .close,
+    .info {
+        width: var(--control-height);
+        height: var(--control-height);
+    }
 }

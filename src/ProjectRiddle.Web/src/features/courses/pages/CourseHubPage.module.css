@@ -1,0 +1,33 @@
+.page {
+    display: grid;
+    gap: var(--space-7);
+    width: min(100%, var(--reading-width));
+    margin-inline: auto;
+}
+
+.intro,
+.section {
+    display: grid;
+    gap: var(--space-3);
+}
+
+.intro {
+    gap: var(--space-4);
+}
+
+.intro > p:last-child,
+.lead {
+    color: var(--color-muted-text);
+}
+
+.lessonGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+}
+
+@media (min-width: 37.5rem) {
+    .lessonGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

@@ -8,7 +8,6 @@
 .viewport {
     display: grid;
     width: 100%;
-    min-height: 7.5rem;
     max-height: 100%;
     overflow-y: auto;
 }
@@ -16,7 +15,8 @@
 .card {
     display: grid;
     gap: var(--space-2);
-    align-content: start;
+    align-content: center;
+    min-height: 7.5rem;
     padding: var(--space-4) var(--space-5);
     border: var(--border-thick) solid var(--color-deep-violet);
     border-radius: var(--radius-lg);
@@ -121,6 +121,12 @@
 button.dot:active:not(:disabled) {
     transform: none;
     box-shadow: none;
+}
+
+.footer {
+    display: grid;
+    justify-items: center;
+    width: 100%;
 }
 
 @keyframes cardEnter {

@@ -1,0 +1,44 @@
+.stack {
+    display: flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding-inline-start: var(--space-2);
+}
+
+.glyph {
+    display: grid;
+    place-items: center;
+    flex: 0 0 2rem;
+    width: 2rem;
+    height: 2rem;
+    margin-inline-start: -0.5rem;
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: 50%;
+    color: var(--color-deep-violet);
+    background: var(--color-electric-yellow);
+    box-shadow: var(--shadow-1);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: 700;
+    line-height: 1;
+}
+
+.glyph:first-child {
+    margin-inline-start: 0;
+}
+
+.preview .glyph:nth-child(3n + 2) {
+    background: var(--color-correct-green);
+}
+
+.preview .glyph:nth-child(3n + 3) {
+    background: var(--color-surface-lowest);
+}
+
+.hub .glyph:nth-child(3n + 2) {
+    background: var(--color-surface-lowest);
+}
+
+.hub .glyph:nth-child(3n + 3) {
+    background: var(--color-correct-green);
+}

@@ -6,12 +6,15 @@ export interface PublicRiddleRange {
     readonly end: number;
 }
 
-export interface PublicRiddlePlay {
+export interface RiddlePlayerView {
     readonly id: string;
-    readonly publicationDate: string;
     readonly clue: string;
     readonly answerPattern: string;
     readonly ranges: readonly PublicRiddleRange[];
+}
+
+export interface PublicRiddlePlay extends RiddlePlayerView {
+    readonly publicationDate: string;
 }
 
 export interface PublicRiddleDiscoveryItem {

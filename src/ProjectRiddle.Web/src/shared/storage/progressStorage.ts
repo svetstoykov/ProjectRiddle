@@ -1,3 +1,4 @@
+import type { AnonymousCourseProgress } from "../../features/courses/storage/anonymousCourseProgress";
 import type { AnonymousRiddleProgress } from "../../features/riddles/models/riddleProgress";
 
 const progressStorageKey = "project-riddle.progress";
@@ -11,6 +12,7 @@ export const currentProgressSchemaVersion = 1 as const;
 export interface ProgressDocument {
     readonly schemaVersion: typeof currentProgressSchemaVersion;
     readonly riddle?: AnonymousRiddleProgress;
+    readonly courses?: AnonymousCourseProgress;
 }
 
 function emptyProgressDocument(): ProgressDocument {

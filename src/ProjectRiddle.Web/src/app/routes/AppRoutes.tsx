@@ -7,6 +7,8 @@ import { AnonymousOnlyRoute, AdminRoute, AuthenticatedRoute } from "../../featur
 import { AccessDeniedPage } from "../../features/auth/pages/AccessDeniedPage";
 import { RegisterPage } from "../../features/auth/pages/RegisterPage";
 import { SignInPage } from "../../features/auth/pages/SignInPage";
+import { CourseHubPage } from "../../features/courses/pages/CourseHubPage";
+import { CourseLessonPage } from "../../features/courses/pages/CourseLessonPage";
 import { ArchivePage } from "../../features/riddles/pages/ArchivePage";
 import { HomePage } from "../../features/riddles/pages/HomePage";
 import { RiddlePlayerPage } from "../../features/riddles/pages/RiddlePlayerPage";
@@ -21,6 +23,7 @@ export const appRouter = createBrowserRouter(
             {/* Solving runs in its own shell: the riddle takes the whole screen and the page draws its own way back. */}
             <Route element={<SolvingLayout />}>
                 <Route element={<SessionBoundary />}>
+                    <Route path="courses/:courseKey/:lessonKey/:ordinal" element={<CourseLessonPage />} />
                     <Route path="riddles/today" element={<RiddlePlayerPage />} />
                     <Route path="riddles/:riddleId" element={<RiddlePlayerPage />} />
                 </Route>
@@ -29,6 +32,7 @@ export const appRouter = createBrowserRouter(
                 <Route element={<SessionBoundary />}>
                     <Route index element={<HomePage />} />
                     <Route path="archive" element={<ArchivePage />} />
+                    <Route path="courses/:courseKey" element={<CourseHubPage />} />
                     <Route element={<AnonymousOnlyRoute />}>
                         <Route path="register" element={<RegisterPage />} />
                         <Route path="sign-in" element={<SignInPage />} />
