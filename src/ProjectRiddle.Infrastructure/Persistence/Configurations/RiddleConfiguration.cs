@@ -21,6 +21,8 @@ public sealed class RiddleConfiguration : IEntityTypeConfiguration<Riddle>
         builder.Property(riddle => riddle.Answer).IsRequired();
         builder.Property(riddle => riddle.AnswerPattern).IsRequired().HasMaxLength(128);
         builder.Property(riddle => riddle.Explanation).IsRequired();
+        builder.Property(riddle => riddle.IsLesson).IsRequired();
+        builder.HasIndex(riddle => riddle.IsLesson);
         builder.Property(riddle => riddle.PublicationState)
             .HasConversion<string>()
             .IsRequired();

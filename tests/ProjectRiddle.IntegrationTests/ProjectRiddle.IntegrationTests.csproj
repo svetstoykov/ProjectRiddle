@@ -19,4 +19,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\ProjectRiddle.Core\ProjectRiddle.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../src/ProjectRiddle.Infrastructure/Content/course-manifest.json"
+          Link="Content/course-manifest.json"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

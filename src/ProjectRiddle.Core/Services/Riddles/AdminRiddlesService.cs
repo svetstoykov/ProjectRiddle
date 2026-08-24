@@ -60,6 +60,7 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
             content.Value.Answer,
             content.Value.AnswerPattern,
             content.Value.Explanation,
+            isLesson: false,
             RiddlePublicationState.Draft,
             sofiaPublicationDate: null,
             utcNow,
@@ -76,7 +77,7 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await _riddleRepository.GetByIdAsync(id, cancellationToken);
+        var riddle = await GetAuthorableAsync(id, cancellationToken);
         if (riddle is null)
         {
             return NotFound<RiddleOutput>();
@@ -109,7 +110,7 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
         ArgumentNullException.ThrowIfNull(input);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await _riddleRepository.GetByIdAsync(input.Id, cancellationToken);
+        var riddle = await GetAuthorableAsync(input.Id, cancellationToken);
         if (riddle is null)
         {
             return NotFound<RiddleOutput>();
@@ -159,7 +160,7 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
         ArgumentNullException.ThrowIfNull(input);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await _riddleRepository.GetByIdAsync(input.Id, cancellationToken);
+        var riddle = await GetAuthorableAsync(input.Id, cancellationToken);
         if (riddle is null)
         {
             return NotFound<RiddleOutput>();
@@ -206,7 +207,7 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await _riddleRepository.GetByIdAsync(id, cancellationToken);
+        var riddle = await GetAuthorableAsync(id, cancellationToken);
         if (riddle is null)
         {
             return NotFound<RiddleOutput>();
@@ -229,7 +230,7 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var riddle = await _riddleRepository.GetByIdAsync(id, cancellationToken);
+        var riddle = await GetAuthorableAsync(id, cancellationToken);
         if (riddle is null)
         {
             return Result.Failure(
@@ -252,6 +253,23 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
         await _riddleRepository.DeleteAsync(riddle, cancellationToken);
         _logger.LogInformation("Deleted a riddle. RiddleId: {RiddleId}", riddle.Id);
         return Result.Success();
+    }
+
+    /// <summary>
+    /// Loads a riddle for an administrative operation, treating course lesson content as absent.
+    /// </summary>
+    /// <param name="id">The riddle identifier.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The riddle when it exists and is a daily riddle; otherwise <see langword="null" />.</returns>
+    /// <remarks>
+    /// Lesson riddles are authored by the course manifest and are drafts without a publication date. Scheduling,
+    /// publishing, or deleting one would either put lesson content on the daily calendar or cascade away the
+    /// progress a learner earned on it.
+    /// </remarks>
+    private async Task<Riddle?> GetAuthorableAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var riddle = await _riddleRepository.GetByIdAsync(id, cancellationToken);
+        return riddle is null || riddle.IsLesson ? null : riddle;
     }
 
     private async Task<Result> EnsureDateAvailableAsync(

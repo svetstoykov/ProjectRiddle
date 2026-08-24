@@ -56,6 +56,7 @@ public sealed class RiddleRepository : IRiddleRepository
         return await _dbContext.Set<Riddle>()
             .Include(riddle => riddle.Ranges)
             .AsNoTracking()
+            .Where(riddle => !riddle.IsLesson)
             .ToListAsync(cancellationToken);
     }
 

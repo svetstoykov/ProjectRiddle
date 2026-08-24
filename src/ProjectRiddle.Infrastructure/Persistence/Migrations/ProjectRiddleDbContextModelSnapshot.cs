@@ -9,13 +9,9 @@ using ProjectRiddle.Infrastructure.Persistence;
 
 namespace ProjectRiddle.Infrastructure.Persistence.Migrations
 {
-    /// <summary>
-    /// Stores the model snapshot used by future EF Core migrations.
-    /// </summary>
     [DbContext(typeof(ProjectRiddleDbContext))]
-    internal sealed partial class ProjectRiddleDbContextModelSnapshot : ModelSnapshot
+    partial class ProjectRiddleDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
@@ -120,48 +116,137 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Riddle", b =>
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Courses.Course", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Answer")
+                    b.Property<string>("Intro")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("AnswerPattern")
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Key")
                         .IsRequired()
-                        .HasMaxLength(128)
+                        .HasMaxLength(64)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Clue")
+                    b.Property<int>("Ordinal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Explanation")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PublicationState")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly?>("SofiaPublicationDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SofiaPublicationDate")
-                        .IsUnique()
-                        .HasFilter("SofiaPublicationDate IS NOT NULL AND PublicationState IN ('Scheduled', 'Published')");
+                    b.HasIndex("Key")
+                        .IsUnique();
 
-                    b.ToTable("Riddles", (string)null);
+                    b.ToTable("Courses", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Courses.Lesson", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("CourseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Intro")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Ordinal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("Lessons", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Courses.LessonExercise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("LessonId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Ordinal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("RiddleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Setup")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TeachingNote")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LessonId");
+
+                    b.HasIndex("RiddleId")
+                        .IsUnique();
+
+                    b.ToTable("LessonExercises", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Courses.PrimerPage", b =>
+                {
+                    b.Property<int>("Ordinal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Figure")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Ordinal");
+
+                    b.ToTable("PrimerPages", (string)null);
                 });
 
             modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgress", b =>
@@ -193,6 +278,55 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("RiddleProgress", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Riddle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("AnswerPattern")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Clue")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Explanation")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsLesson")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PublicationState")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("SofiaPublicationDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsLesson");
+
+                    b.HasIndex("SofiaPublicationDate")
+                        .IsUnique()
+                        .HasFilter("SofiaPublicationDate IS NOT NULL AND PublicationState IN ('Scheduled', 'Published')");
+
+                    b.ToTable("Riddles", (string)null);
                 });
 
             modelBuilder.Entity("ProjectRiddle.Infrastructure.Identity.ApplicationRole", b =>
@@ -339,37 +473,45 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Riddle", b =>
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Courses.Lesson", b =>
                 {
-                    b.OwnsMany("ProjectRiddle.Core.Models.Riddles.RiddleRange", "Ranges", b1 =>
+                    b.HasOne("ProjectRiddle.Core.Models.Courses.Course", null)
+                        .WithMany("Lessons")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.OwnsMany("ProjectRiddle.Core.Models.Courses.LessonPrerequisite", "Prerequisites", b1 =>
                         {
-                            b1.Property<Guid>("Id")
+                            b1.Property<Guid>("LessonId")
                                 .HasColumnType("TEXT");
 
-                            b1.Property<int>("End")
-                                .HasColumnType("INTEGER");
-
-                            b1.Property<string>("Kind")
-                                .IsRequired()
+                            b1.Property<string>("LessonKey")
+                                .HasMaxLength(64)
                                 .HasColumnType("TEXT");
 
-                            b1.Property<Guid>("RiddleId")
-                                .HasColumnType("TEXT");
+                            b1.HasKey("LessonId", "LessonKey");
 
-                            b1.Property<int>("Start")
-                                .HasColumnType("INTEGER");
-
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("RiddleId");
-
-                            b1.ToTable("RiddleRanges", (string)null);
+                            b1.ToTable("LessonPrerequisites", (string)null);
 
                             b1.WithOwner()
-                                .HasForeignKey("RiddleId");
+                                .HasForeignKey("LessonId");
                         });
 
-                    b.Navigation("Ranges");
+                    b.Navigation("Prerequisites");
+                });
+
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Courses.LessonExercise", b =>
+                {
+                    b.HasOne("ProjectRiddle.Core.Models.Courses.Lesson", null)
+                        .WithMany("Exercises")
+                        .HasForeignKey("LessonId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ProjectRiddle.Core.Models.Riddles.Riddle", null)
+                        .WithMany()
+                        .HasForeignKey("RiddleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Progress.RiddleProgress", b =>
@@ -421,6 +563,49 @@ namespace ProjectRiddle.Infrastructure.Persistence.Migrations
                     b.Navigation("Hints");
 
                     b.Navigation("Positions");
+                });
+
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Riddles.Riddle", b =>
+                {
+                    b.OwnsMany("ProjectRiddle.Core.Models.Riddles.RiddleRange", "Ranges", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("End")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<string>("Kind")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<Guid>("RiddleId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("Start")
+                                .HasColumnType("INTEGER");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("RiddleId");
+
+                            b1.ToTable("RiddleRanges", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("RiddleId");
+                        });
+
+                    b.Navigation("Ranges");
+                });
+
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Courses.Course", b =>
+                {
+                    b.Navigation("Lessons");
+                });
+
+            modelBuilder.Entity("ProjectRiddle.Core.Models.Courses.Lesson", b =>
+                {
+                    b.Navigation("Exercises");
                 });
 #pragma warning restore 612, 618
         }

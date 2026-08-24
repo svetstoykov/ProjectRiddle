@@ -11,6 +11,7 @@ using ProjectRiddle.Infrastructure.Bootstrap;
 using ProjectRiddle.Infrastructure.Configuration;
 using ProjectRiddle.Infrastructure.Persistence;
 using ProjectRiddle.Infrastructure.Randomness;
+using ProjectRiddle.Infrastructure.Repositories.Courses;
 using ProjectRiddle.Infrastructure.Repositories.Riddles;
 using ProjectRiddle.Infrastructure.Time;
 
@@ -55,9 +56,11 @@ public static class InfrastructureServiceCollectionExtensions
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IRandomNumberGenerator, SystemRandomNumberGenerator>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
         services.AddScoped<IRiddleRepository, RiddleRepository>();
         services.AddScoped<IRiddleProgressRepository, RiddleProgressRepository>();
         services.AddHostedService<AdminBootstrapHostedService>();
+        services.AddHostedService<CourseSeedHostedService>();
         services.AddDbContext<ProjectRiddleDbContext>((serviceProvider, optionsBuilder) =>
         {
             var databaseOptions = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
