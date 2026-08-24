@@ -47,6 +47,12 @@
     min-height: 0;
 }
 
+.outcomeStack {
+    display: grid;
+    gap: var(--space-5);
+    width: 100%;
+}
+
 .actions {
     display: flex;
     flex-wrap: wrap;

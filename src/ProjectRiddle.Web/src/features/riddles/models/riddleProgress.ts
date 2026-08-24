@@ -2,9 +2,7 @@ import type { RiddleRangeKind } from "./riddleRange";
 
 export type RiddleProgressStatus = "inProgress" | "fullyRevealed" | "solved";
 
-export interface RiddleProgressSnapshot {
-    readonly riddleId: string;
-    readonly publicationDate: string;
+export interface RiddlePlayerProgress {
     readonly status: RiddleProgressStatus;
     readonly answerAttemptCount: number;
     readonly usedHints: readonly RiddleRangeKind[];
@@ -21,12 +19,21 @@ export interface RevealedLetter {
  * The server omits `answer`, `explanation`, and `isCorrect` when they are null. Their absence is never a failure:
  * `answer` and `explanation` are released only in a terminal state, and `isCorrect` only on an answer result.
  */
-export interface RiddlePlayState {
-    readonly progress: RiddleProgressSnapshot;
+export interface RiddlePlayerState {
+    readonly progress: RiddlePlayerProgress;
     readonly revealedLetters: readonly RevealedLetter[];
     readonly answer?: string;
     readonly explanation?: string;
     readonly isCorrect?: boolean;
+}
+
+export interface RiddleProgressSnapshot extends RiddlePlayerProgress {
+    readonly riddleId: string;
+    readonly publicationDate: string;
+}
+
+export interface RiddlePlayState extends RiddlePlayerState {
+    readonly progress: RiddleProgressSnapshot;
 }
 
 export interface AccountRiddleProgressList {

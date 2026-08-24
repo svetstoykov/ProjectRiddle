@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
 
 import {
     answerCharacters,
@@ -7,8 +7,8 @@ import {
     letterCountOf,
     parseAnswerPattern,
 } from "../models/answerTiles";
-import type { PublicRiddlePlay } from "../models/publicRiddle";
-import type { RiddlePlayState } from "../models/riddleProgress";
+import type { RiddlePlayerView } from "../models/publicRiddle";
+import type { RiddlePlayerState } from "../models/riddleProgress";
 import type { RiddleRangeKind } from "../models/riddleRange";
 import { AnswerTiles, type AnswerWordView } from "./AnswerTiles";
 import { BulgarianKeyboard } from "./BulgarianKeyboard";
@@ -19,8 +19,9 @@ import styles from "./RiddlePlayer.module.css";
 import { SolvedConfetti } from "./SolvedConfetti";
 
 export interface RiddlePlayerProps {
-    readonly play: PublicRiddlePlay;
-    readonly playState: RiddlePlayState;
+    readonly play: RiddlePlayerView;
+    readonly playState: RiddlePlayerState;
+    readonly terminalSupplement?: ReactNode;
     readonly pendingHint: RiddleRangeKind | undefined;
     readonly isSubmitting: boolean;
     readonly isRevealing: boolean;
@@ -63,6 +64,7 @@ function isTextEntryTarget(target: EventTarget | null): boolean {
 export function RiddlePlayer({
     play,
     playState,
+    terminalSupplement,
     pendingHint,
     isSubmitting,
     isRevealing,
@@ -288,11 +290,14 @@ export function RiddlePlayer({
                     is over. Nothing else moves when the riddle ends. */}
                 <div className={styles.controlSlot}>
                     {isTerminal ? (
-                        <OutcomeCarousel
-                            status={playState.progress.status}
-                            answerAttemptCount={playState.progress.answerAttemptCount}
-                            explanation={playState.explanation}
-                        />
+                        <div className={styles.outcomeStack}>
+                            <OutcomeCarousel
+                                status={playState.progress.status}
+                                answerAttemptCount={playState.progress.answerAttemptCount}
+                                explanation={playState.explanation}
+                            />
+                            {terminalSupplement}
+                        </div>
                     ) : (
                         <div className={styles.actions}>
                             <button
