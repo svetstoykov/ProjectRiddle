@@ -2,10 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import type { ReactElement } from "react";
 
 import { isApplicationError } from "../../../shared/api/errors";
-import { HomePageSkeleton } from "../../../shared/components/ContentSkeletons";
+import { CourseCarouselSkeleton, HomePageSkeleton } from "../../../shared/components/ContentSkeletons";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { sessionQueryOptions } from "../../auth/api/sessionQuery";
+import { courseCatalogQueryOptions } from "../../courses/api/courseQueries";
+import { courseMessages } from "../../courses/messages/courseMessages";
+import { CourseCarousel } from "../../courses/components/CourseCarousel";
 import { riddleWeekQueryOptions, todayRiddleQueryOptions } from "../api/riddleQueries";
 import { TodayCard } from "../components/TodayCard";
 import { WeekStrip } from "../components/WeekStrip";
@@ -15,6 +18,7 @@ export function HomePage(): ReactElement {
     const sessionQuery = useQuery(sessionQueryOptions);
     const weekQuery = useQuery(riddleWeekQueryOptions());
     const todayQuery = useQuery(todayRiddleQueryOptions());
+    const catalogQuery = useQuery(courseCatalogQueryOptions());
     const isAuthenticated = (sessionQuery.data ?? null) !== null;
     const todayUnavailable =
         isApplicationError(todayQuery.error) && todayQuery.error.code === "riddles.today.unavailable";
@@ -78,6 +82,32 @@ export function HomePage(): ReactElement {
             <DocumentTitle title="Начало" />
             <TodayCard today={todayQuery.data} isUnavailable={todayUnavailable} />
             <WeekStrip week={weekQuery.data} isAuthenticated={isAuthenticated} />
+            {catalogQuery.isPending ? (
+                <section aria-label={courseMessages.homeHeading}>
+                    <p className="visuallyHidden" role="status">
+                        Зареждаме курсовете…
+                    </p>
+                    <CourseCarouselSkeleton />
+                </section>
+            ) : catalogQuery.isError || catalogQuery.data.courses.length === 0 ? (
+                <PageStatus
+                    tone="error"
+                    title="Курсовете временно не са достъпни"
+                    message="Заявката не може да бъде изпълнена."
+                    action={{
+                        label: courseMessages.retry,
+                        onClick: () => {
+                            void catalogQuery.refetch();
+                        },
+                    }}
+                />
+            ) : (
+                <CourseCarousel
+                    courses={catalogQuery.data.courses}
+                    heading={courseMessages.homeHeading}
+                    lead={courseMessages.homeLead}
+                />
+            )}
         </div>
     );
 }

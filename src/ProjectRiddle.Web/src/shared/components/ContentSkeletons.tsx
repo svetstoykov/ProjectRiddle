@@ -49,6 +49,16 @@ export function HomePageSkeleton(): ReactElement {
     );
 }
 
+export function CourseCarouselSkeleton(): ReactElement {
+    return (
+        <div className={styles.carousel} aria-hidden="true">
+            {Array.from({ length: 3 }, (_value, index) => (
+                <div key={index} className={styles.courseCard} />
+            ))}
+        </div>
+    );
+}
+
 export function PlayerPageSkeleton(): ReactElement {
     return (
         <div className={styles.player} aria-hidden="true">

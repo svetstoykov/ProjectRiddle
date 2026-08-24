@@ -77,6 +77,27 @@
     margin-inline: auto;
 }
 
+.carousel {
+    display: grid;
+    grid-auto-columns: 48%;
+    grid-auto-flow: column;
+    gap: var(--space-4);
+    overflow: hidden;
+    width: 100%;
+}
+
+.courseCard {
+    composes: card;
+    min-height: 10.5rem;
+}
+
+@media (min-width: 37.5rem) {
+    .carousel {
+        grid-auto-flow: initial;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
 .player {
     display: grid;
     gap: var(--space-6);
