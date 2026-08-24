@@ -31,14 +31,14 @@ export function CoursePrimerDialog({ open, onDismiss, returnFocusRef }: CoursePr
             {primerQuery.isPending ? <p role="status">Зареждаме увода…</p> : null}
             {primerQuery.isError || (primerQuery.data !== undefined && pages.length === 0) ? (
                 <div role="alert">
-                    <p>Уводът временно не е достъпен.</p>
+                    <p>Уводът не се зарежда.</p>
                     <button
                         type="button"
                         onClick={() => {
                             void primerQuery.refetch();
                         }}
                     >
-                        Опитай отново
+                        Пробвай пак
                     </button>
                 </div>
             ) : null}

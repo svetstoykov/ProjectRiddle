@@ -22,9 +22,7 @@ import styles from "./CourseHubPage.module.css";
 
 function failureMessage(error: unknown): string {
     const traceId = isApplicationError(error) ? error.traceId : undefined;
-    return traceId === undefined
-        ? "Заявката не може да бъде изпълнена."
-        : `Заявката не може да бъде изпълнена. Код за проследяване: ${traceId}`;
+    return traceId === undefined ? "Нещо се обърка от наша страна." : `Нещо се обърка от наша страна. Код: ${traceId}`;
 }
 
 function lessonProgressFallback(): {
@@ -82,7 +80,7 @@ export function CourseHubPage(): ReactElement {
                 <PageStatus
                     tone="error"
                     eyebrow="Курсове"
-                    title="Курсовете временно не са достъпни"
+                    title="Курсовете не се зареждат."
                     message={failureMessage(catalogQuery.error ?? resolvedProgress.error)}
                     action={{
                         label: courseMessages.retry,
@@ -102,11 +100,7 @@ export function CourseHubPage(): ReactElement {
         return (
             <>
                 <DocumentTitle title="Курсове" />
-                <PageStatus
-                    eyebrow="Курсове"
-                    title="Все още няма курсове"
-                    message="Върни се по-късно, за да започнеш водена практика."
-                />
+                <PageStatus eyebrow="Курсове" title="Още няма курсове." message="Наминавай пак — работим по тях." />
             </>
         );
     }
@@ -193,7 +187,7 @@ export function CourseHubPage(): ReactElement {
             )}
             <CourseCarousel
                 courses={catalogQuery.data.courses.filter((item) => item.id !== course.id)}
-                heading={carouselLabelByCourseKey[course.key] ?? "Други курсове"}
+                heading={carouselLabelByCourseKey[course.key] ?? "Още курсове"}
             />
             <CoursePrimerDialog
                 open={isPrimerOpen}

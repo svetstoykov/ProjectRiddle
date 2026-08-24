@@ -6,7 +6,7 @@ export const recommendedStartByCourseKey: Readonly<Record<string, string>> = {
 
 export const carouselLabelByCourseKey: Readonly<Record<string, string>> = {
     letterplay: "Следващи курсове",
-    wordplay: "Други курсове",
+    wordplay: "Още курсове",
     weirdplay: "Предишни курсове",
     finale: "Предишни курсове",
 };

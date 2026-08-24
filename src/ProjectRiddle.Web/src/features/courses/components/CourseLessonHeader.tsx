@@ -43,7 +43,7 @@ export function CourseLessonHeader({
                     ref={introTriggerRef}
                     type="button"
                     className={styles.info}
-                    aria-label="За тази техника"
+                    aria-label="Как работи"
                     onClick={onOpenIntro}
                 >
                     i
