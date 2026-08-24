@@ -1,0 +1,41 @@
+.card,
+.locked {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-height: 10rem;
+    padding: var(--space-4);
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-2);
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.card {
+    transition:
+        transform var(--motion-fast) var(--ease-out),
+        box-shadow var(--motion-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+    .card:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: var(--shadow-3);
+    }
+}
+
+.card:active {
+    transform: translate(1px, 1px);
+    box-shadow: var(--shadow-1);
+}
+
+.locked {
+    opacity: 0.5;
+}
+
+.card h3,
+.locked h3 {
+    max-width: 22ch;
+}
