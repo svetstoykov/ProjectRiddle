@@ -96,7 +96,7 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
         onSuccess: (updated) => {
             void persistSuccess(
                 updated,
-                `Загадката е насрочена за ${updated.sofiaPublicationDate ?? publicationDate}.`,
+                `Криптиката е насрочена за ${updated.sofiaPublicationDate ?? publicationDate}.`,
             );
         },
         onError: handleFailure,
@@ -110,7 +110,7 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
             return adminRiddlesApi.publish(riddle.id, omitDate ? undefined : publicationDate);
         },
         onSuccess: (updated) => {
-            void persistSuccess(updated, "Загадката е публикувана.");
+            void persistSuccess(updated, "Криптиката е публикувана.");
         },
         onError: handleFailure,
     });
@@ -119,7 +119,7 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
         mutationFn: () => adminRiddlesApi.unpublish(riddle.id),
         onSuccess: (updated) => {
             setConfirm(null);
-            void persistSuccess(updated, "Загадката е свалена и датата е свободна.");
+            void persistSuccess(updated, "Криптиката е свалена и датата е свободна.");
         },
         onError: handleFailure,
     });
@@ -148,8 +148,8 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
 
     function requireDate(): boolean {
         if (publicationDate.length === 0) {
-            setDateErrors(["Въведете дата на публикуване (София)."]);
-            setSummary(["Въведете дата на публикуване (София)."]);
+            setDateErrors(["Въведи дата на публикуване (София)."]);
+            setSummary(["Въведи дата на публикуване (София)."]);
             return false;
         }
 
@@ -177,7 +177,7 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
                 />
                 <FieldError id={dateErrorId} messages={dateErrors} />
             </div>
-            <ErrorSummary messages={summary} heading="Има проблем с публикуването" />
+            <ErrorSummary messages={summary} heading="Провери публикуването:" />
             {notice !== null ? (
                 <p className={styles.notice} role="status">
                     {notice}
@@ -242,11 +242,11 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
             </div>
             <ConfirmationDialog
                 open={confirm !== null}
-                title={confirm === "delete" ? "Изтриване на загадка" : "Сваляне от календара"}
+                title={confirm === "delete" ? "Изтриване на криптика" : "Сваляне от календара"}
                 description={
                     confirm === "delete"
-                        ? "Загадката ще бъде премахната окончателно. Това не може да бъде отменено."
-                        : "Календарният ден ще се освободи и може да бъде използван за друга загадка."
+                        ? "Криптиката ще изчезне завинаги. Това не се връща."
+                        : "Календарният ден ще се освободи и може да бъде използван за друга криптика."
                 }
                 confirmLabel={confirm === "delete" ? "Изтрий окончателно" : "Свали"}
                 cancelLabel="Отказ"

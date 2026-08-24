@@ -98,20 +98,20 @@ export function NewRiddleForm(): ReactElement {
 
     return (
         <section className={styles.form} aria-labelledby="new-riddle-title">
-            <DocumentTitle title="Нова загадка" />
+            <DocumentTitle title="Нова криптика" />
             <div className={styles.header}>
                 <p className="eyebrow">Администрация</p>
                 <h1 ref={titleRef} id="new-riddle-title" tabIndex={-1}>
-                    Нова загадка
+                    Нова криптика
                 </h1>
                 <p className={styles.immutableNotice}>
-                    Съдържанието е окончателно след запис. Загадките не се редактират — при нужда изтрийте черновата и
-                    създайте нова.
+                    Съдържанието е окончателно след запис. Криптиките не се редактират — при нужда изтрий черновата и
+                    създай нова.
                 </p>
             </div>
             <ErrorSummary
                 messages={errors.summary}
-                heading="Има проблем със съдържанието"
+                heading="Провери съдържанието:"
                 headingId="riddle-content-error-heading"
                 summaryRef={summaryRef}
             />
@@ -123,7 +123,7 @@ export function NewRiddleForm(): ReactElement {
             <ConfirmationDialog
                 open={blocker.state === "blocked"}
                 title="Незапазени промени"
-                description="Има незапазени промени по съдържанието. Ако напуснете, те ще бъдат загубени."
+                description="Има незапазени промени по съдържанието. Ако излезеш, ще ги загубиш."
                 confirmLabel="Напусни без запис"
                 cancelLabel="Остани"
                 busy={false}

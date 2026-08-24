@@ -12,8 +12,8 @@ export function RiddleDetailPage(): ReactElement {
             <PageStatus
                 tone="error"
                 eyebrow="Администрация"
-                title="Загадката не е намерена"
-                message="Липсва идентификатор на загадката."
+                title="Криптиката не е намерена"
+                message="Липсва идентификатор на криптиката."
             />
         );
     }

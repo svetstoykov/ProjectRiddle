@@ -20,21 +20,21 @@ function unique(messages: readonly string[]): string[] {
 export function requiredContentErrors(draft: RiddleDraft): RiddleContentErrors {
     const answer = draft.answer.trim();
     const errors: RiddleContentErrors = {
-        clue: draft.clue.trim().length === 0 ? ["Въведете условие."] : [],
+        clue: draft.clue.trim().length === 0 ? ["Въведи улика."] : [],
         answer:
             answer.length === 0
-                ? ["Въведете отговор."]
+                ? ["Въведи отговор."]
                 : deriveAnswerPattern(answer).length === 0
-                  ? ["Въведете валиден отговор."]
+                  ? ["Въведи валиден отговор."]
                   : [],
-        explanation: draft.explanation.trim().length === 0 ? ["Въведете обяснение."] : [],
+        explanation: draft.explanation.trim().length === 0 ? ["Въведи обяснение."] : [],
         ranges: [],
         summary: [],
     };
 
     return {
         ...errors,
-        summary: hasContentErrors(errors) ? ["Попълнете задължителните полета."] : [],
+        summary: hasContentErrors(errors) ? ["Попълни задължителните полета."] : [],
     };
 }
 

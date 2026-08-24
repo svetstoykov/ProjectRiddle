@@ -2,16 +2,16 @@ import type { RiddlePublicationState } from "../models/adminRiddle";
 import type { RiddleRangeKind } from "../../riddles/models/riddleRange";
 
 const riddleMessages = {
-    "riddles.notFound": "Загадката не е намерена.",
-    "riddles.clue.invalid": "Въведете валидно условие.",
-    "riddles.answer.invalid": "Въведете валиден отговор.",
+    "riddles.notFound": "Криптиката не е намерена.",
+    "riddles.clue.invalid": "Въведи валидна улика.",
+    "riddles.answer.invalid": "Въведи валиден отговор.",
     "riddles.answer.format.invalid": "Отговорът може да съдържа само букви, разделени с по един интервал.",
-    "riddles.explanation.invalid": "Въведете валидно обяснение.",
+    "riddles.explanation.invalid": "Въведи валидно обяснение.",
     "riddles.ranges.invalid": "Етикетите по откъси са невалидни.",
-    "riddles.publicationDate.invalid": "Въведете валидна дата на публикуване в София.",
+    "riddles.publicationDate.invalid": "Въведи валидна дата на публикуване в София.",
     "riddles.publicationDate.conflict": "Тази дата в София вече е заета.",
     "riddles.transition.invalid": "Това действие не е позволено в текущото състояние.",
-    "riddles.delete.notPermitted": "Загадката не може да бъде изтрита в това състояние.",
+    "riddles.delete.notPermitted": "Криптика в това състояние не може да се изтрие.",
 } as const;
 
 export type RiddleMessageCode = keyof typeof riddleMessages;
@@ -38,6 +38,6 @@ export function riddleMessageForCode(code: string | undefined): string | undefin
 }
 
 export function unknownRiddleFailure(traceId: string | undefined): string {
-    const fallback = "Заявката не може да бъде изпълнена.";
-    return traceId === undefined ? fallback : `${fallback} Код за проследяване: ${traceId}`;
+    const fallback = "Нещо се обърка от наша страна.";
+    return traceId === undefined ? fallback : `${fallback} Код: ${traceId}`;
 }

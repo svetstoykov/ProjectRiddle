@@ -22,10 +22,10 @@ const groupHeadings: Record<(typeof groupOrder)[number], string> = {
 };
 
 const groupEmptyMessages: Record<(typeof groupOrder)[number], string> = {
-    published: "Няма публикувани загадки.",
-    scheduled: "Няма насрочени загадки.",
+    published: "Няма публикувани криптики.",
+    scheduled: "Няма насрочени криптики.",
     draft: "Няма чернови.",
-    unpublished: "Няма свалени загадки.",
+    unpublished: "Няма свалени криптики.",
 };
 
 const updatedFormatter = new Intl.DateTimeFormat("bg-BG", {
@@ -109,7 +109,7 @@ export function AdminRiddleList({ riddles }: AdminRiddleListProps): ReactElement
             setPendingDeletion(null);
             queryClient.removeQueries({ queryKey: adminRiddleKeys.detail(id) });
             await queryClient.invalidateQueries({ queryKey: adminRiddleKeys.lists() });
-            notifications.success("Загадката е изтрита.");
+            notifications.success("Криптиката е изтрита.");
         },
         onError: (error: unknown) => {
             setPendingDeletion(null);
@@ -142,8 +142,8 @@ export function AdminRiddleList({ riddles }: AdminRiddleListProps): ReactElement
                             <table className={styles.table}>
                                 <thead>
                                     <tr>
-                                        <th>Условие</th>
-                                        <th>Брой букви</th>
+                                        <th>Улика</th>
+                                        <th>Букви</th>
                                         <th>Състояние</th>
                                         <th>{dateLabel(state)}</th>
                                         <th>Обновена</th>
@@ -155,8 +155,8 @@ export function AdminRiddleList({ riddles }: AdminRiddleListProps): ReactElement
                                         const clueExcerpt = excerpt(riddle.clue);
                                         return (
                                             <tr key={riddle.id}>
-                                                <td data-label="Условие">{clueExcerpt}</td>
-                                                <td data-label="Брой букви">{riddle.answerPattern}</td>
+                                                <td data-label="Улика">{clueExcerpt}</td>
+                                                <td data-label="Букви">{riddle.answerPattern}</td>
                                                 <td data-label="Състояние">
                                                     <span className={styles.chip}>
                                                         {publicationStateLabels[riddle.publicationState]}
@@ -203,11 +203,11 @@ export function AdminRiddleList({ riddles }: AdminRiddleListProps): ReactElement
             })}
             <ConfirmationDialog
                 open={pendingDeletion !== null}
-                title="Изтриване на загадка"
+                title="Изтриване на криптика"
                 description={
                     pendingDeletion === null
                         ? ""
-                        : `„${excerpt(pendingDeletion.clue)}“ ще бъде премахната окончателно. Това не може да бъде отменено.`
+                        : `„${excerpt(pendingDeletion.clue)}“ ще изчезне завинаги. Това не се връща.`
                 }
                 confirmLabel="Изтрий окончателно"
                 busy={deleteMutation.isPending}
