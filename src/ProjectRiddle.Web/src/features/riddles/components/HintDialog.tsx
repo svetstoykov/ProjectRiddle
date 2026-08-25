@@ -22,9 +22,9 @@ export interface HintDialogProps {
 const hintOrder: readonly RiddleRangeKind[] = ["definition", "indicator", "fodder"];
 
 const unlockLabels: Record<RiddleRangeKind, string> = {
-    definition: "Покажи дефиницията",
-    indicator: "Покажи индикатора",
-    fodder: "Покажи материала",
+    definition: "Дефиницията",
+    indicator: "Индикаторът",
+    fodder: "Материалът",
 };
 
 const usedLabels: Record<RiddleRangeKind, string> = {

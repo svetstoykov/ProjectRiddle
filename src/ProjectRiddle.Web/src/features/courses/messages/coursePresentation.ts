@@ -1,12 +1,12 @@
 export const recommendedStartByCourseKey: Readonly<Record<string, string>> = {
-    letterplay: "„Как е устроена уликата“ е добро начало.",
+    letterplay: "„Основи“ е добро начало.",
     wordplay: "Започни със синонимите.",
     weirdplay: "Започни с преводите.",
 };
 
 export const carouselLabelByCourseKey: Readonly<Record<string, string>> = {
     letterplay: "Следващи курсове",
-    wordplay: "Други курсове",
+    wordplay: "Още курсове",
     weirdplay: "Предишни курсове",
     finale: "Предишни курсове",
 };

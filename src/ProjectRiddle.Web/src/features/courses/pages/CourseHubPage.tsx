@@ -4,13 +4,14 @@ import { useParams } from "react-router-dom";
 
 import { NotFoundPage } from "../../../app/routes/NotFoundPage";
 import { isApplicationError } from "../../../shared/api/errors";
+import { ClueTermText } from "../../../shared/components/ClueTermText";
+import { CourseHubSkeleton } from "../../../shared/components/ContentSkeletons";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { sessionQueryOptions } from "../../auth/api/sessionQuery";
 import { courseCatalogQueryOptions } from "../api/courseQueries";
 import { useResolvedCourseProgress } from "../api/courseProgress";
 import { CourseCarousel } from "../components/CourseCarousel";
-import { CourseHubSkeleton } from "../components/CourseHubSkeleton";
 import { LessonCard } from "../components/LessonCard";
 import { CoursePrimerDialog } from "../components/CoursePrimerDialog";
 import { courseMessages, lockedReason } from "../messages/courseMessages";
@@ -21,9 +22,7 @@ import styles from "./CourseHubPage.module.css";
 
 function failureMessage(error: unknown): string {
     const traceId = isApplicationError(error) ? error.traceId : undefined;
-    return traceId === undefined
-        ? "Заявката не може да бъде изпълнена."
-        : `Заявката не може да бъде изпълнена. Код за проследяване: ${traceId}`;
+    return traceId === undefined ? "Нещо се обърка от наша страна." : `Нещо се обърка от наша страна. Код: ${traceId}`;
 }
 
 function lessonProgressFallback(): {
@@ -81,7 +80,7 @@ export function CourseHubPage(): ReactElement {
                 <PageStatus
                     tone="error"
                     eyebrow="Курсове"
-                    title="Курсовете временно не са достъпни"
+                    title="Курсовете не се зареждат."
                     message={failureMessage(catalogQuery.error ?? resolvedProgress.error)}
                     action={{
                         label: courseMessages.retry,
@@ -101,11 +100,7 @@ export function CourseHubPage(): ReactElement {
         return (
             <>
                 <DocumentTitle title="Курсове" />
-                <PageStatus
-                    eyebrow="Курсове"
-                    title="Все още няма курсове"
-                    message="Върни се по-късно, за да започнеш водена практика."
-                />
+                <PageStatus eyebrow="Курсове" title="Още няма курсове." message="Наминавай пак — работим по тях." />
             </>
         );
     }
@@ -128,6 +123,7 @@ export function CourseHubPage(): ReactElement {
               );
     const mixLockedReason = lockedReason(mixLockedTitles);
     const mixGlyphKeys = mixLesson?.prerequisiteLessonKeys.filter((key) => key !== "basics") ?? [];
+    const recommendedStart = recommendedStartByCourseKey[course.key];
 
     return (
         <div className={styles.page}>
@@ -137,13 +133,17 @@ export function CourseHubPage(): ReactElement {
                 <h1 ref={headingRef} tabIndex={-1}>
                     {course.title}
                 </h1>
-                <p>{course.intro}</p>
+                <p>
+                    <ClueTermText text={course.intro} />
+                </p>
             </header>
             {course.key === "finale" ? null : (
                 <section aria-labelledby="technique-lessons-heading" className={styles.section}>
                     <h2 id="technique-lessons-heading">{courseMessages.chooseStart}</h2>
-                    {recommendedStartByCourseKey[course.key] === undefined ? null : (
-                        <p className={styles.lead}>{recommendedStartByCourseKey[course.key]}</p>
+                    {recommendedStart === undefined ? null : (
+                        <p className={styles.lead}>
+                            <ClueTermText text={recommendedStart} />
+                        </p>
                     )}
                     <div className={styles.lessonGrid}>
                         {techniqueLessons.map((lesson) => (
@@ -161,16 +161,20 @@ export function CourseHubPage(): ReactElement {
             {mixLesson === undefined || mixProgress === undefined ? null : (
                 <section aria-labelledby="mix-lesson-heading" className={styles.section}>
                     <h2 id="mix-lesson-heading">
-                        {mixProgress.isComplete
-                            ? courseMessages.completionHeading
-                            : mixProgress.isAvailable
-                              ? mixLesson.title
-                              : courseMessages.lockedHeading}
+                        {mixProgress.isComplete ? (
+                            courseMessages.completionHeading
+                        ) : mixProgress.isAvailable ? (
+                            <ClueTermText text={mixLesson.title} />
+                        ) : (
+                            courseMessages.lockedHeading
+                        )}
                     </h2>
                     {mixProgress.isComplete ? (
                         <p className={styles.lead}>{courseMessages.completionLead}</p>
                     ) : mixProgress.isAvailable ? null : (
-                        <p className={styles.lead}>{mixLockedReason}</p>
+                        <p className={styles.lead}>
+                            <ClueTermText text={mixLockedReason} />
+                        </p>
                     )}
                     <LessonCard
                         courseKey={course.key}
@@ -183,7 +187,7 @@ export function CourseHubPage(): ReactElement {
             )}
             <CourseCarousel
                 courses={catalogQuery.data.courses.filter((item) => item.id !== course.id)}
-                heading={carouselLabelByCourseKey[course.key] ?? "Други курсове"}
+                heading={carouselLabelByCourseKey[course.key] ?? "Още курсове"}
             />
             <CoursePrimerDialog
                 open={isPrimerOpen}

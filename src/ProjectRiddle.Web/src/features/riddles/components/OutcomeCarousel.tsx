@@ -1,5 +1,6 @@
 import { useState, type ReactElement, type ReactNode } from "react";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import type { RiddleProgressStatus } from "../models/riddleProgress";
 import styles from "./OutcomeCarousel.module.css";
 
@@ -19,7 +20,7 @@ export interface OutcomeCarouselProps {
 }
 
 function solvedSummaryTitle(attemptCount: number): string {
-    return attemptCount <= 1 ? "Правилен отговор!" : `Правилен отговор! ${attemptCount} опита.`;
+    return attemptCount <= 1 ? "Позна я от раз!" : `Позна я. ${attemptCount} опита.`;
 }
 
 function buildCards(props: OutcomeCarouselProps): readonly OutcomeCarouselCard[] {
@@ -32,8 +33,8 @@ function buildCards(props: OutcomeCarouselProps): readonly OutcomeCarouselCard[]
               }
             : {
                   id: "summary",
-                  title: "Загадката е разкрита",
-                  body: "Всички букви са разкрити, без загадката да бъде решена.",
+                  title: "Криптиката е разкрита",
+                  body: "Разкри всички букви, без да я решиш.",
               };
 
     const cards: OutcomeCarouselCard[] = [summary];
@@ -68,7 +69,7 @@ export function OutcomeCarousel(props: OutcomeCarouselProps): ReactElement | nul
         <section
             className={styles.carousel}
             aria-roledescription="въртележка"
-            aria-label="Резултат от загадката"
+            aria-label="Резултат от криптиката"
             data-solved={props.status === "solved" ? "" : undefined}
         >
             <div className={styles.viewport} role="status">
@@ -77,8 +78,14 @@ export function OutcomeCarousel(props: OutcomeCarouselProps): ReactElement | nul
                     aria-roledescription="карта"
                     aria-label={`${position + 1} от ${cards.length}`}
                 >
-                    <h2 className={styles.title}>{card.title}</h2>
-                    {card.body === undefined ? null : <p className={styles.body}>{card.body}</p>}
+                    <h2 className={styles.title}>
+                        <ClueTermText text={card.title} />
+                    </h2>
+                    {card.body === undefined ? null : (
+                        <p className={styles.body}>
+                            <ClueTermText text={card.body} />
+                        </p>
+                    )}
                 </article>
             </div>
             {cards.length > 1 ? (

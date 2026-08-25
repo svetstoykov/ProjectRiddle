@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, type ReactElement, type RefObject } from "react";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { InfoDialog } from "../../../shared/components/InfoDialog";
 import { coursePrimerQueryOptions } from "../api/courseQueries";
 import { dismissCoursePrimer } from "../storage/anonymousCourseProgress";
@@ -30,20 +31,22 @@ export function CoursePrimerDialog({ open, onDismiss, returnFocusRef }: CoursePr
             {primerQuery.isPending ? <p role="status">Зареждаме увода…</p> : null}
             {primerQuery.isError || (primerQuery.data !== undefined && pages.length === 0) ? (
                 <div role="alert">
-                    <p>Уводът временно не е достъпен.</p>
+                    <p>Уводът не се зарежда.</p>
                     <button
                         type="button"
                         onClick={() => {
                             void primerQuery.refetch();
                         }}
                     >
-                        Опитай отново
+                        Пробвай пак
                     </button>
                 </div>
             ) : null}
             {page === undefined ? null : (
                 <>
-                    <p>{page.body}</p>
+                    <p>
+                        <ClueTermText text={page.body} />
+                    </p>
                     <PrimerFigure figureKey={page.figure} />
                     <footer className={styles.footer}>
                         <button

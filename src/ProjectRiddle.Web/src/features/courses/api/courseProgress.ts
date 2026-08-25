@@ -75,10 +75,14 @@ export function useResolvedCourseProgress(
 ): ResolvedCourseProgress {
     const accountQuery = useQuery(accountCourseProgressQueryOptions(isAuthenticated));
     const neededLessons = catalog === undefined || course === undefined ? [] : lessonsNeededForCourse(catalog, course);
+    const anonymousProgress = readAnonymousCourseProgress();
+    // Lesson details exist only to map stored exercise ids onto lessons. With none stored, availability follows
+    // prerequisites alone and must not wait on those fetches.
+    const needsAnonymousLessonDetails = !isAuthenticated && anonymousProgress.completedExercises.length > 0;
     const anonymousQueries = useQueries({
         queries: neededLessons.map((lesson) => ({
             ...courseLessonQueryOptions(lesson.id),
-            enabled: !isAuthenticated,
+            enabled: needsAnonymousLessonDetails,
         })),
     });
 
@@ -87,7 +91,6 @@ export function useResolvedCourseProgress(
     }
 
     const accountLessons = new Map((accountQuery.data?.lessons ?? []).map((lesson) => [lesson.lessonKey, lesson]));
-    const anonymousProgress = readAnonymousCourseProgress();
     const completedExerciseIds = new Set(
         isAuthenticated
             ? (accountQuery.data?.completedExerciseIds ?? [])
@@ -102,7 +105,12 @@ export function useResolvedCourseProgress(
     );
     const lessons = buildResolvedLessons(neededLessons, completedExerciseIds, detailByLessonId, accountLessons);
     const failedQueries = anonymousQueries.filter((query) => query.isError);
-    const isPending = isAuthenticated ? accountQuery.isPending : anonymousQueries.some((query) => query.isPending);
+    const catalogHasLessonProgress = course.lessons.every((lesson) => lesson.progress !== undefined);
+    // Disabled queries stay pending in TanStack Query, so only enabled work can gate the page. An account catalog
+    // already carries per-lesson progress, so the extra progress resource must not delay the first paint.
+    const isPending = isAuthenticated
+        ? !catalogHasLessonProgress && accountQuery.isPending
+        : needsAnonymousLessonDetails && anonymousQueries.some((query) => query.isPending);
     // TanStack Query uses `null` for "no error". Callers treat only a defined value as a failure, so collapse `null`.
     const error = isAuthenticated ? (accountQuery.error ?? undefined) : (failedQueries.at(0)?.error ?? undefined);
     const retry = (): void => {

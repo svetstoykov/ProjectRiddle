@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { NotFoundPage } from "../../../app/routes/NotFoundPage";
 import { isApplicationError } from "../../../shared/api/errors";
 import { PlayerPageSkeleton } from "../../../shared/components/ContentSkeletons";
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { sessionQueryOptions } from "../../auth/api/sessionQuery";
@@ -77,9 +78,7 @@ function LessonFrame({
 
 function failureMessage(error: unknown): string {
     const traceId = isApplicationError(error) ? error.traceId : undefined;
-    return traceId === undefined
-        ? "Заявката не може да бъде изпълнена."
-        : `Заявката не може да бъде изпълнена. Код за проследяване: ${traceId}`;
+    return traceId === undefined ? "Нещо се обърка от наша страна." : `Нещо се обърка от наша страна. Код: ${traceId}`;
 }
 
 function isMissingLessonOrExercise(error: unknown): boolean {
@@ -188,7 +187,7 @@ export function CourseLessonPage(): ReactElement {
                     <PageStatus
                         tone="error"
                         eyebrow="Курсове"
-                        title="Курсът временно не е достъпен"
+                        title="Курсът не се зарежда."
                         message={failureMessage(catalogQuery.error)}
                         action={{
                             label: courseMessages.retry,
@@ -215,12 +214,12 @@ export function CourseLessonPage(): ReactElement {
                     eyebrow={lessonSummary.title}
                     title={
                         isMissingLessonOrExercise(lessonQuery.error)
-                            ? "Урокът не е достъпен"
-                            : "Урокът временно не е достъпен"
+                            ? "Този урок не е достъпен."
+                            : "Урокът не се зарежда."
                     }
                     message={
                         isMissingLessonOrExercise(lessonQuery.error)
-                            ? "Това съдържание вече не е налично."
+                            ? "Може да е свалено или още непубликувано."
                             : failureMessage(lessonQuery.error)
                     }
                     action={
@@ -257,7 +256,7 @@ export function CourseLessonPage(): ReactElement {
                 <PageStatus
                     tone="error"
                     eyebrow={lessonSummary.title}
-                    title="Напредъкът временно не е достъпен"
+                    title="Напредъкът не се зарежда."
                     message={failureMessage(resolvedProgress.error)}
                     action={{ label: courseMessages.retry, onClick: resolvedProgress.retry }}
                 />
@@ -313,7 +312,7 @@ export function CourseLessonPage(): ReactElement {
                 <PageStatus
                     tone="error"
                     eyebrow={lessonSummary.title}
-                    title="Задачата временно не е достъпна"
+                    title="Задачата не се зарежда."
                     message={failureMessage(courseSession.error)}
                     action={{ label: courseMessages.retry, onClick: courseSession.retry }}
                 />
@@ -361,8 +360,10 @@ export function CourseLessonPage(): ReactElement {
             {...frameProps}
         >
             <DocumentTitle title={`${lessonSummary.title} · ${ordinal} от ${detail.exercises.length}`} />
-            {isInProgress && exercise.setup === undefined ? null : isInProgress ? (
-                <p className={styles.setup}>{exercise.setup}</p>
+            {isInProgress && exercise.setup !== undefined ? (
+                <p className={styles.setup}>
+                    <ClueTermText text={exercise.setup} />
+                </p>
             ) : null}
             <RiddlePlayer
                 play={courseSession.playerView}

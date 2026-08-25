@@ -59,6 +59,15 @@ export function CourseCarouselSkeleton(): ReactElement {
     );
 }
 
+export function CourseHubSkeleton(): ReactElement {
+    return (
+        <div className={styles.hub} aria-hidden="true">
+            <CardGridSkeleton />
+            <CourseCarouselSkeleton />
+        </div>
+    );
+}
+
 export function PlayerPageSkeleton(): ReactElement {
     return (
         <div className={styles.player} aria-hidden="true">

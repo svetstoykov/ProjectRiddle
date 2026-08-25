@@ -99,7 +99,7 @@ export function useCoursePlaySession(
     }
 
     function handleCommandError(): void {
-        notifications.error("Действието не може да бъде изпълнено. Опитай отново.");
+        notifications.error("Нещо се обърка от наша страна. Пробвай пак.");
     }
 
     const answerMutation = useMutation({

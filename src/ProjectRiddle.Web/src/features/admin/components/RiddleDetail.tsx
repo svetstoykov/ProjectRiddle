@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { reconcileSessionAfterAuthorizationFailure } from "../../auth/api/sessionQuery";
 import { isApplicationError } from "../../../shared/api/errors";
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { adminRiddleDetailQueryOptions } from "../api/adminRiddleQueries";
@@ -40,12 +41,12 @@ export function RiddleDetail({ riddleId }: RiddleDetailProps): ReactElement {
     if (notFound) {
         return (
             <>
-                <DocumentTitle title="Загадка" />
+                <DocumentTitle title="Криптика" />
                 <PageStatus
                     tone="error"
                     eyebrow="Администрация"
-                    title="Загадката не е намерена"
-                    message={riddleMessageForCode("riddles.notFound") ?? "Загадката не е намерена."}
+                    title="Криптиката не е намерена"
+                    message={riddleMessageForCode("riddles.notFound") ?? "Криптиката не е намерена."}
                 />
             </>
         );
@@ -54,10 +55,10 @@ export function RiddleDetail({ riddleId }: RiddleDetailProps): ReactElement {
     if (detailQuery.isPending) {
         return (
             <>
-                <DocumentTitle title="Загадка" />
+                <DocumentTitle title="Криптика" />
                 <PageStatus
                     eyebrow="Администрация"
-                    title="Зареждаме загадката…"
+                    title="Зареждаме криптиката…"
                     message="Изчакваме текущото съдържание."
                 />
             </>
@@ -67,12 +68,12 @@ export function RiddleDetail({ riddleId }: RiddleDetailProps): ReactElement {
     if (authorizationFailure) {
         return (
             <>
-                <DocumentTitle title="Загадка" />
+                <DocumentTitle title="Криптика" />
                 <PageStatus
                     tone="error"
                     eyebrow="Администрация"
-                    title="Няма достъп до загадката"
-                    message="Сесията или правата трябва да бъдат проверени отново."
+                    title="Няма достъп до криптиката"
+                    message="Влез отново или провери правата си."
                 />
             </>
         );
@@ -85,14 +86,14 @@ export function RiddleDetail({ riddleId }: RiddleDetailProps): ReactElement {
 
         return (
             <>
-                <DocumentTitle title="Загадка" />
+                <DocumentTitle title="Криптика" />
                 <PageStatus
                     tone="error"
                     eyebrow="Администрация"
-                    title="Загадката временно не е достъпна"
+                    title="Криптиката не се зарежда."
                     message={message}
                     action={{
-                        label: "Опитай отново",
+                        label: "Пробвай пак",
                         onClick: () => {
                             void detailQuery.refetch();
                         },
@@ -106,16 +107,16 @@ export function RiddleDetail({ riddleId }: RiddleDetailProps): ReactElement {
 
     return (
         <section className={styles.detail} aria-labelledby="riddle-detail-title">
-            <DocumentTitle title="Загадка" />
+            <DocumentTitle title="Криптика" />
             <div className={styles.header}>
                 <p className="eyebrow">Администрация</p>
-                <h1 id="riddle-detail-title">Загадка</h1>
+                <h1 id="riddle-detail-title">Криптика</h1>
                 <p className={styles.immutableNotice}>
-                    Загадките са неизменими. Съдържанието не може да бъде променяно — само насрочено, публикувано,
-                    свалено или изтрито.
+                    Криптиките са неизменими. Съдържанието не се променя — можеш само да насрочиш, публикуваш, свалиш
+                    или изтриеш.
                 </p>
                 <Link className={styles.back} to="/admin/riddles">
-                    Всички загадки
+                    Всички криптики
                 </Link>
             </div>
             <div className={styles.layout}>
@@ -126,7 +127,9 @@ export function RiddleDetail({ riddleId }: RiddleDetailProps): ReactElement {
                         <dt>Отговор</dt>
                         <dd lang="bg">{riddle.answer}</dd>
                         <dt>Обяснение</dt>
-                        <dd lang="bg">{riddle.explanation}</dd>
+                        <dd lang="bg">
+                            <ClueTermText text={riddle.explanation} />
+                        </dd>
                     </dl>
                 </section>
             </div>

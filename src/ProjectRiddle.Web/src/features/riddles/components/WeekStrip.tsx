@@ -92,7 +92,7 @@ export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactEleme
             return (
                 <div className={[styles.day, styles.gap].join(" ")}>
                     {head}
-                    <span className="visuallyHidden">{`${formatFullDate(day)}: няма загадка`}</span>
+                    <span className="visuallyHidden">{`${formatFullDate(day)}: няма криптика`}</span>
                 </div>
             );
         }
@@ -108,9 +108,9 @@ export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactEleme
                 ? "none"
                 : "started";
         const state = requiresAccount
-            ? "изисква профил"
+            ? "трябва профил"
             : isToday
-              ? "днешната загадка"
+              ? "днешната криптика"
               : outcome === undefined
                 ? "неиграна"
                 : outcomeLabels[outcome];
@@ -157,8 +157,8 @@ export function WeekStrip({ week, isAuthenticated }: WeekStripProps): ReactEleme
             </ol>
             <p className={styles.footnote}>
                 {isAuthenticated
-                    ? "Всеки ден от седмицата остава достъпен в профила ти."
-                    : "Днешната загадка е свободна. По-ранните дни се отключват с профил."}
+                    ? "С профил всеки ден от седмицата ти е отворен."
+                    : "Днешната криптика е свободна. По-старите дни се отключват с профил."}
             </p>
             <MembershipDialog
                 returnTo={gatedPath}

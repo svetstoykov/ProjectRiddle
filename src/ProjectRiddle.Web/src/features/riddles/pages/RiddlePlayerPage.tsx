@@ -66,7 +66,7 @@ export function RiddlePlayerPage(): ReactElement {
                 onDismissPrimer={dismissPrimer}
                 primerTriggerRef={primerTriggerRef}
             >
-                <DocumentTitle title="Загадка" />
+                <DocumentTitle title="Криптика" />
                 <MembershipDialog
                     returnTo={location.pathname}
                     onClose={() => {
@@ -86,12 +86,12 @@ export function RiddlePlayerPage(): ReactElement {
                 onDismissPrimer={dismissPrimer}
                 primerTriggerRef={primerTriggerRef}
             >
-                <DocumentTitle title="Загадка" />
+                <DocumentTitle title="Криптика" />
                 <div className={styles.notice}>
                     <PageStatus
-                        eyebrow="Днешната загадка"
-                        title="Днес няма публикувана загадка"
-                        message="Върни се по-късно или разгледай архива с предишните загадки."
+                        eyebrow="Днешната криптика"
+                        title="Днес няма криптика."
+                        message="Виж архива, докато чакаш."
                         action={{
                             label: "Към архива",
                             onClick: () => {
@@ -113,13 +113,13 @@ export function RiddlePlayerPage(): ReactElement {
                 onDismissPrimer={dismissPrimer}
                 primerTriggerRef={primerTriggerRef}
             >
-                <DocumentTitle title="Загадка" />
+                <DocumentTitle title="Криптика" />
                 <div className={styles.notice}>
                     <PageStatus
                         tone="error"
-                        eyebrow="Загадка"
-                        title="Загадката не е достъпна"
-                        message="Тази загадка не е налична."
+                        eyebrow="Криптика"
+                        title="Тази криптика не е достъпна."
+                        message="Може да е свалена или още непубликувана."
                     />
                 </div>
             </SolvingScreen>
@@ -127,7 +127,7 @@ export function RiddlePlayerPage(): ReactElement {
     }
 
     if (session.status === "failed") {
-        const trace = session.traceId === undefined ? "" : ` Код за проследяване: ${session.traceId}`;
+        const trace = session.traceId === undefined ? "" : ` Код: ${session.traceId}`;
 
         return (
             <SolvingScreen
@@ -137,14 +137,14 @@ export function RiddlePlayerPage(): ReactElement {
                 onDismissPrimer={dismissPrimer}
                 primerTriggerRef={primerTriggerRef}
             >
-                <DocumentTitle title="Загадка" />
+                <DocumentTitle title="Криптика" />
                 <div className={styles.notice}>
                     <PageStatus
                         tone="error"
-                        eyebrow="Загадка"
-                        title="Загадката временно не е достъпна"
-                        message={`Заявката не може да бъде изпълнена.${trace}`}
-                        action={{ label: "Опитай отново", onClick: session.retry }}
+                        eyebrow="Криптика"
+                        title="Криптиката не се зарежда."
+                        message={`Нещо се обърка от наша страна.${trace}`}
+                        action={{ label: "Пробвай пак", onClick: session.retry }}
                     />
                 </div>
             </SolvingScreen>
@@ -160,10 +160,10 @@ export function RiddlePlayerPage(): ReactElement {
                 onDismissPrimer={dismissPrimer}
                 primerTriggerRef={primerTriggerRef}
             >
-                <DocumentTitle title="Загадка" />
+                <DocumentTitle title="Криптика" />
                 <div className={styles.notice}>
                     <p className="visuallyHidden" role="status">
-                        Зареждаме загадката…
+                        Зареждаме криптиката…
                     </p>
                     <PlayerPageSkeleton />
                 </div>
@@ -179,7 +179,7 @@ export function RiddlePlayerPage(): ReactElement {
             onDismissPrimer={dismissPrimer}
             primerTriggerRef={primerTriggerRef}
         >
-            <DocumentTitle title="Загадка" />
+            <DocumentTitle title="Криптика" />
             <RiddlePlayer
                 key={session.play.id}
                 play={session.play}

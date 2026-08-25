@@ -1,5 +1,6 @@
 import { useId, useRef, useState, type ReactElement } from "react";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { ConfirmationDialog } from "../../../shared/components/ConfirmationDialog";
 import { FieldError } from "../../../shared/components/FieldError";
 import { rangeKindLabels } from "../messages/adminMessages";
@@ -56,12 +57,12 @@ export function RangeLabeller({ clue, ranges, errors, disabled, onChange }: Rang
         if (trimmed !== clue) {
             onChange(trimmed, ranges);
             setPendingSelection(null);
-            setInlineMessages(["Началните и крайните интервали бяха премахнати. Изберете откъса отново."]);
+            setInlineMessages(["Началните и крайните интервали бяха премахнати. Избери откъса отново."]);
             return;
         }
 
         if (pendingSelection === null || pendingSelection.start === pendingSelection.end) {
-            setInlineMessages(["Изберете откъс от условието, преди да добавите етикет."]);
+            setInlineMessages(["Избери откъс от уликата, преди да добавиш етикет."]);
             return;
         }
 
@@ -102,7 +103,7 @@ export function RangeLabeller({ clue, ranges, errors, disabled, onChange }: Rang
     return (
         <div className={styles.labeller}>
             <div className={styles.field}>
-                <label htmlFor={clueId}>Условие</label>
+                <label htmlFor={clueId}>Улика</label>
                 <textarea
                     ref={textareaRef}
                     id={clueId}
@@ -141,7 +142,10 @@ export function RangeLabeller({ clue, ranges, errors, disabled, onChange }: Rang
                         return (
                             <li key={range.key} className={styles.range}>
                                 <p>
-                                    <strong>{kindLabel}</strong> „{selectedText}“ [{range.start}, {range.end})
+                                    <strong>
+                                        <ClueTermText text={kindLabel} />
+                                    </strong>{" "}
+                                    „{selectedText}“ [{range.start}, {range.end})
                                 </p>
                                 <button
                                     type="button"
@@ -166,8 +170,8 @@ export function RangeLabeller({ clue, ranges, errors, disabled, onChange }: Rang
             )}
             <ConfirmationDialog
                 open={dialogOpen}
-                title="Промяна на условието"
-                description="Промяната на условието ще премахне всички етикети по откъси."
+                title="Промяна на уликата"
+                description="Промяната на уликата ще премахне всички етикети по откъси."
                 confirmLabel="Продължи и изчисти етикетите"
                 busy={false}
                 danger={false}

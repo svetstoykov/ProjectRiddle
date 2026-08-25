@@ -96,7 +96,7 @@ export function useRiddlePlaySession(riddleId: string | undefined): RiddlePlaySe
             return;
         }
 
-        notifications.error("Действието не може да бъде изпълнено. Опитай отново.");
+        notifications.error("Нещо се обърка от наша страна. Пробвай пак.");
     }
 
     const answerMutation = useMutation({

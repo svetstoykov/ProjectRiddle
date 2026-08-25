@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { Link } from "react-router-dom";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import type { CourseLessonSummary } from "../models/courseCatalog";
 import type { ResolvedLessonProgress } from "../models/courseProgress";
 import { CourseGlyphStack } from "./CourseGlyph";
@@ -19,7 +20,9 @@ export function LessonCard(props: LessonCardProps): ReactElement {
     const body = (
         <>
             <CourseGlyphStack lessonKeys={props.glyphKeys} tone="hub" />
-            <h3>{props.lesson.title}</h3>
+            <h3>
+                <ClueTermText text={props.lesson.title} />
+            </h3>
             <CourseProgressPill completed={props.progress.completedExerciseCount} total={props.lesson.exerciseCount} />
         </>
     );

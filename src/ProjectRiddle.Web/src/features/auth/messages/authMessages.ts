@@ -1,9 +1,9 @@
 const accountMessages = {
-    "users.email.invalid": "Въведете валиден имейл адрес.",
-    "users.email.conflict": "Вече има профил с този имейл адрес.",
-    "users.password.invalid": "Паролата трябва да е между 8 и 256 знака.",
-    "users.credentials.invalid": "Невалиден имейл или парола.",
-    "users.unauthorized": "Сесията е изтекла. Влезте отново.",
+    "users.email.invalid": "Този имейл не изглежда валиден.",
+    "users.email.conflict": "Вече имаш профил с този имейл.",
+    "users.password.invalid": "Паролата трябва да е поне 8 знака.",
+    "users.credentials.invalid": "Имейлът или паролата не съвпадат.",
+    "users.unauthorized": "Сесията изтече. Влез пак.",
 } as const;
 
 export type AccountMessageCode = keyof typeof accountMessages;
@@ -17,6 +17,6 @@ export function accountMessageForCode(code: string | undefined): string | undefi
 }
 
 export function unknownAccountFailure(traceId: string | undefined): string {
-    const fallback = "Заявката не може да бъде изпълнена.";
-    return traceId === undefined ? fallback : `${fallback} Код за проследяване: ${traceId}`;
+    const fallback = "Нещо се обърка от наша страна.";
+    return traceId === undefined ? fallback : `${fallback} Код: ${traceId}`;
 }

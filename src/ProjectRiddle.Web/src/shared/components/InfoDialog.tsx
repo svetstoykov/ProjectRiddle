@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type ReactElement, type ReactNode, type RefObject } from "react";
 
+import { ClueTermText } from "./ClueTermText";
 import styles from "./InfoDialog.module.css";
 
 export interface InfoDialogProps {
@@ -74,7 +75,7 @@ export function InfoDialog({ open, title, children, onClose, returnFocusRef }: I
             <div className={styles.panel}>
                 <div className={styles.header}>
                     <h2 id={titleId} className={styles.title}>
-                        {title}
+                        <ClueTermText text={title} />
                     </h2>
                     <button type="button" className={styles.close} aria-label="Затвори" onClick={onClose}>
                         ×

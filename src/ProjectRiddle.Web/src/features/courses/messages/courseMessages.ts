@@ -8,7 +8,7 @@ export const courseMessages = {
     completionHeading: "Курсът е завършен",
     completionLead: "Можеш да повториш смесената практика или да избереш друг курс.",
     primerLabel: "Увод в уликите",
-    retry: "Опитай отново",
+    retry: "Пробвай пак",
 } as const;
 
 export function successLine(title: string, kind: CourseLessonKind, ordinal: number, total: number): string {

@@ -25,13 +25,12 @@ export function MembershipDialog({ returnTo, onClose, returnFocusRef }: Membersh
     return (
         <InfoDialog
             open={returnTo !== null}
-            title="Нужен е профил"
+            title="Трябва ти профил"
             onClose={onClose}
             returnFocusRef={returnFocusRef ?? unopenedRef}
         >
             <p>
-                За да отвориш тази загадка, трябва да си член. Днешната загадка е свободна за всички, а предишните дни
-                се играят с профил, в който напредъкът ти остава запазен.
+                Днешната криптика е свободна за всички. По-старите дни се отключват с профил, който пази напредъка ти.
             </p>
             <div className={styles.actions}>
                 <Link className="button" to={`/register?returnTo=${target}`}>

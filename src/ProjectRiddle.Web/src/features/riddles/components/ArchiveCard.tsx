@@ -51,7 +51,7 @@ export function ArchiveCard({ item, outcome, isAuthenticated, onAccountRequired 
                         <span className={styles.veilLineMid} />
                         <span className={styles.veilLineShort} />
                     </span>
-                    <span className="visuallyHidden">Условието се отключва с профил.</span>
+                    <span className="visuallyHidden">С профил виждаш уликата.</span>
                 </>
             ) : (
                 <span className={styles.excerpt} lang="bg">
@@ -59,7 +59,7 @@ export function ArchiveCard({ item, outcome, isAuthenticated, onAccountRequired 
                 </span>
             )}
             <span className={styles.meta}>
-                <span className={styles.pattern}>Брой букви: ({item.answerPattern})</span>
+                <span className={styles.pattern}>Букви: ({item.answerPattern})</span>
                 {outcome === undefined ? null : (
                     <span className={outcome === "solved" ? styles.solved : styles.outcome}>
                         {outcomeLabels[outcome]}

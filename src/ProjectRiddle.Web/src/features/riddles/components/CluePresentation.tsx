@@ -1,5 +1,6 @@
 import { useRef, useState, type ReactElement } from "react";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
 import { InfoDialog } from "../../../shared/components/InfoDialog";
 import type { RiddleRangeKind } from "../models/riddleRange";
 import styles from "./CluePresentation.module.css";
@@ -28,10 +29,10 @@ const kindLabels: Record<RiddleRangeKind, string> = {
 /* What each part of a cryptic clue does, in the words a first-time solver needs rather than the jargon. */
 const kindExplanations: Record<RiddleRangeKind, string> = {
     definition:
-        "Частта, която значи същото като отговора, както в обикновена кръстословица. Стои в началото или в края на загадката — никога по средата.",
+        "Частта, която значи същото като отговора — както в обикновена кръстословица. Стои в началото или в края на уликата, никога по средата.",
     indicator:
         "Думите, които подсказват какво да направиш с материала: да го разбъркаш, обърнеш, скъсиш или да извадиш скрити в него букви.",
-    fodder: "Буквите и думите, върху които действа индикаторът. От тях, след указаната обработка, се получава отговорът.",
+    fodder: "Буквите и думите, върху които действа индикаторът. От тях се сглобява отговорът.",
 };
 
 const kindClassNames: Record<RiddleRangeKind, string> = {
@@ -184,7 +185,7 @@ export function CluePresentation({ clue, answerPattern, ranges, activeKinds }: C
                 }}
                 returnFocusRef={triggerRef}
             >
-                <p>{explainedKind === undefined ? null : kindExplanations[explainedKind]}</p>
+                <p>{explainedKind === undefined ? null : <ClueTermText text={kindExplanations[explainedKind]} />}</p>
             </InfoDialog>
         </div>
     );

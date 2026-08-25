@@ -27,11 +27,7 @@ export function AdminRiddleListPage(): ReactElement {
         return (
             <>
                 <DocumentTitle title="Администрация" />
-                <PageStatus
-                    eyebrow="Администрация"
-                    title="Зареждаме загадките…"
-                    message="Изчакваме списъка с административни загадки."
-                />
+                <PageStatus eyebrow="Администрация" title="Зареждаме криптиките…" message="Изчакваме списъка." />
             </>
         );
     }
@@ -44,7 +40,7 @@ export function AdminRiddleListPage(): ReactElement {
                     tone="error"
                     eyebrow="Администрация"
                     title="Няма достъп до списъка"
-                    message="Сесията или правата трябва да бъдат проверени отново."
+                    message="Влез отново или провери правата си."
                 />
             </>
         );
@@ -61,10 +57,10 @@ export function AdminRiddleListPage(): ReactElement {
                 <PageStatus
                     tone="error"
                     eyebrow="Администрация"
-                    title="Списъкът временно не е достъпен"
+                    title="Списъкът не се зарежда."
                     message={message}
                     action={{
-                        label: "Опитай отново",
+                        label: "Пробвай пак",
                         onClick: () => {
                             void listQuery.refetch();
                         },
@@ -80,14 +76,14 @@ export function AdminRiddleListPage(): ReactElement {
             <div className={styles.pageHeader}>
                 <div className={styles.titles}>
                     <p className="eyebrow">Администрация</p>
-                    <h1 id="admin-riddle-list-title">Загадки</h1>
+                    <h1 id="admin-riddle-list-title">Криптики</h1>
                 </div>
                 <Link className="button" to="/admin/riddles/new">
-                    Нова загадка
+                    Нова криптика
                 </Link>
             </div>
             {listQuery.data.length === 0 ? (
-                <p role="status">Все още няма загадки.</p>
+                <p role="status">Още няма криптики.</p>
             ) : (
                 <AdminRiddleList riddles={listQuery.data} />
             )}
