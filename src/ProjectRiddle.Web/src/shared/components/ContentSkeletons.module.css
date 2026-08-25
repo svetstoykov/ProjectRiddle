@@ -70,11 +70,19 @@
     border-radius: var(--radius-md);
 }
 
-.home {
+.home,
+.hub {
     display: grid;
-    gap: var(--space-5);
     width: min(100%, var(--reading-width));
     margin-inline: auto;
+}
+
+.home {
+    gap: var(--space-5);
+}
+
+.hub {
+    gap: var(--space-7);
 }
 
 .carousel {
