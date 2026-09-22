@@ -37,6 +37,10 @@ public interface IAdminRiddlesService
     /// <param name="input">The schedule input. Cannot be <see langword="null" />.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
     /// <returns>The scheduled riddle, or an expected failure.</returns>
+    /// <remarks>
+    /// Draft, unpublished, and expired riddles can be scheduled on today or a later Sofia date. Scheduling an
+    /// expired riddle replaces its missed date.
+    /// </remarks>
     Task<Result<RiddleOutput>> ScheduleAsync(ScheduleRiddleInput input, CancellationToken cancellationToken);
 
     /// <summary>
@@ -45,6 +49,7 @@ public interface IAdminRiddlesService
     /// <param name="input">The publish input. Cannot be <see langword="null" />.</param>
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
     /// <returns>The published riddle, or an expected failure.</returns>
+    /// <remarks>An expired riddle cannot be published on its missed date. Schedule it again first.</remarks>
     Task<Result<RiddleOutput>> PublishAsync(PublishRiddleInput input, CancellationToken cancellationToken);
 
     /// <summary>

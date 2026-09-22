@@ -1,4 +1,5 @@
 using ProjectRiddle.Core.Interfaces.Time;
+using ProjectRiddle.Core.Time;
 
 namespace ProjectRiddle.IntegrationTests.Harness;
 
@@ -37,4 +38,7 @@ public sealed class FixedDateTimeProvider : IDateTimeProvider
             return new DateOnly(localDateTime.Year, localDateTime.Month, localDateTime.Day);
         }
     }
+
+    /// <inheritdoc />
+    public DateTimeOffset NextLocalMidnightUtc => ConfiguredLocalTime.NextMidnightUtc(UtcDateTime, _timeZone);
 }

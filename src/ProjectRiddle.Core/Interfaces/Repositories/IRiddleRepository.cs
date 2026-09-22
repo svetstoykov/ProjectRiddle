@@ -107,4 +107,29 @@ public interface IRiddleRepository
     /// <param name="cancellationToken">The token used to cancel the operation.</param>
     /// <returns>A task that represents the save operation.</returns>
     Task DeleteAsync(Riddle riddle, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Lists daily riddles that are still scheduled on or before the supplied local date.
+    /// </summary>
+    /// <param name="localDate">The inclusive configured-local date.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>The due scheduled riddles.</returns>
+    /// <remarks>Course lesson rows are excluded. The caller decides which row publishes and which rows expire.</remarks>
+    Task<IReadOnlyList<Riddle>> ListDueScheduledAsync(DateOnly localDate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Saves a reconciliation batch as one atomic change.
+    /// </summary>
+    /// <param name="riddles">The riddles changed by the batch. Cannot be <see langword="null" />.</param>
+    /// <param name="cancellationToken">The token used to cancel the operation.</param>
+    /// <returns>A task that represents the save operation.</returns>
+    /// <exception cref="ProjectRiddle.Core.Exceptions.StaleRiddleWriteException">
+    /// Thrown when another write changed one of the riddles before the batch was stored. No transition from the
+    /// batch is persisted.
+    /// </exception>
+    /// <exception cref="ProjectRiddle.Core.Exceptions.DuplicatePublicationDateException">
+    /// Thrown when the batch would place two scheduled or published riddles on the same Sofia date. No transition
+    /// from the batch is persisted.
+    /// </exception>
+    Task UpdateBatchAsync(IReadOnlyList<Riddle> riddles, CancellationToken cancellationToken);
 }

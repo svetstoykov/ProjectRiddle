@@ -12,6 +12,7 @@ const riddleMessages = {
     "riddles.publicationDate.conflict": "Тази дата в София вече е заета.",
     "riddles.transition.invalid": "Това действие не е позволено в текущото състояние.",
     "riddles.delete.notPermitted": "Криптика в това състояние не може да се изтрие.",
+    "riddles.write.stale": "Криптиката е променена междувременно. Презареди я и опитай пак.",
 } as const;
 
 export type RiddleMessageCode = keyof typeof riddleMessages;
@@ -21,6 +22,7 @@ export const publicationStateLabels: Record<RiddlePublicationState, string> = {
     scheduled: "Насрочена",
     published: "Публикувана",
     unpublished: "Свалена",
+    expired: "Пропусната",
 };
 
 export const rangeKindLabels: Record<RiddleRangeKind, string> = {

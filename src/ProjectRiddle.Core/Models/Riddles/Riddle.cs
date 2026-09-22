@@ -22,7 +22,10 @@ public sealed class Riddle
     /// <param name="sofiaPublicationDate">The Sofia calendar date when the riddle occupies or occupied the calendar.</param>
     /// <param name="createdAtUtc">The UTC timestamp when the riddle was created.</param>
     /// <param name="updatedAtUtc">The UTC timestamp when the riddle was last changed.</param>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="id" /> is empty.</exception>
+    /// <param name="version">The optimistic-concurrency version. Cannot be negative.</param>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown when <paramref name="id" /> is empty or <paramref name="version" /> is negative.
+    /// </exception>
     /// <exception cref="ArgumentException">Thrown when a required string argument is empty or whitespace.</exception>
     public Riddle(
         Guid id,
@@ -34,13 +37,15 @@ public sealed class Riddle
         RiddlePublicationState publicationState,
         DateOnly? sofiaPublicationDate,
         DateTimeOffset createdAtUtc,
-        DateTimeOffset updatedAtUtc)
+        DateTimeOffset updatedAtUtc,
+        int version = 0)
     {
         ArgumentOutOfRangeException.ThrowIfEqual(id, Guid.Empty);
         ArgumentException.ThrowIfNullOrWhiteSpace(clue);
         ArgumentException.ThrowIfNullOrWhiteSpace(answer);
         ArgumentException.ThrowIfNullOrWhiteSpace(answerPattern);
         ArgumentException.ThrowIfNullOrWhiteSpace(explanation);
+        ArgumentOutOfRangeException.ThrowIfNegative(version);
 
         Id = id;
         Clue = clue;
@@ -53,6 +58,7 @@ public sealed class Riddle
         _ranges = [];
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
+        Version = version;
     }
 
     /// <summary>
@@ -134,7 +140,7 @@ public sealed class Riddle
         Answer = answer;
         AnswerPattern = answerPattern;
         Explanation = explanation;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkChanged(updatedAtUtc);
     }
 
     /// <summary>
@@ -148,6 +154,11 @@ public sealed class Riddle
     public DateTimeOffset UpdatedAtUtc { get; private set; }
 
     /// <summary>
+    /// Gets the optimistic-concurrency version incremented by each persisted content or lifecycle change.
+    /// </summary>
+    public int Version { get; private set; }
+
+    /// <summary>
     /// Replaces the labelled structural ranges.
     /// </summary>
     /// <param name="contentRanges">The labelled structural ranges. Cannot be <see langword="null" />.</param>
@@ -156,6 +167,7 @@ public sealed class Riddle
         ArgumentNullException.ThrowIfNull(contentRanges);
         _ranges.Clear();
         _ranges.AddRange(contentRanges);
+        Version++;
     }
 
     /// <summary>
@@ -167,7 +179,7 @@ public sealed class Riddle
     {
         PublicationState = RiddlePublicationState.Scheduled;
         SofiaPublicationDate = publicationDate;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkChanged(updatedAtUtc);
     }
 
     /// <summary>
@@ -179,7 +191,7 @@ public sealed class Riddle
     {
         PublicationState = RiddlePublicationState.Published;
         SofiaPublicationDate = publicationDate;
-        UpdatedAtUtc = updatedAtUtc;
+        MarkChanged(updatedAtUtc);
     }
 
     /// <summary>
@@ -189,6 +201,50 @@ public sealed class Riddle
     public void Unpublish(DateTimeOffset updatedAtUtc)
     {
         PublicationState = RiddlePublicationState.Unpublished;
+        MarkChanged(updatedAtUtc);
+    }
+
+    /// <summary>
+    /// Records that this scheduled publication was missed because a later due schedule was published instead.
+    /// </summary>
+    /// <param name="updatedAtUtc">The UTC timestamp of the change.</param>
+    /// <remarks>The Sofia publication date is left unchanged so administration can show the missed date.</remarks>
+    public void Expire(DateTimeOffset updatedAtUtc)
+    {
+        PublicationState = RiddlePublicationState.Expired;
+        MarkChanged(updatedAtUtc);
+    }
+
+    /// <summary>
+    /// Creates an independent copy of the riddle, including its ranges and concurrency version.
+    /// </summary>
+    /// <returns>The copy.</returns>
+    public Riddle Copy()
+    {
+        var copy = new Riddle(
+            Id,
+            Clue,
+            Answer,
+            AnswerPattern,
+            Explanation,
+            IsLesson,
+            PublicationState,
+            SofiaPublicationDate,
+            CreatedAtUtc,
+            UpdatedAtUtc,
+            Version);
+
+        foreach (var range in _ranges)
+        {
+            copy._ranges.Add(new RiddleRange(range.Id, range.Kind, range.Start, range.End));
+        }
+
+        return copy;
+    }
+
+    private void MarkChanged(DateTimeOffset updatedAtUtc)
+    {
         UpdatedAtUtc = updatedAtUtc;
+        Version++;
     }
 }

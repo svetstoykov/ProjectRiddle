@@ -147,7 +147,14 @@ public sealed class RiddleRepository : IRiddleRepository
     public async Task UpdateAsync(Riddle riddle, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(riddle);
-        _dbContext.Set<Riddle>().Update(riddle);
+
+        // A riddle loaded by this context is already tracked. Marking it Modified again would copy the incremented
+        // concurrency version into the original values and the stale-write check would no longer see the loaded row.
+        if (_dbContext.Entry(riddle).State == EntityState.Detached)
+        {
+            _dbContext.Set<Riddle>().Update(riddle);
+        }
+
         await SaveOccupyingChangeAsync(riddle, cancellationToken);
     }
 
@@ -159,11 +166,65 @@ public sealed class RiddleRepository : IRiddleRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Riddle>> ListDueScheduledAsync(
+        DateOnly localDate,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.Set<Riddle>()
+            .Include(riddle => riddle.Ranges)
+            .Where(
+                riddle => !riddle.IsLesson
+                    && riddle.PublicationState == RiddlePublicationState.Scheduled
+                    && riddle.SofiaPublicationDate != null
+                    && riddle.SofiaPublicationDate <= localDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="StaleRiddleWriteException">Thrown when the batch loses an optimistic-concurrency check.</exception>
+    /// <exception cref="DuplicatePublicationDateException">
+    /// Thrown when the batch violates the one occupied Sofia date constraint.
+    /// </exception>
+    public async Task UpdateBatchAsync(IReadOnlyList<Riddle> riddles, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(riddles);
+        if (riddles.Count == 0)
+        {
+            return;
+        }
+
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _dbContext.ChangeTracker.Clear();
+            throw new StaleRiddleWriteException();
+        }
+        catch (DbUpdateException exception) when (IsUniqueConstraint(exception))
+        {
+            _dbContext.ChangeTracker.Clear();
+            var publicationDate = riddles
+                .Select(riddle => riddle.SofiaPublicationDate)
+                .FirstOrDefault(date => date is not null);
+            throw new DuplicatePublicationDateException(publicationDate ?? default);
+        }
+    }
+
     private async Task SaveOccupyingChangeAsync(Riddle riddle, CancellationToken cancellationToken)
     {
         try
         {
             await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            _dbContext.ChangeTracker.Clear();
+            throw new StaleRiddleWriteException();
         }
         catch (DbUpdateException exception) when (IsUniqueConstraint(exception) && riddle.SofiaPublicationDate is not null)
         {

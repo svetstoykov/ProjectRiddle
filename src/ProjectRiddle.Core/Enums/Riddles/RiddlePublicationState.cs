@@ -23,5 +23,14 @@ public enum RiddlePublicationState
     /// <summary>
     /// Indicates a riddle withdrawn from the calendar so its date may be reused.
     /// </summary>
-    Unpublished = 3
+    Unpublished = 3,
+
+    /// <summary>
+    /// Indicates a scheduled riddle whose date was missed because a later due schedule was published instead.
+    /// </summary>
+    /// <remarks>
+    /// The missed Sofia date is retained. The riddle does not occupy that date, so another riddle may be scheduled
+    /// there. An expired riddle can be rescheduled for a current or future date and cannot be published directly.
+    /// </remarks>
+    Expired = 4
 }

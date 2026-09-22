@@ -51,6 +51,11 @@ public static class RiddleErrorCodes
     public const string TransitionInvalid = "riddles.transition.invalid";
 
     /// <summary>
+    /// Identifies a riddle write that lost an optimistic-concurrency check.
+    /// </summary>
+    public const string StaleWrite = "riddles.write.stale";
+
+    /// <summary>
     /// Identifies a delete that is not permitted for the current publication state.
     /// </summary>
     public const string DeleteNotPermitted = "riddles.delete.notPermitted";

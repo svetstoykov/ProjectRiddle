@@ -14,6 +14,8 @@ export function adminRiddleListQueryOptions() {
     return queryOptions({
         queryKey: adminRiddleKeys.list(),
         queryFn: adminRiddlesApi.list,
+        staleTime: 0,
+        refetchOnWindowFocus: true,
     });
 }
 
@@ -21,5 +23,7 @@ export function adminRiddleDetailQueryOptions(id: string) {
     return queryOptions({
         queryKey: adminRiddleKeys.detail(id),
         queryFn: () => adminRiddlesApi.get(id),
+        staleTime: 0,
+        refetchOnWindowFocus: true,
     });
 }

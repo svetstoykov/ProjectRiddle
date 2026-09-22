@@ -24,9 +24,18 @@ const commandsByState = {
     scheduled: ["publish", "unpublish"],
     published: ["unpublish"],
     unpublished: ["schedule", "publish", "delete"],
+    expired: ["schedule"],
 } as const;
 
 type PublicationCommand = (typeof commandsByState)[keyof typeof commandsByState][number];
+
+function initialPublicationDate(state: Riddle["publicationState"], sofiaPublicationDate: string | null): string {
+    if (state === "expired" || sofiaPublicationDate === null) {
+        return todayInSofia();
+    }
+
+    return sofiaPublicationDate;
+}
 
 function isMissingRiddle(error: unknown): boolean {
     return isApplicationError(error) && (error.status === 404 || error.code === "riddles.notFound");
@@ -41,15 +50,17 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
     const deleteRef = useRef<HTMLButtonElement>(null);
     // An unscheduled riddle opens on today in Sofia so the common case needs no typing. Nothing is sent until a
     // publication command is pressed.
-    const [publicationDate, setPublicationDate] = useState(riddle.sofiaPublicationDate ?? todayInSofia());
+    const [publicationDate, setPublicationDate] = useState(
+        initialPublicationDate(riddle.publicationState, riddle.sofiaPublicationDate),
+    );
     const [dateErrors, setDateErrors] = useState<readonly string[]>([]);
     const [summary, setSummary] = useState<readonly string[]>([]);
     const [notice, setNotice] = useState<string | null>(null);
     const [confirm, setConfirm] = useState<"unpublish" | "delete" | null>(null);
 
     useEffect(() => {
-        setPublicationDate(riddle.sofiaPublicationDate ?? todayInSofia());
-    }, [riddle.id, riddle.sofiaPublicationDate]);
+        setPublicationDate(initialPublicationDate(riddle.publicationState, riddle.sofiaPublicationDate));
+    }, [riddle.publicationState, riddle.sofiaPublicationDate]);
 
     const commands = commandsByState[riddle.publicationState];
 
@@ -140,7 +151,10 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
         publishMutation.isPending ||
         unpublishMutation.isPending ||
         deleteMutation.isPending;
-    const needsDate = riddle.publicationState === "draft" || riddle.publicationState === "unpublished";
+    const needsDate =
+        riddle.publicationState === "draft" ||
+        riddle.publicationState === "unpublished" ||
+        riddle.publicationState === "expired";
 
     function hasCommand(command: PublicationCommand): boolean {
         return (commands as readonly PublicationCommand[]).includes(command);
@@ -162,6 +176,12 @@ export function PublicationPanel({ riddle, onMissing }: PublicationPanelProps): 
             <p>
                 Състояние: <span className={styles.chip}>{publicationStateLabels[riddle.publicationState]}</span>
             </p>
+            {riddle.publicationState === "expired" ? (
+                <p>
+                    Пропусна датата {riddle.sofiaPublicationDate}, защото по-късна насрочена криптика я измести. Насрочи
+                    я за днес или за по-късна дата.
+                </p>
+            ) : null}
             <div className={styles.field}>
                 <label htmlFor={dateId}>Дата на публикуване (София)</label>
                 <input

@@ -117,7 +117,8 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
         }
 
         if (riddle.PublicationState is not RiddlePublicationState.Draft
-            and not RiddlePublicationState.Unpublished)
+            and not RiddlePublicationState.Unpublished
+            and not RiddlePublicationState.Expired)
         {
             return InvalidTransition<RiddleOutput>();
         }
@@ -138,18 +139,13 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
         }
 
         riddle.Schedule(input.PublicationDate, _dateTimeProvider.UtcDateTime);
-
-        try
+        var scheduled = await SaveAsync(riddle, cancellationToken);
+        if (scheduled.IsSuccess)
         {
-            await _riddleRepository.UpdateAsync(riddle, cancellationToken);
-        }
-        catch (DuplicatePublicationDateException)
-        {
-            return DateConflict<RiddleOutput>();
+            _logger.LogInformation("Scheduled a riddle. RiddleId: {RiddleId}", riddle.Id);
         }
 
-        _logger.LogInformation("Scheduled a riddle. RiddleId: {RiddleId}", riddle.Id);
-        return Result.Success(ToOutput(riddle));
+        return scheduled;
     }
 
     /// <inheritdoc />
@@ -166,7 +162,7 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
             return NotFound<RiddleOutput>();
         }
 
-        if (riddle.PublicationState is RiddlePublicationState.Published)
+        if (riddle.PublicationState is RiddlePublicationState.Published or RiddlePublicationState.Expired)
         {
             return InvalidTransition<RiddleOutput>();
         }
@@ -188,18 +184,13 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
         }
 
         riddle.Publish(publicationDate.Value, _dateTimeProvider.UtcDateTime);
-
-        try
+        var published = await SaveAsync(riddle, cancellationToken);
+        if (published.IsSuccess)
         {
-            await _riddleRepository.UpdateAsync(riddle, cancellationToken);
-        }
-        catch (DuplicatePublicationDateException)
-        {
-            return DateConflict<RiddleOutput>();
+            _logger.LogInformation("Published a riddle. RiddleId: {RiddleId}", riddle.Id);
         }
 
-        _logger.LogInformation("Published a riddle. RiddleId: {RiddleId}", riddle.Id);
-        return Result.Success(ToOutput(riddle));
+        return published;
     }
 
     /// <inheritdoc />
@@ -220,9 +211,13 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
         }
 
         riddle.Unpublish(_dateTimeProvider.UtcDateTime);
-        await _riddleRepository.UpdateAsync(riddle, cancellationToken);
-        _logger.LogInformation("Unpublished a riddle. RiddleId: {RiddleId}", riddle.Id);
-        return Result.Success(ToOutput(riddle));
+        var unpublished = await SaveAsync(riddle, cancellationToken);
+        if (unpublished.IsSuccess)
+        {
+            _logger.LogInformation("Unpublished a riddle. RiddleId: {RiddleId}", riddle.Id);
+        }
+
+        return unpublished;
     }
 
     /// <inheritdoc />
@@ -250,7 +245,15 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
                     RiddleErrorCodes.DeleteNotPermitted));
         }
 
-        await _riddleRepository.DeleteAsync(riddle, cancellationToken);
+        try
+        {
+            await _riddleRepository.DeleteAsync(riddle, cancellationToken);
+        }
+        catch (StaleRiddleWriteException)
+        {
+            return Result.Failure(StaleError());
+        }
+
         _logger.LogInformation("Deleted a riddle. RiddleId: {RiddleId}", riddle.Id);
         return Result.Success();
     }
@@ -385,6 +388,32 @@ public sealed class AdminRiddlesService : IAdminRiddlesService
                 "Another riddle already occupies this Sofia publication date.",
                 ErrorType.Conflict,
                 RiddleErrorCodes.PublicationDateConflict));
+    }
+
+    private static OperationError StaleError()
+    {
+        return new OperationError(
+            "The riddle was changed by another operation. Reload it and try again.",
+            ErrorType.Conflict,
+            RiddleErrorCodes.StaleWrite);
+    }
+
+    private async Task<Result<RiddleOutput>> SaveAsync(Riddle riddle, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _riddleRepository.UpdateAsync(riddle, cancellationToken);
+        }
+        catch (DuplicatePublicationDateException)
+        {
+            return DateConflict<RiddleOutput>();
+        }
+        catch (StaleRiddleWriteException)
+        {
+            return Result.Failure<RiddleOutput>(StaleError());
+        }
+
+        return Result.Success(ToOutput(riddle));
     }
 
     private static RiddleOutput ToOutput(Riddle riddle)

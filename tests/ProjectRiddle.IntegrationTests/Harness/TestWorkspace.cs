@@ -35,6 +35,10 @@ public sealed class TestWorkspace
         Riddles = riddles;
         var progress = new InMemoryRiddleProgressRepository(riddles);
         AdminService = new AdminRiddlesService(riddles, Clock, NullLogger<AdminRiddlesService>.Instance);
+        Publication = new PublicationReconciliationService(
+            riddles,
+            Clock,
+            NullLogger<PublicationReconciliationService>.Instance);
         PlayEngine = new CluePlayEngine(
             progress,
             Account,
@@ -73,6 +77,11 @@ public sealed class TestWorkspace
     /// Gets the Core administrative riddles service under test.
     /// </summary>
     public IAdminRiddlesService AdminService { get; }
+
+    /// <summary>
+    /// Gets the Core scheduled-publication reconciliation service under test.
+    /// </summary>
+    public IPublicationReconciliationService Publication { get; }
 
     /// <summary>
     /// Gets the Core riddles service under test.
