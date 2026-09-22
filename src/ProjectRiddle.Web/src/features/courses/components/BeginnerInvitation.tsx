@@ -32,17 +32,16 @@ export function BeginnerInvitation({
             returnFocusRef={returnFocusRef}
             initialFocusRef={startRef}
         >
-            <p>
+            <p className={styles.lead}>
                 Започни с кратко въведение и пробвай една улика с подсказки. Ще откриеш как работи играта, докато
                 решаваш.
             </p>
-            <p className={styles.optional}>Ако вече ги познаваш, днешната улика те чака на началната страница.</p>
             <div className={styles.actions}>
-                <Link ref={startRef} className="button" to={introductoryLessonPath} onClick={onStart}>
+                <Link ref={startRef} className={`button ${styles.start}`} to={introductoryLessonPath} onClick={onStart}>
                     Започни с основите
                 </Link>
                 <button type="button" className={styles.dismiss} onClick={onDismiss}>
-                    Продължи към началната страница
+                    Вече знам как се играе
                 </button>
             </div>
         </InfoDialog>

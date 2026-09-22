@@ -1,32 +1,38 @@
-.optional {
-    color: var(--color-muted-text);
+.lead {
+    font-size: var(--text-body);
+    text-wrap: pretty;
 }
 
+/*
+ * The two answers stack at full width so neither wraps awkwardly beside the other on a phone. The yellow start leads;
+ * declining sits underneath as a quiet, full-width target that does not compete with it.
+ */
 .actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-3);
-    padding-top: var(--space-2);
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
 }
 
-/* Declining reads as a link beside the invitation: easy to find, but it does not compete with the yellow start. */
+.start {
+    width: 100%;
+}
+
 .dismiss {
+    width: 100%;
     padding-inline: var(--space-3);
     border-color: transparent;
     background: none;
     box-shadow: none;
-    color: var(--color-deep-violet);
+    color: var(--color-muted-text);
+    font-size: var(--text-label);
     font-weight: 600;
-    text-align: start;
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
 }
 
 @media (hover: hover) {
     button.dismiss:hover:not(:disabled):not([aria-busy="true"]) {
         background: var(--color-surface-low);
         box-shadow: none;
+        color: var(--color-deep-violet);
         transform: none;
     }
 }

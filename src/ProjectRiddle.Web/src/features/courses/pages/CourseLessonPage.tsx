@@ -61,6 +61,7 @@ function LessonFrame({
                 ordinal={ordinal}
                 total={total}
                 onOpenIntro={onOpenIntro}
+                isIntroOpen={dialog !== null}
                 introTriggerRef={introTriggerRef}
             />
             <main className={styles.stage}>{children}</main>
@@ -117,12 +118,12 @@ export function CourseLessonPage(): ReactElement {
         ordinal: string;
     }>();
     const navigate = useNavigate();
-    // The first practice teaches inline, so whichever way the solver arrives it opens straight onto the board. Its
-    // header opens the full primer on demand, which covers everything the lesson's own intro would say.
+    // The primer opens by itself until it has been dismissed once in this browser, which makes it the first thing a
+    // newcomer sees on the first practice. That practice has no intro of its own: its header reopens the primer.
     const isIntroductory = lessonKey === introductoryLessonKey;
     const initialProgressRef = useRef(readAnonymousCourseProgress());
     const [dialog, setDialog] = useState<"primer" | "intro" | null>(
-        isIntroductory || initialProgressRef.current.primerDismissed ? null : "primer",
+        initialProgressRef.current.primerDismissed ? null : "primer",
     );
     const initializedLessonKeyRef = useRef<string | undefined>(undefined);
     const introTriggerRef = useRef<HTMLButtonElement | null>(null);

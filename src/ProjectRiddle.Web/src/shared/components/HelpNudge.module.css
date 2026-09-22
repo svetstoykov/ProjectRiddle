@@ -1,0 +1,60 @@
+.anchor {
+    position: relative;
+    display: inline-flex;
+}
+
+/*
+ * The bubble hangs below the control, right-aligned so it stays on screen when the control sits at the edge of the
+ * bar. Its tail points up at the control's centre. It never takes pointer events, so it cannot block a tap.
+ */
+.bubble {
+    position: absolute;
+    top: calc(100% + var(--space-3));
+    right: 0;
+    z-index: 2;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-md);
+    background: var(--color-electric-yellow);
+    box-shadow: var(--shadow-1);
+    color: var(--color-deep-violet);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-0.25rem);
+    transition:
+        opacity var(--motion-base) var(--ease-out),
+        transform var(--motion-base) var(--ease-out);
+}
+
+.bubble::before {
+    position: absolute;
+    top: calc(-0.5rem - 1px);
+    right: calc(var(--control-height) / 2 - 0.5rem);
+    width: 0.875rem;
+    height: 0.875rem;
+    border-top: var(--border-thin) solid var(--color-deep-violet);
+    border-left: var(--border-thin) solid var(--color-deep-violet);
+    background: var(--color-electric-yellow);
+    content: "";
+    transform: rotate(45deg);
+}
+
+.bubble[data-visible="true"] {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bubble {
+        transform: none;
+        transition: none;
+    }
+
+    .bubble[data-visible="true"] {
+        transform: none;
+    }
+}

@@ -38,7 +38,7 @@
 
 .dialog::backdrop {
     background: rgb(45 0 102 / 20%);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(6px);
     transition:
         background var(--motion-fast) var(--ease-out) allow-discrete,
         backdrop-filter var(--motion-fast) var(--ease-out) allow-discrete;

@@ -37,6 +37,7 @@ function SolvingScreen({
             <SolvingTopBar
                 publicationDate={publicationDate}
                 onOpenPrimer={onOpenPrimer}
+                isPrimerOpen={primerOpen}
                 primerTriggerRef={primerTriggerRef}
             />
             <main className={styles.stage}>{children}</main>

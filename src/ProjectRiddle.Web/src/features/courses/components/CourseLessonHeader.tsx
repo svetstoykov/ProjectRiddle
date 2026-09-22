@@ -2,6 +2,7 @@ import type { ReactElement, RefObject } from "react";
 import { Link } from "react-router-dom";
 
 import { ClueTermText } from "../../../shared/components/ClueTermText";
+import { HelpNudge } from "../../../shared/components/HelpNudge";
 import styles from "./CourseLessonHeader.module.css";
 
 export interface CourseLessonHeaderProps {
@@ -10,6 +11,7 @@ export interface CourseLessonHeaderProps {
     readonly ordinal: number;
     readonly total: number;
     readonly onOpenIntro?: () => void;
+    readonly isIntroOpen: boolean;
     readonly introTriggerRef?: RefObject<HTMLButtonElement | null>;
 }
 
@@ -19,6 +21,7 @@ export function CourseLessonHeader({
     ordinal,
     total,
     onOpenIntro,
+    isIntroOpen,
     introTriggerRef,
 }: CourseLessonHeaderProps): ReactElement {
     const hasTechniqueIntro = onOpenIntro !== undefined && introTriggerRef !== undefined;
@@ -39,15 +42,17 @@ export function CourseLessonHeader({
                 </p>
             </div>
             {hasTechniqueIntro ? (
-                <button
-                    ref={introTriggerRef}
-                    type="button"
-                    className={styles.info}
-                    aria-label="Как работи"
-                    onClick={onOpenIntro}
-                >
-                    i
-                </button>
+                <HelpNudge paused={isIntroOpen}>
+                    <button
+                        ref={introTriggerRef}
+                        type="button"
+                        className={styles.info}
+                        aria-label="Как работи"
+                        onClick={onOpenIntro}
+                    >
+                        i
+                    </button>
+                </HelpNudge>
             ) : (
                 <span className={styles.infoPlaceholder} aria-hidden="true" />
             )}

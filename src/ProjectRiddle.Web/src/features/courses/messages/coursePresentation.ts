@@ -1,4 +1,4 @@
-/** The first practice a newcomer is invited to. It teaches inline instead of opening the primer or its own intro. */
+/** The first practice a newcomer is invited to. It teaches inline, and its header opens the primer instead of an intro. */
 export const introductoryLessonKey = "basics";
 export const introductoryCoursePath = "/courses/letterplay";
 export const introductoryLessonPath = `${introductoryCoursePath}/${introductoryLessonKey}/1`;
