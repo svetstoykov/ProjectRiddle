@@ -89,9 +89,31 @@
 }
 
 .hintCount {
-    display: inline-block;
-    min-width: 2.5ch;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
+}
+
+.assists {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+}
+
+.permission {
+    color: var(--color-muted-text);
+    font-family: var(--font-label);
+    font-size: var(--text-label);
+    text-align: center;
+}
+
+.assistNote {
+    max-width: 34rem;
+    color: var(--color-text);
+    font-size: var(--text-body-sm);
+    font-weight: 600;
+    line-height: var(--leading-snug);
+    text-align: center;
+    text-wrap: pretty;
 }
 
 /*

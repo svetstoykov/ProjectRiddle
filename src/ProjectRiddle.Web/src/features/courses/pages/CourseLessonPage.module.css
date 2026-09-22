@@ -24,7 +24,6 @@
     font-family: var(--font-label);
     font-size: var(--text-label);
     line-height: var(--leading-snug);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    /* The setup is the instruction a solver needs to begin, so a narrow screen wraps it rather than clipping it. */
+    text-wrap: pretty;
 }

@@ -22,3 +22,9 @@
 .play {
     justify-self: start;
 }
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}

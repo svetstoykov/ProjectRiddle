@@ -1,3 +1,8 @@
+/** The first practice a newcomer is invited to. It teaches inline instead of opening the primer or its own intro. */
+export const introductoryLessonKey = "basics";
+export const introductoryCoursePath = "/courses/letterplay";
+export const introductoryLessonPath = `${introductoryCoursePath}/${introductoryLessonKey}/1`;
+
 export const recommendedStartByCourseKey: Readonly<Record<string, string>> = {
     letterplay: "„Основи“ е добро начало.",
     wordplay: "Започни със синонимите.",

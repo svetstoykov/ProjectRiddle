@@ -14,9 +14,10 @@ import { useResolvedCourseProgress } from "../api/courseProgress";
 import { CourseCarousel } from "../components/CourseCarousel";
 import { LessonCard } from "../components/LessonCard";
 import { CoursePrimerDialog } from "../components/CoursePrimerDialog";
-import { courseMessages, lockedReason } from "../messages/courseMessages";
+import { courseMessages, lockedReason, recommendationLead } from "../messages/courseMessages";
 import { carouselLabelByCourseKey, recommendedStartByCourseKey } from "../messages/coursePresentation";
 import type { CourseLessonSummary } from "../models/courseCatalog";
+import { recommendLesson } from "../models/courseProgress";
 import { readAnonymousCourseProgress } from "../storage/anonymousCourseProgress";
 import styles from "./CourseHubPage.module.css";
 
@@ -58,7 +59,11 @@ export function CourseHubPage(): ReactElement {
     const isAuthenticated = (sessionQuery.data ?? null) !== null;
     const course = catalogQuery.data?.courses.find((item) => item.key === courseKey);
     const headingRef = useRef<HTMLHeadingElement | null>(null);
-    const [isPrimerOpen, setIsPrimerOpen] = useState(() => !readAnonymousCourseProgress().primerDismissed);
+    // Someone who has already opened a practice has been past the primer's moment, so it stays on demand from then on.
+    const [isPrimerOpen, setIsPrimerOpen] = useState(() => {
+        const stored = readAnonymousCourseProgress();
+        return !stored.primerDismissed && !stored.courseStarted;
+    });
     const resolvedProgress = useResolvedCourseProgress(catalogQuery.data, course, isAuthenticated);
 
     if (catalogQuery.isPending || resolvedProgress.isPending) {
@@ -123,7 +128,22 @@ export function CourseHubPage(): ReactElement {
               );
     const mixLockedReason = lockedReason(mixLockedTitles);
     const mixGlyphKeys = mixLesson?.prerequisiteLessonKeys.filter((key) => key !== "basics") ?? [];
-    const recommendedStart = recommendedStartByCourseKey[course.key];
+    const recommendation = recommendLesson(course, resolvedProgress.lessons);
+    const techniquesComplete = techniqueLessons.every(
+        (lesson) => resolvedProgress.lessons.get(lesson.key)?.isComplete === true,
+    );
+    const lead =
+        recommendation !== undefined
+            ? recommendationLead(recommendation, recommendedStartByCourseKey[course.key])
+            : techniquesComplete
+              ? courseMessages.techniquesComplete
+              : undefined;
+    const cueFor = (lesson: CourseLessonSummary): string | undefined =>
+        recommendation?.lesson.key !== lesson.key
+            ? undefined
+            : recommendation.cue === "start"
+              ? courseMessages.startCue
+              : courseMessages.continueCue;
 
     return (
         <div className={styles.page}>
@@ -140,9 +160,9 @@ export function CourseHubPage(): ReactElement {
             {course.key === "finale" ? null : (
                 <section aria-labelledby="technique-lessons-heading" className={styles.section}>
                     <h2 id="technique-lessons-heading">{courseMessages.chooseStart}</h2>
-                    {recommendedStart === undefined ? null : (
+                    {lead === undefined ? null : (
                         <p className={styles.lead}>
-                            <ClueTermText text={recommendedStart} />
+                            <ClueTermText text={lead} />
                         </p>
                     )}
                     <div className={styles.lessonGrid}>
@@ -153,6 +173,7 @@ export function CourseHubPage(): ReactElement {
                                 lesson={lesson}
                                 progress={resolvedProgress.lessons.get(lesson.key) ?? lessonProgressFallback()}
                                 glyphKeys={[lesson.key]}
+                                cue={cueFor(lesson)}
                             />
                         ))}
                     </div>
@@ -182,6 +203,7 @@ export function CourseHubPage(): ReactElement {
                         progress={mixProgress}
                         glyphKeys={mixGlyphKeys}
                         lockedReason={mixLockedReason}
+                        cue={cueFor(mixLesson)}
                     />
                 </section>
             )}

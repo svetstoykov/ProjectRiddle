@@ -1,6 +1,7 @@
 import { useState, type ReactElement, type ReactNode } from "react";
 
 import { ClueTermText } from "../../../shared/components/ClueTermText";
+import { outcomeHeadline, revealedOutcomeLead } from "../models/outcomeMessages";
 import type { RiddleProgressStatus } from "../models/riddleProgress";
 import styles from "./OutcomeCarousel.module.css";
 
@@ -12,30 +13,17 @@ export interface OutcomeCarouselCard {
 
 export interface OutcomeCarouselProps {
     readonly status: RiddleProgressStatus;
-    readonly answerAttemptCount: number;
     readonly explanation: string | undefined;
     readonly summaryBody?: string;
     readonly extraCards?: readonly OutcomeCarouselCard[];
     readonly footer?: ReactNode;
 }
 
-function solvedSummaryTitle(attemptCount: number): string {
-    return attemptCount <= 1 ? "Позна я от раз!" : `Позна я. ${attemptCount} опита.`;
-}
-
 function buildCards(props: OutcomeCarouselProps): readonly OutcomeCarouselCard[] {
     const summary: OutcomeCarouselCard =
         props.status === "solved"
-            ? {
-                  id: "summary",
-                  title: solvedSummaryTitle(props.answerAttemptCount),
-                  body: props.summaryBody,
-              }
-            : {
-                  id: "summary",
-                  title: "Криптиката е разкрита",
-                  body: "Разкри всички букви, без да я решиш.",
-              };
+            ? { id: "summary", title: outcomeHeadline("solved"), body: props.summaryBody }
+            : { id: "summary", title: outcomeHeadline("fullyRevealed"), body: revealedOutcomeLead };
 
     const cards: OutcomeCarouselCard[] = [summary];
 

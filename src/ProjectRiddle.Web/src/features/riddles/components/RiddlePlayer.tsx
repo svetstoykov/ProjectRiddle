@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
 
+import { ClueTermText } from "../../../shared/components/ClueTermText";
+
 import {
     answerCharacters,
     buildAnswerWords,
@@ -28,6 +30,10 @@ export interface RiddlePlayerProps {
     readonly play: RiddlePlayerView;
     readonly playState: RiddlePlayerState;
     readonly outcomeExtras?: RiddleOutcomeExtras;
+    /** Takes the result band's place once the riddle is over, for a screen that explains the clue in full. */
+    readonly outcome?: ReactNode;
+    /** Guidance under the assists in place of the permission line. It is announced whenever it changes. */
+    readonly assistNote?: string;
     readonly pendingHint: RiddleRangeKind | undefined;
     readonly isSubmitting: boolean;
     readonly isRevealing: boolean;
@@ -37,7 +43,6 @@ export interface RiddlePlayerProps {
 }
 
 const cyrillicLetter = /^\p{Script=Cyrillic}$/u;
-const hintKindCount = 3;
 /** How long the board stays red after a refused answer. Long enough to register, short enough not to block typing. */
 const rejectionFlashDuration = 900;
 
@@ -58,6 +63,11 @@ function solutionCharacters(
     return characters.length === letterCount ? characters : undefined;
 }
 
+/** Counts what was already opened, so the number never reads as a price or as an allowance that runs out. */
+function usedHintsLabel(count: number): string {
+    return count === 1 ? "1 отворена" : `${count} отворени`;
+}
+
 function isTextEntryTarget(target: EventTarget | null): boolean {
     return (
         target instanceof HTMLInputElement ||
@@ -71,6 +81,8 @@ export function RiddlePlayer({
     play,
     playState,
     outcomeExtras,
+    outcome,
+    assistNote,
     pendingHint,
     isSubmitting,
     isRevealing,
@@ -295,41 +307,51 @@ export function RiddlePlayer({
                 {/* One band under the board: the assists and the check while the riddle is open, the result once it
                     is over. Nothing else moves when the riddle ends. */}
                 <div className={styles.controlSlot}>
-                    {isTerminal ? (
+                    {isTerminal && outcome !== undefined ? (
+                        outcome
+                    ) : isTerminal ? (
                         <OutcomeCarousel
                             status={playState.progress.status}
-                            answerAttemptCount={playState.progress.answerAttemptCount}
                             explanation={playState.explanation}
                             summaryBody={outcomeExtras?.summaryBody}
                             extraCards={outcomeExtras?.extraCards}
                             footer={outcomeExtras?.footer}
                         />
                     ) : (
-                        <div className={styles.actions}>
-                            <button
-                                ref={hintTriggerRef}
-                                type="button"
-                                className={styles.hintTrigger}
-                                aria-haspopup="dialog"
-                                aria-expanded={isHintDialogOpen}
-                                onClick={() => {
-                                    setIsHintDialogOpen(true);
-                                }}
-                            >
-                                Подсказки ·{" "}
-                                <span className={styles.hintCount}>
-                                    {usedHintCount}/{hintKindCount}
-                                </span>
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.submit}
-                                aria-busy={isSubmitting}
-                                disabled={!canSubmit || isSubmitting}
-                                onClick={submitAnswer}
-                            >
-                                {isSubmitting ? "Проверяваме…" : "Реши"}
-                            </button>
+                        <div className={styles.assists}>
+                            <div className={styles.actions}>
+                                <button
+                                    ref={hintTriggerRef}
+                                    type="button"
+                                    className={styles.hintTrigger}
+                                    aria-haspopup="dialog"
+                                    aria-expanded={isHintDialogOpen}
+                                    onClick={() => {
+                                        setIsHintDialogOpen(true);
+                                    }}
+                                >
+                                    Подсказки
+                                    {usedHintCount === 0 ? null : (
+                                        <span className={styles.hintCount}>· {usedHintsLabel(usedHintCount)}</span>
+                                    )}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles.submit}
+                                    aria-busy={isSubmitting}
+                                    disabled={!canSubmit || isSubmitting}
+                                    onClick={submitAnswer}
+                                >
+                                    {isSubmitting ? "Проверяваме…" : "Провери"}
+                                </button>
+                            </div>
+                            {assistNote === undefined ? (
+                                <p className={styles.permission}>Подсказките са част от играта.</p>
+                            ) : (
+                                <p className={styles.assistNote} aria-live="polite">
+                                    <ClueTermText text={assistNote} />
+                                </p>
+                            )}
                         </div>
                     )}
                 </div>

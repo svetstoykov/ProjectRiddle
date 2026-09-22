@@ -49,7 +49,7 @@ const rowClassNames: Record<RiddleRangeKind, string> = {
 /**
  * Presents every assist in one sheet that rises from the bottom edge over a clear backdrop, so the clue and the answer
  * tiles stay legible while it is open. Commands that change server state close the sheet, because their result is only
- * visible on the board. An assist that is still available is raised and carries what it costs; a spent one lies flat
+ * visible on the board. An assist that is still available is raised and names what it shows; a used one lies flat
  * and only toggles its highlight, so the two never rely on colour alone to tell them apart.
  */
 export function HintDialog({
@@ -173,9 +173,9 @@ export function HintDialog({
                                             aria-hidden="true"
                                         />
                                         <span className={styles.rowLabel}>
-                                            {isPending ? "Отключваме…" : unlockLabels[kind]}
+                                            {isPending ? "Показваме…" : unlockLabels[kind]}
                                         </span>
-                                        <span className={styles.rowAction}>Отключи</span>
+                                        <span className={styles.rowAction}>Покажи</span>
                                     </button>
                                 )}
                             </li>

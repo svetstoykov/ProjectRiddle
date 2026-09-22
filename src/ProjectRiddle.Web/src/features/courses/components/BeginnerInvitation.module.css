@@ -1,0 +1,37 @@
+.optional {
+    color: var(--color-muted-text);
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    padding-top: var(--space-2);
+}
+
+/* Declining reads as a link beside the invitation: easy to find, but it does not compete with the yellow start. */
+.dismiss {
+    padding-inline: var(--space-3);
+    border-color: transparent;
+    background: none;
+    box-shadow: none;
+    color: var(--color-deep-violet);
+    font-weight: 600;
+    text-align: start;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+@media (hover: hover) {
+    button.dismiss:hover:not(:disabled):not([aria-busy="true"]) {
+        background: var(--color-surface-low);
+        box-shadow: none;
+        transform: none;
+    }
+}
+
+button.dismiss:active:not(:disabled):not([aria-busy="true"]) {
+    box-shadow: none;
+    transform: none;
+}
