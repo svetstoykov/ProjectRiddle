@@ -12,11 +12,12 @@ import { publicationStateLabels, riddleMessageForCode, unknownRiddleFailure } fr
 import type { Riddle, RiddlePublicationState } from "../models/adminRiddle";
 import styles from "./AdminRiddleList.module.css";
 
-const groupOrder = ["published", "scheduled", "draft", "unpublished"] as const;
+const groupOrder = ["published", "scheduled", "expired", "draft", "unpublished"] as const;
 
 const groupHeadings: Record<(typeof groupOrder)[number], string> = {
     published: "Публикувани",
     scheduled: "Насрочени",
+    expired: "Пропуснати",
     draft: "Чернови",
     unpublished: "Свалени",
 };
@@ -24,6 +25,7 @@ const groupHeadings: Record<(typeof groupOrder)[number], string> = {
 const groupEmptyMessages: Record<(typeof groupOrder)[number], string> = {
     published: "Няма публикувани криптики.",
     scheduled: "Няма насрочени криптики.",
+    expired: "Няма пропуснати криптики.",
     draft: "Няма чернови.",
     unpublished: "Няма свалени криптики.",
 };
@@ -74,6 +76,7 @@ function groupRiddles(riddles: readonly Riddle[]): Record<(typeof groupOrder)[nu
     const grouped: Record<(typeof groupOrder)[number], Riddle[]> = {
         published: [],
         scheduled: [],
+        expired: [],
         draft: [],
         unpublished: [],
     };
@@ -92,6 +95,10 @@ function groupRiddles(riddles: readonly Riddle[]): Record<(typeof groupOrder)[nu
 function dateLabel(state: RiddlePublicationState): string {
     if (state === "unpublished") {
         return "Предишна дата";
+    }
+
+    if (state === "expired") {
+        return "Пропусната дата";
     }
 
     return "Дата в София";

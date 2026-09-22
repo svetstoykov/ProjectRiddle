@@ -19,4 +19,13 @@ public interface IDateTimeProvider
     /// Gets the current calendar date in the configured local time zone.
     /// </summary>
     DateOnly LocalDate { get; }
+
+    /// <summary>
+    /// Gets the UTC instant at which the next configured-local calendar day begins.
+    /// </summary>
+    /// <remarks>
+    /// The instant is strictly later than <see cref="UtcDateTime" />. Callers recalculate it after each wait so a
+    /// daylight-saving transition changes the following boundary.
+    /// </remarks>
+    DateTimeOffset NextLocalMidnightUtc { get; }
 }

@@ -29,6 +29,9 @@ public sealed class RiddleConfiguration : IEntityTypeConfiguration<Riddle>
         builder.Property(riddle => riddle.SofiaPublicationDate);
         builder.Property(riddle => riddle.CreatedAtUtc).IsRequired();
         builder.Property(riddle => riddle.UpdatedAtUtc).IsRequired();
+        builder.Property(riddle => riddle.Version)
+            .IsConcurrencyToken()
+            .IsRequired();
         builder.HasIndex(riddle => riddle.SofiaPublicationDate)
             .IsUnique()
             .HasFilter("SofiaPublicationDate IS NOT NULL AND PublicationState IN ('Scheduled', 'Published')");

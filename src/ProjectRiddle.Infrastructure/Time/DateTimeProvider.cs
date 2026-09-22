@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using ProjectRiddle.Core.Interfaces.Time;
+using ProjectRiddle.Core.Time;
 using ProjectRiddle.Infrastructure.Configuration;
 
 namespace ProjectRiddle.Infrastructure.Time;
@@ -39,4 +40,7 @@ public sealed class DateTimeProvider : IDateTimeProvider
             return new DateOnly(localDateTime.Year, localDateTime.Month, localDateTime.Day);
         }
     }
+
+    /// <inheritdoc />
+    public DateTimeOffset NextLocalMidnightUtc => ConfiguredLocalTime.NextMidnightUtc(UtcDateTime, _localTimeZone);
 }

@@ -1,6 +1,6 @@
 import type { RiddleRangeKind } from "../../riddles/models/riddleRange";
 
-export type RiddlePublicationState = "draft" | "scheduled" | "published" | "unpublished";
+export type RiddlePublicationState = "draft" | "scheduled" | "published" | "unpublished" | "expired";
 
 export interface RiddleRange {
     readonly id: string;

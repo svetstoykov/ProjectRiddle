@@ -10,6 +10,7 @@ using ProjectRiddle.Core.Interfaces.Time;
 using ProjectRiddle.Infrastructure.Bootstrap;
 using ProjectRiddle.Infrastructure.Configuration;
 using ProjectRiddle.Infrastructure.Persistence;
+using ProjectRiddle.Infrastructure.Publication;
 using ProjectRiddle.Infrastructure.Randomness;
 using ProjectRiddle.Infrastructure.Repositories.Courses;
 using ProjectRiddle.Infrastructure.Repositories.Riddles;
@@ -61,6 +62,7 @@ public static class InfrastructureServiceCollectionExtensions
         services.AddScoped<IRiddleProgressRepository, RiddleProgressRepository>();
         services.AddHostedService<AdminBootstrapHostedService>();
         services.AddHostedService<CourseSeedHostedService>();
+        services.AddHostedService<PublicationReconciliationHostedService>();
         services.AddDbContext<ProjectRiddleDbContext>((serviceProvider, optionsBuilder) =>
         {
             var databaseOptions = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;

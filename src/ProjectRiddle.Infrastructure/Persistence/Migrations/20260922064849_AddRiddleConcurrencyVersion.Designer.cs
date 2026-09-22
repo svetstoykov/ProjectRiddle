@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectRiddle.Infrastructure.Persistence;
 
@@ -9,10 +10,15 @@ using ProjectRiddle.Infrastructure.Persistence;
 
 namespace ProjectRiddle.Infrastructure.Persistence.Migrations
 {
+    /// <summary>
+    /// Stores the model snapshot associated with the riddle concurrency-version migration.
+    /// </summary>
     [DbContext(typeof(ProjectRiddleDbContext))]
-    partial class ProjectRiddleDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260922064849_AddRiddleConcurrencyVersion")]
+    internal sealed partial class AddRiddleConcurrencyVersion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.11");
