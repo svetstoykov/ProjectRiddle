@@ -9,13 +9,22 @@ export interface InfoDialogProps {
     readonly children: ReactNode;
     readonly onClose: () => void;
     readonly returnFocusRef: RefObject<HTMLElement | null>;
+    /** The control that takes focus on opening. Without one the browser focuses the first control, the close button. */
+    readonly initialFocusRef?: RefObject<HTMLElement | null>;
 }
 
 /**
  * The application's explanatory modal: a centred panel over a blurred backdrop. It carries what the reader needs to
  * read and at most a way onward, so dismissal leaves whatever they were looking at exactly where it was behind it.
  */
-export function InfoDialog({ open, title, children, onClose, returnFocusRef }: InfoDialogProps): ReactElement {
+export function InfoDialog({
+    open,
+    title,
+    children,
+    onClose,
+    returnFocusRef,
+    initialFocusRef,
+}: InfoDialogProps): ReactElement {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const titleId = useId();
 
@@ -29,6 +38,7 @@ export function InfoDialog({ open, title, children, onClose, returnFocusRef }: I
         if (open) {
             if (!dialog.open) {
                 dialog.showModal();
+                initialFocusRef?.current?.focus();
             }
 
             return;
@@ -37,7 +47,7 @@ export function InfoDialog({ open, title, children, onClose, returnFocusRef }: I
         if (dialog.open) {
             dialog.close();
         }
-    }, [open]);
+    }, [open, initialFocusRef]);
 
     useEffect(() => {
         const dialog = dialogRef.current;

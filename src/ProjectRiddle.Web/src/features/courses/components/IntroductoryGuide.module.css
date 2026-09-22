@@ -1,0 +1,19 @@
+/*
+ * A short note above the clue, not a lecture. It wraps rather than clips, and it stays compact enough on a phone that
+ * the hint button and the check still sit above the keyboard.
+ */
+.guide {
+    width: min(100%, 44rem);
+    margin: 0 auto;
+    padding: var(--space-2) var(--gutter) 0;
+    color: var(--color-text);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-snug);
+    text-wrap: pretty;
+}
+
+.label {
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-weight: 700;
+}

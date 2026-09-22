@@ -11,3 +11,9 @@
     color: var(--color-muted-text);
     line-height: var(--leading-body);
 }
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}

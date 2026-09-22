@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import type { ReactElement } from "react";
+import { useRef, useState, type ReactElement } from "react";
 
 import { isApplicationError } from "../../../shared/api/errors";
 import { CourseCarouselSkeleton, HomePageSkeleton } from "../../../shared/components/ContentSkeletons";
@@ -7,10 +7,14 @@ import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
 import { sessionQueryOptions } from "../../auth/api/sessionQuery";
 import { courseCatalogQueryOptions } from "../../courses/api/courseQueries";
+import { useLearningStatus } from "../../courses/api/learningStatus";
 import { courseMessages } from "../../courses/messages/courseMessages";
+import { BeginnerInvitation } from "../../courses/components/BeginnerInvitation";
 import { CourseCarousel } from "../../courses/components/CourseCarousel";
+import { dismissInvitation, recordCourseStart } from "../../courses/storage/anonymousCourseProgress";
 import { riddleWeekQueryOptions, todayRiddleQueryOptions } from "../api/riddleQueries";
 import { TodayCard } from "../components/TodayCard";
+import { todayAlternatives } from "../models/todayAlternatives";
 import { WeekStrip } from "../components/WeekStrip";
 import styles from "./HomePage.module.css";
 
@@ -20,8 +24,23 @@ export function HomePage(): ReactElement {
     const todayQuery = useQuery(todayRiddleQueryOptions());
     const catalogQuery = useQuery(courseCatalogQueryOptions());
     const isAuthenticated = (sessionQuery.data ?? null) !== null;
+    const learning = useLearningStatus(!sessionQuery.isPending, isAuthenticated);
+    const [isInvitationClosed, setIsInvitationClosed] = useState(false);
+    const todayHeadingRef = useRef<HTMLHeadingElement | null>(null);
     const todayUnavailable =
         isApplicationError(todayQuery.error) && todayQuery.error.code === "riddles.today.unavailable";
+    // The invitation waits for progress to resolve, and anyone who has answered it or already begun a course keeps
+    // the plain home screen.
+    const isInvitationOpen =
+        learning.isResolved && !learning.invitationDismissed && !learning.hasStartedLearning && !isInvitationClosed;
+    const closeInvitation = (): void => {
+        dismissInvitation();
+        setIsInvitationClosed(true);
+    };
+    const startBasics = (): void => {
+        recordCourseStart();
+        closeInvitation();
+    };
 
     if (weekQuery.isError) {
         return (
@@ -80,7 +99,12 @@ export function HomePage(): ReactElement {
     return (
         <div className={styles.page}>
             <DocumentTitle title="Начало" />
-            <TodayCard today={todayQuery.data} isUnavailable={todayUnavailable} />
+            <TodayCard
+                today={todayQuery.data}
+                isUnavailable={todayUnavailable}
+                alternatives={todayAlternatives(isAuthenticated, learning.hasStartedLearning)}
+                headingRef={todayHeadingRef}
+            />
             <WeekStrip week={weekQuery.data} isAuthenticated={isAuthenticated} />
             {catalogQuery.isPending ? (
                 <section aria-label={courseMessages.homeHeading}>
@@ -108,6 +132,12 @@ export function HomePage(): ReactElement {
                     lead={courseMessages.homeLead}
                 />
             )}
+            <BeginnerInvitation
+                open={isInvitationOpen}
+                onStart={startBasics}
+                onDismiss={closeInvitation}
+                returnFocusRef={todayHeadingRef}
+            />
         </div>
     );
 }

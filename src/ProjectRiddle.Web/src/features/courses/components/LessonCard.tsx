@@ -14,11 +14,14 @@ export interface LessonCardProps {
     readonly progress: ResolvedLessonProgress;
     readonly glyphKeys: readonly string[];
     readonly lockedReason?: string;
+    /** Marks the course's recommended next practice with a short word, such as where to begin or continue. */
+    readonly cue?: string;
 }
 
 export function LessonCard(props: LessonCardProps): ReactElement {
     const body = (
         <>
+            {props.cue === undefined ? null : <span className={styles.cue}>{props.cue}</span>}
             <CourseGlyphStack lessonKeys={props.glyphKeys} tone="hub" />
             <h3>
                 <ClueTermText text={props.lesson.title} />
@@ -28,7 +31,11 @@ export function LessonCard(props: LessonCardProps): ReactElement {
     );
 
     return props.progress.isAvailable ? (
-        <Link className={styles.card} to={`/courses/${props.courseKey}/${props.lesson.key}/1`}>
+        <Link
+            className={styles.card}
+            to={`/courses/${props.courseKey}/${props.lesson.key}/1`}
+            data-recommended={props.cue === undefined ? undefined : ""}
+        >
             {body}
         </Link>
     ) : (

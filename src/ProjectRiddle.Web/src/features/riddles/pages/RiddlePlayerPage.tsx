@@ -1,14 +1,18 @@
+import { useQuery } from "@tanstack/react-query";
 import { useRef, useState, type PropsWithChildren, type ReactElement, type RefObject } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { PlayerPageSkeleton } from "../../../shared/components/ContentSkeletons";
 import { DocumentTitle } from "../../../shared/components/DocumentTitle";
 import { PageStatus } from "../../../shared/components/PageStatus";
+import { sessionQueryOptions } from "../../auth/api/sessionQuery";
 import { MembershipDialog } from "../../auth/components/MembershipDialog";
+import { useLearningStatus } from "../../courses/api/learningStatus";
 import { CoursePrimerDialog } from "../../courses/components/CoursePrimerDialog";
 import { useRiddlePlaySession } from "../api/riddlePlaySession";
 import { RiddlePlayer } from "../components/RiddlePlayer";
 import { SolvingTopBar } from "../components/SolvingTopBar";
+import { todayAlternatives } from "../models/todayAlternatives";
 import styles from "./RiddlePlayerPage.module.css";
 
 interface SolvingScreenProps {
@@ -33,6 +37,7 @@ function SolvingScreen({
             <SolvingTopBar
                 publicationDate={publicationDate}
                 onOpenPrimer={onOpenPrimer}
+                isPrimerOpen={primerOpen}
                 primerTriggerRef={primerTriggerRef}
             />
             <main className={styles.stage}>{children}</main>
@@ -46,6 +51,9 @@ export function RiddlePlayerPage(): ReactElement {
     const location = useLocation();
     const navigate = useNavigate();
     const session = useRiddlePlaySession(riddleId);
+    const sessionQuery = useQuery(sessionQueryOptions);
+    const isAuthenticated = (sessionQuery.data ?? null) !== null;
+    const learning = useLearningStatus(!sessionQuery.isPending, isAuthenticated);
     const primerTriggerRef = useRef<HTMLButtonElement | null>(null);
     const [isPrimerOpen, setIsPrimerOpen] = useState(false);
     const openPrimer = (): void => {
@@ -78,6 +86,8 @@ export function RiddlePlayerPage(): ReactElement {
     }
 
     if (session.status === "todayUnavailable") {
+        const alternatives = todayAlternatives(isAuthenticated, learning.hasStartedLearning);
+
         return (
             <SolvingScreen
                 publicationDate={undefined}
@@ -91,11 +101,17 @@ export function RiddlePlayerPage(): ReactElement {
                     <PageStatus
                         eyebrow="Днешната криптика"
                         title="Днес няма криптика."
-                        message="Виж архива, докато чакаш."
+                        message={alternatives.message}
                         action={{
-                            label: "Към архива",
+                            label: alternatives.primary.label,
                             onClick: () => {
-                                void navigate("/archive");
+                                void navigate(alternatives.primary.to);
+                            },
+                        }}
+                        secondaryAction={{
+                            label: alternatives.secondary.label,
+                            onClick: () => {
+                                void navigate(alternatives.secondary.to);
                             },
                         }}
                     />

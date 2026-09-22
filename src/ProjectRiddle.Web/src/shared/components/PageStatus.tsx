@@ -14,9 +14,18 @@ export interface PageStatusProps {
     readonly message: string;
     readonly tone?: "neutral" | "error";
     readonly action?: PageStatusAction;
+    /** A quieter alternative beside the action. It is shown only when there is a primary action to stand next to. */
+    readonly secondaryAction?: PageStatusAction;
 }
 
-export function PageStatus({ eyebrow, title, message, tone = "neutral", action }: PageStatusProps): ReactElement {
+export function PageStatus({
+    eyebrow,
+    title,
+    message,
+    tone = "neutral",
+    action,
+    secondaryAction,
+}: PageStatusProps): ReactElement {
     const titleId = useId();
 
     return (
@@ -32,11 +41,20 @@ export function PageStatus({ eyebrow, title, message, tone = "neutral", action }
             <p className={styles.message}>
                 <ClueTermText text={message} />
             </p>
-            {action !== undefined ? (
+            {action === undefined ? null : secondaryAction === undefined ? (
                 <button type="button" onClick={action.onClick}>
                     {action.label}
                 </button>
-            ) : null}
+            ) : (
+                <div className={styles.actions}>
+                    <button type="button" onClick={action.onClick}>
+                        {action.label}
+                    </button>
+                    <button type="button" className="buttonSecondary" onClick={secondaryAction.onClick}>
+                        {secondaryAction.label}
+                    </button>
+                </div>
+            )}
         </section>
     );
 }

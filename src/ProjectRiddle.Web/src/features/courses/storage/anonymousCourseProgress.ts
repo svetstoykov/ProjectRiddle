@@ -14,12 +14,18 @@ export interface AnonymousCourseProgress {
     readonly completedExercises: readonly AnonymousCourseCompletion[];
     readonly primerDismissed: boolean;
     readonly dismissedLessonIntroKeys: readonly string[];
+    /** The home invitation to the first practice was answered in this browser, by starting or by declining it. */
+    readonly invitationDismissed: boolean;
+    /** A course exercise was opened in this browser, whichever way the visitor arrived at it. */
+    readonly courseStarted: boolean;
 }
 
 const emptyCourseProgress = (): AnonymousCourseProgress => ({
     completedExercises: [],
     primerDismissed: false,
     dismissedLessonIntroKeys: [],
+    invitationDismissed: false,
+    courseStarted: false,
 });
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
@@ -44,10 +50,14 @@ export function readAnonymousCourseProgress(): AnonymousCourseProgress {
         return emptyCourseProgress();
     }
 
+    // The invitation flags arrived after completions were already being stored, so a segment without them is still
+    // valid. Rejecting it would read as empty and the next write would discard the visitor's completed exercises.
     return {
         completedExercises: value.completedExercises,
         primerDismissed: value.primerDismissed,
         dismissedLessonIntroKeys: value.dismissedLessonIntroKeys,
+        invitationDismissed: value.invitationDismissed === true,
+        courseStarted: value.courseStarted === true,
     };
 }
 
@@ -72,6 +82,18 @@ export function recordCourseCompletion(completion: AnonymousCourseCompletion): v
 
 export function dismissCoursePrimer(): void {
     writeCourses({ ...readAnonymousCourseProgress(), primerDismissed: true });
+}
+
+export function dismissInvitation(): void {
+    writeCourses({ ...readAnonymousCourseProgress(), invitationDismissed: true });
+}
+
+export function recordCourseStart(): void {
+    const current = readAnonymousCourseProgress();
+
+    if (!current.courseStarted) {
+        writeCourses({ ...current, courseStarted: true });
+    }
 }
 
 export function dismissLessonIntro(lessonKey: string): void {

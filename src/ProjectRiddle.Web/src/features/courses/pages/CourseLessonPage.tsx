@@ -15,10 +15,15 @@ import { useCoursePlaySession } from "../api/coursePlaySession";
 import { useResolvedCourseProgress } from "../api/courseProgress";
 import { CourseLessonHeader } from "../components/CourseLessonHeader";
 import { CoursePrimerDialog } from "../components/CoursePrimerDialog";
+import { IntroductoryGuide } from "../components/IntroductoryGuide";
+import { IntroductoryOutcome } from "../components/IntroductoryOutcome";
 import { LessonIntroDialog } from "../components/LessonIntroDialog";
 import { courseMessages, lockedReason, successLine } from "../messages/courseMessages";
+import { introductoryLessonKey } from "../messages/coursePresentation";
+import { introductoryStep } from "../messages/introductoryGuidance";
 import type { CourseLessonDetail, CourseLessonSummary } from "../models/courseCatalog";
-import { readAnonymousCourseProgress } from "../storage/anonymousCourseProgress";
+import { clueParts } from "../models/clueParts";
+import { readAnonymousCourseProgress, recordCourseStart } from "../storage/anonymousCourseProgress";
 import styles from "./CourseLessonPage.module.css";
 
 interface LessonFrameProps {
@@ -56,6 +61,7 @@ function LessonFrame({
                 ordinal={ordinal}
                 total={total}
                 onOpenIntro={onOpenIntro}
+                isIntroOpen={dialog !== null}
                 introTriggerRef={introTriggerRef}
             />
             <main className={styles.stage}>{children}</main>
@@ -112,6 +118,9 @@ export function CourseLessonPage(): ReactElement {
         ordinal: string;
     }>();
     const navigate = useNavigate();
+    // The primer opens by itself until it has been dismissed once in this browser, which makes it the first thing a
+    // newcomer sees on the first practice. That practice has no intro of its own: its header reopens the primer.
+    const isIntroductory = lessonKey === introductoryLessonKey;
     const initialProgressRef = useRef(readAnonymousCourseProgress());
     const [dialog, setDialog] = useState<"primer" | "intro" | null>(
         initialProgressRef.current.primerDismissed ? null : "primer",
@@ -135,6 +144,14 @@ export function CourseLessonPage(): ReactElement {
     const playableExercise = lessonProgress?.isAvailable === true ? exercise : undefined;
     const courseSession = useCoursePlaySession(playableExercise, isAuthenticated);
     const total = detail?.exercises.length ?? lessonSummary?.exerciseCount ?? 0;
+    const hasPlayableExercise = playableExercise !== undefined;
+
+    // Opening any exercise counts as having started the courses, so the home invitation does not ask again.
+    useEffect(() => {
+        if (hasPlayableExercise) {
+            recordCourseStart();
+        }
+    }, [hasPlayableExercise]);
 
     useEffect(() => {
         if (detail === undefined || initializedLessonKeyRef.current === detail.key || dialog === "primer") {
@@ -144,13 +161,18 @@ export function CourseLessonPage(): ReactElement {
         initializedLessonKeyRef.current = detail.key;
         const stored = readAnonymousCourseProgress();
         const shouldOpenIntro =
+            detail.key !== introductoryLessonKey &&
             detail.kind === "technique" &&
             detail.intro !== undefined &&
             !stored.dismissedLessonIntroKeys.includes(detail.key);
         setDialog(shouldOpenIntro ? "intro" : null);
     }, [detail, dialog]);
 
-    const openIntro = detail?.kind === "technique" && detail.intro !== undefined ? () => setDialog("intro") : undefined;
+    const openIntro = isIntroductory
+        ? () => setDialog("primer")
+        : detail?.kind === "technique" && detail.intro !== undefined
+          ? () => setDialog("intro")
+          : undefined;
     const dismissPrimer = (): void => {
         setDialog(null);
     };
@@ -350,6 +372,13 @@ export function CourseLessonPage(): ReactElement {
             ? `/courses/${course.key}/${lessonSummary.key}/${exercise.ordinal + 1}`
             : `/courses/${course.key}`;
     const teachingNote = courseSession.teachingNote;
+    const playerState = courseSession.playerState;
+    const parts = clueParts(courseSession.playerView.clue, courseSession.playerView.ranges);
+    const nextLink = (
+        <Link className="button" to={actionTo}>
+            {actionLabel}
+        </Link>
+    );
 
     return (
         <LessonFrame
@@ -360,14 +389,16 @@ export function CourseLessonPage(): ReactElement {
             {...frameProps}
         >
             <DocumentTitle title={`${lessonSummary.title} · ${ordinal} от ${detail.exercises.length}`} />
-            {isInProgress && exercise.setup !== undefined ? (
+            {!isInProgress ? null : isIntroductory ? (
+                <IntroductoryGuide />
+            ) : exercise.setup !== undefined ? (
                 <p className={styles.setup}>
                     <ClueTermText text={exercise.setup} />
                 </p>
             ) : null}
             <RiddlePlayer
                 play={courseSession.playerView}
-                playState={courseSession.playerState}
+                playState={playerState}
                 outcomeExtras={{
                     summaryBody: successLine(
                         lessonSummary.title,
@@ -379,12 +410,21 @@ export function CourseLessonPage(): ReactElement {
                         teachingNote === undefined
                             ? undefined
                             : [{ id: "teaching-note", title: "Бележка", body: teachingNote }],
-                    footer: (
-                        <Link className="button" to={actionTo}>
-                            {actionLabel}
-                        </Link>
-                    ),
+                    footer: nextLink,
                 }}
+                assistNote={isIntroductory ? introductoryStep(parts, playerState.progress.usedHints) : undefined}
+                outcome={
+                    !isIntroductory || playerState.progress.status === "inProgress" ? undefined : (
+                        <IntroductoryOutcome
+                            status={playerState.progress.status}
+                            fodder={parts.fodder}
+                            answer={playerState.answer}
+                            teachingNote={teachingNote}
+                            explanation={playerState.explanation}
+                            footer={nextLink}
+                        />
+                    )
+                }
                 pendingHint={courseSession.pendingHint}
                 isSubmitting={courseSession.isSubmitting}
                 isRevealing={courseSession.isRevealing}

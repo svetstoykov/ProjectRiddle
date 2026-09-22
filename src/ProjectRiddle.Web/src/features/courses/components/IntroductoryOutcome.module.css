@@ -1,0 +1,70 @@
+.outcome {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: center;
+    width: 100%;
+}
+
+.card {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: center;
+    width: 100%;
+    padding: var(--space-4) var(--space-5);
+    border: var(--border-thick) solid var(--color-deep-violet);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-lowest);
+    box-shadow: var(--shadow-2);
+    color: var(--color-text);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-body);
+    text-align: center;
+    text-wrap: pretty;
+}
+
+/* A solved riddle carries the same success colour as the tiles, as the shared result deck does. */
+.outcome[data-solved] .card {
+    border-color: var(--color-success);
+    box-shadow: var(--shadow-2-success);
+}
+
+.title {
+    font-size: var(--text-headline);
+}
+
+.outcome[data-solved] .title {
+    color: var(--color-success);
+}
+
+.transform {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2) var(--space-3);
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.word {
+    padding: var(--space-1) var(--space-3);
+    border: var(--border-thin) solid var(--color-deep-violet);
+    border-radius: var(--radius-md);
+    background: var(--color-clue-surface);
+}
+
+.arrow {
+    color: var(--color-primary);
+}
+
+.note {
+    max-width: 36rem;
+}
+
+.footer {
+    display: grid;
+    justify-items: center;
+    width: 100%;
+}
